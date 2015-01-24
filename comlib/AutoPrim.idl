@@ -1,0 +1,188 @@
+
+/*
+ Primitive marshalling and invocation functions
+ needed by Haskell client Automation library.
+*/
+stub_include("autoPrim.h");
+module AutoPrim {
+
+import "SafeArray.idl";
+hs_quote("
+import Com (checkHR, marshallIUnknown, IUnknown, mkIID, IID, LCID)
+import HDirect (Ptr, allocBytes, marshallBool, readref, readStablePtr,
+                marshallPtr, readPtr, unmarshallref, trivialFree, doThenFree, free,
+                sizeofInt32, readInt32, unmarshallString, freeString, sizeofInt16, 
+                readInt16, sizeofDouble, readDouble, sizeofFloat, readFloat, Octet,
+		readBool, sizeofChar, readChar, unmarshallBool,
+		freeref, sizeofWord8, readWord8, sizeofWord32, readWord32,
+		StablePtr, sizeofPtr, readPtr, writePtr, sizeofForeignPtr )
+import SafeArray ( SAFEARRAY, marshallSAFEARRAY, unmarshallSAFEARRAY, readSAFEARRAY, sizeofSAFEARRAY )
+import Pointer ( allocMemory )
+import IOExts (unsafePerformIO)
+import Int  (Int32, Int16)
+import Word (Word8, Word32)
+import Foreign.ForeignPtr ( ForeignPtr, withForeignPtr )
+import Foreign.Ptr
+");
+
+hs_quote("
+data VARIANT_ = VARIANT_
+type VARIANT = Ptr VARIANT_
+sizeofBSTR = sizeofPtr
+
+iidIDispatch :: IID (IDispatch ())
+iidIDispatch  = mkIID \"{00020400-0000-0000-C000-000000000046}\"
+
+sizeofVARIANT    :: Word32
+sizeofVARIANT         = 16
+
+marshallVARIANT   :: VARIANT -> IO VARIANT
+marshallVARIANT m = return m
+
+unmarshallVARIANT :: Ptr a -> IO VARIANT
+unmarshallVARIANT v = return (castPtr v)
+
+readVARIANT       :: Ptr VARIANT -> IO VARIANT
+readVARIANT ptr = 
+  readPtr ptr
+--  unmarshallVARIANT ptr
+
+writeVARIANT      :: Ptr VARIANT -> VARIANT -> IO ()
+writeVARIANT ptr v = writePtr ptr v
+
+copyVARIANT      :: VARIANT -> VARIANT -> IO ()
+copyVARIANT ptr v = do
+  primCopyVARIANT (castPtr ptr) (castPtr v)
+  -- ToDo: if the passed in variant has a finaliser
+  -- attached to it, this is the time to disable those.
+  -- It doesn't at the moment, though.
+
+allocVARIANT :: IO VARIANT
+allocVARIANT = do
+  x <- allocMemory (fromIntegral sizeofVARIANT)
+  variantInit x
+  return x
+
+{- BEGIN_GHC_ONLY 
+foreign import ccall \"writeVarInt\" writeVarStablePtr
+   END_GHC_ONLY -}
+{- BEGIN_NOT_FOR_GHC -}
+primitive writeVarStablePtr \"prim_AutoPrim_writeVarInt\"
+{- END_NOT_FOR_GHC -}
+     :: StablePtr a -> Ptr (StablePtr a) -> IO ()
+
+{- BEGIN_GHC_ONLY 
+foreign import ccall \"readVarInt\" prim_readVarStablePtr 
+   END_GHC_ONLY -}
+{- BEGIN_NOT_FOR_GHC -}
+primitive prim_readVarStablePtr \"prim_AutoPrim_readVarInt\"
+{- END_NOT_FOR_GHC -}
+     :: Ptr (StablePtr a) -> Ptr b -> IO Int32
+
+readVarStablePtr :: VARIANT -> IO (StablePtr a)
+readVarStablePtr p = do
+    i <- allocBytes (fromIntegral sizeofInt32)
+    o_readVarInt <- prim_readVarStablePtr (castPtr p) i
+    checkHR o_readVarInt
+    doThenFree (freeref trivialFree) (unmarshallref readStablePtr) i
+
+");
+
+ typedef long DISPID;
+
+ typedef [ptr]void* PEXCEPINFO;
+
+ interface IDispatch : IUnknown {} ;
+ 
+ int //HRESULT
+ dispatchInvoke ( [in]IDispatch* obj
+ 	        , [in]DISPID dispid
+		, [in]LCID lcid
+		, [in]boolean isfunction
+		, [in]unsigned int flags
+		, [in]unsigned int cargs
+		, [in]unsigned int cargsout
+		, [in,ptr]VARIANT* args
+		, [in,ptr]VARIANT* argsout
+		, [out,ref]PEXCEPINFO* info
+		);
+
+ int //HRESULT 
+ dispatchGetMemberID ( [in,ref]IDispatch* obj
+ 		     , [in,ptr]BSTR* name
+		     , [in]LCID lcid
+		     , [out,ref]DISPID* dispid
+		     );
+ void  freeExcepInfo([in]PEXCEPINFO einfo);
+
+ [ptr]char* getExcepInfoMessage ([in]PEXCEPINFO info);
+
+ void freeVariants ([in]unsigned int count, [in,ptr]VARIANT* p);
+
+ int  readVariantTag([in,ptr]VARIANT* p);
+
+ void __stdcall VariantInit ([in,ptr]VARIANT* p);
+
+ // Family of functions for reading&writing values to a VARIANT.
+
+ void writeVarShort   ([in]short i, [in,ptr]VARIANT* p);
+ HRESULT readVarShort ([in,ptr]VARIANT* p, [out,ref]short* i);
+
+ void writeVarInt   ([in]int i, [in,ptr]VARIANT* p);
+ HRESULT readVarInt ([in,ptr]VARIANT* p, [out,ref]int* i);
+
+ void writeVarWord   ([in]unsigned int i, [in,ptr]VARIANT* p);
+ HRESULT readVarWord ([in,ptr]VARIANT* p, [out,ref]unsigned int* i);
+
+ void writeVarFloat   ([in]float i, [in,ptr]VARIANT* p);
+ HRESULT readVarFloat ([in,ptr]VARIANT* p, [out,ref]float* i);
+
+ void writeVarDouble   ([in]double i, [in,ptr]VARIANT* p);
+ HRESULT readVarDouble ([in,ptr]VARIANT* p, [out,ref]double* i);
+
+ typedef [ignore,ptr]VARIANT* PVARIANT;
+ typedef [ignore,ptr]char*    PCHAR;
+
+ void writeVarString   ([in,ptr]char* str, [in,ptr]VARIANT* p);
+ HRESULT readVarString ([in,ptr]VARIANT* p, [out,ptr]PCHAR* pstr, [out,ptr]PVARIANT* w);
+
+ void writeVarDispatch   ([in,ref]IDispatch ip, [in,ptr]VARIANT* p);
+ HRESULT readVarDispatch ([in,ptr]VARIANT* p, [out,ptr]void** ip, [out,ptr]PVARIANT* w);
+
+ void writeVarOptional ( [in,ptr]VARIANT* p);
+
+ void writeVarError   ([in]int err, [in,ptr]VARIANT* p);
+ HRESULT readVarError ([in,ptr]VARIANT* p, [out,ref]int* perr);
+
+ void writeVarBool   ([in]boolean b, [in,ptr]VARIANT* p);
+ HRESULT readVarBool ([in,ptr]VARIANT* p, [out,ref]boolean* pb);
+
+ void writeVarUnknown   ([in,ref]IUnknown ip, [in,ptr]VARIANT* p);
+ HRESULT readVarUnknown ([in,ptr]VARIANT* p, [out,ptr]void** ip, [out,ptr]PVARIANT* w);
+
+ void writeVarByte   ([in]byte b, [in,ptr]VARIANT* p);
+ HRESULT readVarByte ([in,ptr]VARIANT* p, [out,ref]byte* pb);
+
+ void writeVarEmpty   ([in,ptr]VARIANT* p);
+
+ void writeVarNull   ([in,ptr]VARIANT* p);
+ HRESULT readVarNull ([in,ptr]VARIANT* p);
+
+ // Also used for Int64.
+ void writeVarCurrency   ([in]int hi, [in]unsigned int lo, [in,ptr]VARIANT* p);
+ HRESULT readVarCurrency ([in,ptr]VARIANT* p, [out,ref]int* hi, [out,ref]int* lo);
+
+ void writeVarWord64   ([in]unsigned long hi, [in]unsigned long lo, [in,ptr]VARIANT* p);
+ HRESULT readVarWord64 ([in,ptr]VARIANT* p, [out,ref]unsigned long* hi, [out,ref]unsigned long* lo);
+
+ void writeVarVariant   ([in,ptr]VARIANT* p1, [in,ptr]VARIANT* p2);
+ HRESULT readVarVariant ([in,ptr]VARIANT* p1, [out,ptr]PVARIANT* p2);
+
+ void writeVarSAFEARRAY   ([in,ptr]VARIANT* p1, [in,ptr]SAFEARRAY* p2, [in]int vt);
+ HRESULT readVarSAFEARRAY ([in,ptr]VARIANT* p1, [out,ptr]void* p2, [in]int vt);
+
+ HRESULT primCopyVARIANT ([in,ptr]VARIANT* p1, [in,ptr]VARIANT* p2);
+ HRESULT primVARIANTClear ([in,ptr]VARIANT* p1 );
+
+ HRESULT primClockToDate([in]int ct,[out]double* pT);
+};

@@ -1,0 +1,21 @@
+/*
+  Primitive pointer allocation/freeing 
+  functions.
+ */
+stub_include("PointerSrc.h");
+module PointerPrim {
+
+void primNoFree ([in,ptr]void* p);
+void primFreeBSTR ([in,ptr]void* p);
+void primFreeMemory ([in,ptr]void* p);
+
+[pure]void* finalNoFree();
+[pure]void* finalFreeMemory();
+
+[ptr]void* primAllocMemory([in]unsigned int sz);
+
+void  primFinalise( [in,ptr]void* finaliser
+		  , [in,ptr]void* finalisee);
+
+};
+

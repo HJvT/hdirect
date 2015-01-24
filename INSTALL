@@ -1,0 +1,58 @@
+** Building and installing HaskellDirect
+
+1. Unpack the source distribution somewhere convenient
+   and edit 'config.mk' at the top of the distribution.
+   You'll need to supply the following:
+
+     - HC -- the Haskell compiler to use [default: 'ghc']
+
+2. Run 'make boot' from the toplevel HaskellDirect directory,
+   followed by 'make'  (where 'make' == GNU make.)
+
+3. Upon completion, run 'make lib' from the toplevel, which'll
+   compile up the support libraries for both Hugs98 and GHC.
+   
+4. Assuming the last two steps completed successfully,
+   that's it - you're now set to start using the IDL compiler.
+
+   The examples/ directory contains, as you've probably guessed,
+   some examples. See examples/README for overview of what the
+   individual examples do.
+
+   For the examples that work with both Hugs and GHC, you will
+   need to invoke "make" as follows to build the Hugs version
+   of the example
+
+            make FOR_HUGS=YES
+
+Extra goodies:
+ 
+- to install the HDirect libraries (the generic and/or the COM
+  specific ones) as GHC packages, you need to 'cd' into lib
+  (and comlib/, if needs be), and 'make install-pkg'. This rule
+  assumes that GHC_PKG refers to the ghc_pkg util that goes with
+  the HC you configured in config.mk
+  
+  Upon successful completion, the generic HDirect libraries will
+  be available as package 'hdirect', and the COM libraries as 'com'.
+
+  The packages are useable from within GHCi and in batch-mode.
+
+- to have HDirect support the reading (and writing) of COM type
+  libraries, you need to 'make' src/ with SUPPORT_TYPELIBS=YES.
+  This assumes that you already have a compiled up version of the
+  HDirect COM library, which you clearly won't have initially.
+  Hence, you need to either do a second clean build of the
+  HDirect sources, or just make sure you re-make src/ after
+  having built comlib/...here's how to do the latter:
+  
+    ...unpack sources and tailor config.mk ..
+    foo$ make
+    ..
+    foo$ make lib
+    foo$ cd comlib/
+    foo$ make install-pkg GHC_PKG=/path/to/your/ghc/bin/ghc-pkg
+    foo$ cd ../src
+    foo$ rm -f *.o
+    foo$ make depend SUPPORT_TYPELIBS=YES
+    foo$ make SUPPORT_TYPELIBS=YES

@@ -1,0 +1,312 @@
+/*
+ IDL spec. for the primitives needed to implement
+ a Haskell COM support library.
+
+ Note: this spec. is processed as a 'normal' FFI spec,
+ not a COM one.
+*/
+stub_include("comPrim.h");
+[pointer_default(ptr)]
+module ComPrim {
+
+hs_quote("
+import Pointer ( makeFO, finalNoFree )
+import HDirect
+import Foreign.ForeignPtr
+import Foreign.Ptr
+{- BEGIN_GHC_ONLY
+import Dynamic
+import GHC.IOBase
+--import ForeignObj
+   END_GHC_ONLY -}
+import Int
+import Word       ( Word32
+                   )
+import IOExts     ( unsafePerformIO )
+import WideString ( WideString, marshallWideString, freeWideString,
+		    readWideString, writeWideString )
+import IO         ( hPutStrLn, stderr )
+
+data IUnknown_ a  = Unknown  (ForeignPtr ())
+type IUnknown  a  = IUnknown_ a
+
+type HRESULT = Int32
+
+failed    :: HRESULT -> Bool
+failed hr = hr < 0
+
+ifaceToAddr :: IUnknown a -> Ptr b
+ifaceToAddr (Unknown x)    = castPtr (foreignPtrToPtr x)
+
+addrToIPointer :: Bool -> Ptr b -> IO (IUnknown a)
+addrToIPointer finaliseMe x = do
+  i <- makeFO x (castPtrToFunPtr $ if finaliseMe then addrOfReleaseIUnknown else finalNoFree)
+  return (Unknown i)
+
+marshallIUnknown :: IUnknown a -> IO (ForeignPtr b)
+marshallIUnknown (Unknown x) = return (castForeignPtr x)
+
+checkHR :: HRESULT -> IO ()
+checkHR hr
+      | failed hr   = coFailHR hr
+      | otherwise   = return ()
+
+coFailHR :: HRESULT -> IO a
+coFailHR  hr         = do
+    str <- stringFromHR hr
+    coFailWithHR hr str
+
+{- BEGIN_GHC_ONLY
+-- ghc-specific
+newtype ComError = ComError Int32
+
+comErrorTc = mkTyCon \"ComError\"
+
+instance Typeable ComError where
+   typeOf _ = mkAppTy comErrorTc []
+
+coFailWithHR :: HRESULT -> String -> IO a
+coFailWithHR hr msg = 
+  ioException (IOError Nothing (DynIOError (toDyn (ComError hr))) \"\" msg Nothing)
+   END_GHC_ONLY -}
+
+{- BEGIN_NOT_FOR_GHC -}
+coPrefix   = \"Com error: \"
+
+coFailWithHR :: HRESULT -> String -> IO a
+coFailWithHR hr msg = ioError (userError (coPrefix ++ msg ++ showParen True (shows hr) \"\"))
+{- END_NOT_FOR_GHC   -}
+
+stringFromHR :: HRESULT -> IO String
+stringFromHR hr = do
+  pstr <- hresultString hr  -- static memory
+  unmarshallString (castPtr pstr)
+
+");
+
+ HRESULT comInitialize(void);
+ void    comUnInitialize(void);
+ 
+ void _cdecl messageBox([in,ptr]char* str,[in,ptr]char* title,[in]unsigned long flg);
+
+ typedef [ptr]void* PIID;
+ typedef [ptr]void* PCLSID;
+
+ typedef [ptr]void* PGUID;
+
+ HRESULT primCLSIDFromProgID( [in,ptr]char*  str
+ 			    , [in,ptr]PCLSID rptr
+			    );
+
+ HRESULT _cdecl
+         primProgIDFromCLSID( [in,foreign]PCLSID pclsid
+ 			    , [out,ref]void** pwide
+			    );
+
+ HRESULT _cdecl
+         primStringToGUID ( [in,ptr]wchar_t* str, [in,ptr]void* pguid);
+ HRESULT _cdecl
+         primGUIDToString ( [in,foreign,ptr]PGUID guid,   [out,ref]void** str);
+
+ HRESULT _cdecl
+         primCopyGUID ( [in,foreign,ptr]PGUID pguid1, [in,ptr]PGUID pguid2);
+	 
+ HRESULT _cdecl
+         primNewGUID ([in,foreign,ptr]PGUID pguid);
+
+ HRESULT _cdecl
+         bindObject ( [in,ptr]wchar_t* name
+ 		    , [in,foreign,ptr]PIID iid
+		    , [out,ptr] void** ppv
+		    );
+ boolean _cdecl
+         primComEqual( [in]IUnknown* unk1, [in]IUnknown* unk2 );
+
+ [pure]boolean IsEqualGUID ([in,foreign,ptr]PGUID guid1, [in,foreign,ptr]PGUID guid2); 
+ 
+ [pure]unsigned long _cdecl lOCALE_USER_DEFAULT();
+ 
+ // Get at the default ICreateTypeLib2 implementation.
+ HRESULT _cdecl
+         primCreateTypeLib 
+             ( [in] long skind
+	     , [in,string]wchar_t* lpkind
+	     , [out,ptr]void** ppv
+	     );
+
+ unsigned int _stdcall GetLastError ();
+
+ void* cdecl hresultString([in]int i);
+
+ HRESULT _stdcall CoCreateInstance
+                   ( [in,foreign]PCLSID clsid
+		   , [in,foreign]void*  inner
+		   , [in]int    ctxt
+		   , [in,foreign,ptr]PGUID riid
+		   , [in,ptr]void* ppv
+		   );
+
+ typedef unsigned long ULONG;
+ typedef unsigned int DWORD;
+
+ typedef struct _COAUTHIDENTITY {
+   [string,size_is(UserLength)]USHORT* User;
+   ULONG UserLength;
+   [string,size_is(DomainLength)]USHORT* Domain;
+   ULONG DomainLength;
+   [string,size_is(PasswordLength)]USHORT* Password;
+   ULONG PasswordLength;
+   ULONG Flags;
+ } COAUTHIDENTITY;
+ 
+ typedef struct _COAUTHINFO {
+   DWORD dwAuthnSvc;
+   DWORD dwAuthzSvc;
+   [string]wchar_t* pwszServerPrincName;
+   DWORD dwAuthnLevel;
+   DWORD dwImpersonationLevel;
+   [unique]COAUTHIDENTITY* pAuthIdentityData;
+   DWORD dwCapabilities;
+ } COAUTHINFO;
+ 
+ typedef struct _COSERVERINFO {
+   DWORD dwReserved1;
+   [string]wchar_t* pwszName;
+   [unique]COAUTHINFO* pAuthInfo;
+   DWORD dwReserved2;
+ } COSERVERINFO;
+ 
+ typedef struct _MULTI_QI {
+   [ptr]PGUID pIID;
+   [ptr]void* pItf;
+   HRESULT hr;
+ } MULTI_QI_PRIM;
+ 
+ HRESULT _stdcall CoCreateInstanceEx
+                   ( [in,foreign]PCLSID clsid
+		   , [in,foreign]void*  pUnkOuter
+		   , [in]DWORD          dwClsCtx
+		   , [in,unique]COSERVERINFO* pServerInfo
+		   , [in]ULONG cmq
+		   , [in,out,size_is(cmq),length_is(cmq)]MULTI_QI_PRIM* pResults
+		   );
+ 
+
+ HRESULT _stdcall GetActiveObject
+                   ( [in,foreign]PCLSID clsid
+		   , [in,ptr]void* inner // should be a foreign
+		   , [in,ptr]void* ppv
+		   );
+ HRESULT _cdecl
+         primQI ( [in,ptr]void*  methPtr
+                , [in,ptr]void*  iptr
+		, [in,foreign]PCLSID riid
+		, [in,ptr]void** ppv
+		);
+ unsigned int _cdecl
+          primAddRef
+                ( [in,ptr]void*  methPtr
+                , [in,ptr]void*  iptr
+		);
+ unsigned int _cdecl
+          primRelease
+                ( [in,ptr]void*  methPtr
+                , [in,ptr]void*  iptr
+		);
+
+ HRESULT  _cdecl
+          primEnumNext
+                ( [in,ptr]void*  methPtr
+                , [in,ptr]void* iptr
+		, [in]unsigned int celt
+		, [in,ptr]void*  ptr
+		, [in,ptr]void*  po
+		);
+ HRESULT  _cdecl
+          primEnumSkip
+                ( [in,ptr]void*  methPtr
+                , [in,ptr]void*  iptr
+		, [in]unsigned int celt
+		);
+ HRESULT  _cdecl
+          primEnumReset
+                ( [in,ptr]void* methPtr
+                , [in,ptr]void* iptr
+		);
+ HRESULT  _cdecl
+          primEnumClone
+                ( [in,ptr]void*  methPtr
+                , [in,ptr]void*  iptr
+                , [in,ptr]void*  ppv
+		);
+
+ HRESULT  _stdcall
+          primPersistLoad
+                ( [in,ptr]void*     methPtr
+                , [in,ptr]void*     iptr
+                , [in,ptr]wchar_t*  pszFileName
+		, [in]unsigned int  dwMode
+		);
+
+ void* _cdecl primNullIID();
+
+ HRESULT _stdcall LoadTypeLib 
+                ( [in,ptr]wchar_t* pfname
+		, [in,ptr]void* ptr
+		);
+ HRESULT _stdcall LoadTypeLibEx
+                ( [in,ptr]wchar_t* pfname
+		, [in]int   rkind
+		, [in,ptr]void* ptr
+		);
+ HRESULT _stdcall LoadRegTypeLib 
+                ( [in,foreign,ptr]PGUID pguid
+		, [in]int   maj
+		, [in]int   min
+		, [in]int   lcid
+		, [in,ptr]void* ptr
+		);
+
+ [ptr]wchar_t* 
+      _cdecl primQueryPathOfRegTypeLib
+ 		( [in,foreign,ptr]PGUID pgd
+		, [in]unsigned short   maj
+		, [in]unsigned short   min
+		);
+
+ [pure]void* addrOfReleaseIUnknown();
+
+ //
+ // BSTR operations
+ //
+ HRESULT  _cdecl bstrToStringLen ([in,ptr]BSTR* bstr,[in]int len, [in,ptr]char* str);
+ // length of bstrs (in 8-bit byte units).
+ [pure]int _cdecl bstrLen ([in,ptr]BSTR* bstr);
+ HRESULT   _cdecl stringToBSTR ([in,ptr]BSTR* bstr, [out,ptr]BSTR* res);
+
+ [string]char* _cdecl getModuleFileName ( [in,ptr]void* hModule);
+ 
+ // Used by stand-alone clients to 
+ void _cdecl messagePump();
+ void _cdecl postQuitMsg();
+
+ // a little bit of useful Win32 functionality seeping through.
+ [call_as("OutputDebugString")]
+ void primOutputDebugString( [in,string]char* msg );
+
+ void primGetVersionInfo
+         ( [out,ref]unsigned long* maj
+	 , [out,ref]unsigned long* min
+	 , [out,ref]unsigned long* pid
+	 );
+
+ HRESULT _stdcall 
+         CoRegisterClassObject 
+             ( [in,foreign]PCLSID rclsid
+	     , [in,foreign]void*  pUnk
+	     , [in] long dwClsContext
+	     , [in] long flags
+	     , [out,ref] unsigned long* lpwRegister
+	     );
+
+}

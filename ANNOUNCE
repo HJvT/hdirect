@@ -1,0 +1,100 @@
+	 HaskellDirect - an IDL compiler for Haskell
+
+A new release of HaskellDirect, version 0.16, is now available
+for download (source + binaries.) 
+
+* What is it?
+=============
+
+HaskellDirect is an IDL compiler for Haskell, helping to bridge the
+gap between Haskell programs and the outside world. Interfacing
+Haskell code to libraries or components written in other languages
+involves the conversion of values between the Haskell representations
+of values and the representations expected externally. Using an Interface
+Definition Language (IDL) as basis, HaskellDirect automates the generation
+of such impedance matching code, leaving you to focus on how to implement
+the Interesting Bits.
+
+HaskellDirect supports the OSF DCE and OMG CORBA dialects of
+IDL. Notice that DCE IDL is a superset of C function prototype and
+type declarations.  So, by implication, HaskellDirect will also accept
+C header files as input.
+
+* What's new?
+=============
+
+Version 0.16 adds the following:
+
+* Lambada support - support for generating Haskell-callable stubs
+  to Java objects. Going the other way is also supported - automatic
+  generation of Java-callable wrappers to Haskell functions.
+* Improved support for working with C header files:
+     * off-line configuration of IDL/marshalling attributes.
+       (i.e., no need to manually modify your header files.)
+     * selective generation of stubs, pick out the functions you're
+       interested in (and ignore the rest.)
+* Better support for one-Haskell-module-per-interface/ADT mapping;
+  the compiler now tries to avoid generating mutually recursive Haskell
+  modules, if possible.
+
+* Improved set of support libraries.
+
+* New examples:
+
+     * PCRE - generate Haskell binding to PCRE (Perl-Compatible
+       Regular Expression)
+     * ActiveX scripting engine - basic demonstration of how to write
+       a scripting engine in Haskell, which you can then use inside
+       web pages, with ASP etc.
+     * perl - generate Haskell binding to libperl, letting you call
+       out to Perl code from Haskell.
+     * HTML dialogs - use IE's support for creating HTML-based modal
+       dialogs.
+     * Video/Audio player - COM client example.
+     * zlib - Haskell binding to zlib compression library (also in 0.15.)
+     * gd   - Haskell binding to GD Gif manip. library  (also in 0.15.)
+     * ie-listen - interact with IE from Haskell (also in 0.15.)
+
+ * Works with ghc-4.04 and Hugs98 (and HaskellScript.)
+
+ * Due to time constraints (& the author moving job), 0.16 does *unfortunately*
+   not include (semi-promised) CORBA support. 
+
+Version 0.15 adds the following:
+
+* Haskell COM component support (vtbl-based and Automation).
+* Haskell library support - package up your Haskell code
+  and give it to your C, Java etc. friends to use.
+* More comprehensive marshaling support (function types are now
+  handled).
+* Support for creating COM type libraries as well as an improved
+  type library reader.
+* native Hugs98 support.
+* support for generating C header files from IDL specs.
+* Extensions and bugfixes too numerous to mention ; consult
+  user documentation for details.
+* Graphical user interface - desktop launcher (Win32 only).
+* Wizardly generation of skeleton component implementations
+  (if you ask nicely.)
+* a Y2K bug.
+
+* More information
+==================
+
+Pointers to a downloadable distribution, documentation etc.  is
+now available via the HaskellDirect home page:
+
+   http://www.dcs.gla.ac.uk/fp/software/hdirect/
+
+To compile up HaskellDirect from source you'll need to have GHC 4.04
+(or later) installed on your machine. To use the generated output,
+you'll either need GHC-4.04 or Hugs98 / HaskellScript.
+
+* Bug reports/feedback
+======================
+
+Please send any bug reports or suggestions for how to improve
+HaskellDirect to the Glasgow Haskell Bugs list:
+glasgow-haskell-bugs@haskell.org 
+
+Enjoy!

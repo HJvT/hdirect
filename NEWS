@@ -1,0 +1,34 @@
+** Major changes in hdirect version 0.17:
+
+* Nothing major, just a couple of bugfixes and
+  improvements.
+
+** Major changes in hdirect version 0.16:
+
+* Support for generating TLBs, Com servers, header
+  file reading, multi-module support.
+
+** Major changes in hdirect version 0.14:
+
+* Fixed bug in the marshalling(&freeing) of
+  dependent arguments. (Thanks to Michael Hobbs
+  <hobb0001@tc.umn.edu> for reporting this.)
+
+* Minor bugfixes to library code.
+
+** Major changes in hdirect version 0.13:
+
+* [Win32 specific]: Integrated Daan Leijen's
+  Red Card code for reading type libraries
+  (compiled representations of IDL.)
+
+* Added support for nameless unions. 
+
+* Recursive types should now be handled a great
+  deal better.
+
+* [For HaskellScript users]: New option,
+  -fautomation, packages up commonly used options
+  when generating Automation-stubs.
+
+* Fixed a whole raft of minor bugs.
