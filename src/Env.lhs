@@ -14,22 +14,22 @@ module Env
           Env{- key elt -} -- abstract.
         , newEnv           -- :: Env key elt
 
-	, addToEnv      -- :: Ord a => Env a b -> a -> b -> Env a b
-	, addToEnv_C    -- :: Ord a => (b -> b -> b) -> Env a b -> a -> b -> Env a b
-	, replaceElt    -- :: Ord a => Env a b -> a -> b -> Env a b
-	
-	, delFromEnv    -- :: Ord a => Env a b -> a -> Env a b
+        , addToEnv      -- :: Ord a => Env a b -> a -> b -> Env a b
+        , addToEnv_C    -- :: Ord a => (b -> b -> b) -> Env a b -> a -> b -> Env a b
+        , replaceElt    -- :: Ord a => Env a b -> a -> b -> Env a b
+        
+        , delFromEnv    -- :: Ord a => Env a b -> a -> Env a b
 
-	, addListToEnv   -- :: Ord a => Env a b -> [(a, b)] -> Env a b
-	, addListToEnv_C -- :: Ord a => (b -> b -> b) -> Env a b -> [(a, b)] -> Env a b
+        , addListToEnv   -- :: Ord a => Env a b -> [(a, b)] -> Env a b
+        , addListToEnv_C -- :: Ord a => (b -> b -> b) -> Env a b -> [(a, b)] -> Env a b
 
-	, lookupEnv      -- :: Ord a => Env a b -> a -> Maybe b
-	, envToList      -- :: Env a b -> [(a,b)]
-	
-	, mapEnv         -- :: (a -> b -> c) -> Env a b -> Env a c
-	, mapMaybeEnv    -- :: Ord a => (a -> b -> Maybe c) -> Env a b -> Env a c
-	
-	, unionEnvs      -- :: [Env a b] -> Env a b
+        , lookupEnv      -- :: Ord a => Env a b -> a -> Maybe b
+        , envToList      -- :: Env a b -> [(a,b)]
+        
+        , mapEnv         -- :: (a -> b -> c) -> Env a b -> Env a c
+        , mapMaybeEnv    -- :: Ord a => (a -> b -> Maybe c) -> Env a b -> Env a c
+        
+        , unionEnvs      -- :: [Env a b] -> Env a b
 
        ) where
 

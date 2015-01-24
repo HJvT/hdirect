@@ -31,12 +31,12 @@ ppIDL src ds
     trundle ks@(keepIt:ls) (x:xs) = 
       case x of
         IncludeStart ix | isJust keepIt || is_src -> trundle (Just forKeeps : ks) xs
-	   where
-	    is_src   = src == ix
-	    forKeeps = fromMaybe True keepIt && is_src
-	IncludeEnd -> trundle ls xs
-	_ | fromMaybe True keepIt -> x : trundle ks xs
-	  | otherwise		  -> trundle ks xs
+           where
+            is_src   = src == ix
+            forKeeps = fromMaybe True keepIt && is_src
+        IncludeEnd -> trundle ls xs
+        _ | fromMaybe True keepIt -> x : trundle ks xs
+          | otherwise             -> trundle ks xs
     trundle [] ls = ls
 \end{code}
 
@@ -99,7 +99,7 @@ ppDefn (Exception i mems)
 ppDefn (Interface i inherit ds)
   = hang (text "interface" <+> ppId i <+> 
           hsep (punctuate (text ":") 
-	                  (text "" : map text inherit)) <+> char '{')
+                          (text "" : map text inherit)) <+> char '{')
       4 (ppDefns ds) $$
     char '}' <> semi
 

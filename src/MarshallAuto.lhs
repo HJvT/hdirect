@@ -23,14 +23,14 @@ import MarshallType ( coreToHaskellExpr )
 import MarshallCore ( toBaseTy, autoTypeToQName, mbAutoTypeToHaskellTy )
 import CoreIDL
 import CoreUtils ( int32Ty, doubleTy, mkHaskellVarName, 
-		   isHRESULTTy, isVoidTy, boolTy
-		 )
+                   isHRESULTTy, isVoidTy, boolTy
+                 )
 
 import BasicTypes
 import Attribute ( hasAttributeWithName, findAttribute )
 import LibUtils ( autoLib )
 import Opts  ( optOptionalAsMaybe
-	     )
+             )
 import Data.Maybe ( isJust )
 import Literal
 
@@ -51,73 +51,73 @@ marshallVariantParam p = funApply real_marshaller [ var (idName (paramId p)) ]
    | m == In && attrs `hasAttributeWithName` "defaultvalue" = 
       case findAttribute "defaultvalue" attrs of
         Just (Attribute _ (ap:_))
-	     | okLooking ap -> 
-		    let
-		      pt      = paramType p
-		      base_ty = toBaseTy pt
-			{-
-			  Stuff like
-			    [in,optional,defaultvalue(0)]IUnknown* ip
-			    [in,optional,defaultvalue(0)]char ip
-			  
-			  won't work if we use the arg type to drive
-			  marshalling, so catch this sep.
-			-}
-		      the_base_ty
-		       | isIntLit expr    = int32Ty
-		       | isBoolLit expr   = boolTy
-		       | isDoubleLit expr = doubleTy
-		       | otherwise        = base_ty
-		       
-		      def_val_marshaller
-		       | not optOptionalAsMaybe = qvar autoLib "inDefaultValue"
-		       | otherwise		= qvar autoLib "inMaybe"
-                    in		       
-		       funApply def_val_marshaller
-			        [ funApply (marshallVariant kind the_base_ty)
-					   [coreToHaskellExpr expr]
-				, marshallerMeth
-				]
-	    where
-	     okLooking (ParamLit  _) = True
-	     okLooking (ParamExpr _) = True
-	     okLooking _	     = False
-	     
-	     isIntLit e = 
-	        case e of
-		  Lit (IntegerLit{}) -> True
-		  _		     -> False
+             | okLooking ap -> 
+                    let
+                      pt      = paramType p
+                      base_ty = toBaseTy pt
+                        {-
+                          Stuff like
+                            [in,optional,defaultvalue(0)]IUnknown* ip
+                            [in,optional,defaultvalue(0)]char ip
+                          
+                          won't work if we use the arg type to drive
+                          marshalling, so catch this sep.
+                        -}
+                      the_base_ty
+                       | isIntLit expr    = int32Ty
+                       | isBoolLit expr   = boolTy
+                       | isDoubleLit expr = doubleTy
+                       | otherwise        = base_ty
+                       
+                      def_val_marshaller
+                       | not optOptionalAsMaybe = qvar autoLib "inDefaultValue"
+                       | otherwise              = qvar autoLib "inMaybe"
+                    in                 
+                       funApply def_val_marshaller
+                                [ funApply (marshallVariant kind the_base_ty)
+                                           [coreToHaskellExpr expr]
+                                , marshallerMeth
+                                ]
+            where
+             okLooking (ParamLit  _) = True
+             okLooking (ParamExpr _) = True
+             okLooking _             = False
+             
+             isIntLit e = 
+                case e of
+                  Lit (IntegerLit{}) -> True
+                  _                  -> False
 
-	     isDoubleLit e = 
-	        case e of
-		  Lit (FloatingLit{}) -> True
-		  _		      -> False
+             isDoubleLit e = 
+                case e of
+                  Lit (FloatingLit{}) -> True
+                  _                   -> False
 
-	     isBoolLit e = 
-	        case e of
-		  Lit (BooleanLit{}) -> True
-		  _		     -> False
+             isBoolLit e = 
+                case e of
+                  Lit (BooleanLit{}) -> True
+                  _                  -> False
 
-	     expr = 
-	       case ap of
-	         ParamLit  l -> Lit l
-		 ParamExpr e -> e
-		 _           -> error "MarshallAuto.marshallVariantParam.expr: unexpected parameter kind"
+             expr = 
+               case ap of
+                 ParamLit  l -> Lit l
+                 ParamExpr e -> e
+                 _           -> error "MarshallAuto.marshallVariantParam.expr: unexpected parameter kind"
 
         _ 
-	  | optOptionalAsMaybe ->
-		       funApply (qvar autoLib "inMaybe")
-			        [ qvar autoLib "noInArg"
-				, marshallerMeth
-				]
-	      
-	  | otherwise  -> marshallerMeth
+          | optOptionalAsMaybe ->
+                       funApply (qvar autoLib "inMaybe")
+                                [ qvar autoLib "noInArg"
+                                , marshallerMeth
+                                ]
+              
+          | otherwise  -> marshallerMeth
 
    | has_optional && optOptionalAsMaybe =
        funApply (qvar autoLib "inMaybe")
-	        [ qvar autoLib "noInArg"
-		, marshallerMeth
-		]
+                [ qvar autoLib "noInArg"
+                , marshallerMeth
+                ]
    | otherwise = marshallerMeth
 
   marshallerMeth
@@ -185,7 +185,7 @@ classifyCall f useDISPID ps res
    attrs     = idAttributes f
 
    isPropPutWeird = isPropPut &&
-		    any (\ p -> paramMode p == InOut) ps
+                    any (\ p -> paramMode p == InOut) ps
 
    isInParam p = paramMode p == In
 
@@ -195,7 +195,7 @@ classifyCall f useDISPID ps res
 
    prop_arity
      | arity <= (1::Int) = ""
-     | otherwise	 = arity_str
+     | otherwise         = arity_str
 
    arity_str = show arity
 

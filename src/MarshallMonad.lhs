@@ -45,7 +45,7 @@ peepHoleTop :: Expr -> Expr
 peepHoleTop e = 
   case e of
     Apply f [a] -> Apply f [(peepHole a)]  -- catch 'unsafePerformIO action'
-    x	        -> peepHole x
+    x           -> peepHole x
 
 peepHole :: Expr -> Expr
 peepHole e = 
@@ -55,20 +55,20 @@ peepHole e =
       | x == prelReturn && qName y == qName z -> peepHole e2
     Bind_ e1 e2  -> Bind_ (peepHole e1) (peepHole e2)
     Bind e1 p e2 -> 
-	let
-	  p_e1 = peepHole e1
-	  p_e2 = peepHole e2
-	  p_e  = Bind p_e1 p p_e2
-	in
-	case p of
-	  PatVar x ->
-	    case p_e1 of
-	       Return (Var y) | qName x == qName y -> p_e2
-	       _ -> 
-		 case p_e2 of
-		   Return (Var y) | qName x == qName y -> p_e1
-		   _ -> p_e
-	  _ -> p_e
+        let
+          p_e1 = peepHole e1
+          p_e2 = peepHole e2
+          p_e  = Bind p_e1 p p_e2
+        in
+        case p of
+          PatVar x ->
+            case p_e1 of
+               Return (Var y) | qName x == qName y -> p_e2
+               _ -> 
+                 case p_e2 of
+                   Return (Var y) | qName x == qName y -> p_e1
+                   _ -> p_e
+          _ -> p_e
     _ -> e
 
 {- UNUSED
@@ -84,11 +84,11 @@ thenMm :: Mm a -> (a -> Mm b) -> Mm b
 thenMm (Mm act) cont = 
   Mm ( \ env s ->
         case (act env s) of
-	  (v,cont1, s') -> 
-	    let (Mm b) = cont v in
-	    case b env s' of
-	     (x, cont2, s'') -> 
-	         (x, cont1.cont2, s''))
+          (v,cont1, s') -> 
+            let (Mm b) = cont v in
+            case b env s' of
+             (x, cont2, s'') -> 
+                 (x, cont1.cont2, s''))
 
 returnMm :: a -> Mm a
 returnMm v = Mm ( \ _ s -> (v,id,s))
@@ -105,9 +105,9 @@ addCode cont1 = Mm ( \ _ s -> ((), cont1, s))
 
 lookupName :: String -> Mm (Maybe String)
 lookupName nm = Mm ( \ _ env ->
-		      case (Env.lookupEnv env nm) of
-			  Just n  ->  (Just n, id, env)
-			  Nothing ->  (Nothing, id, env))
+                      case (Env.lookupEnv env nm) of
+                          Just n  ->  (Just n, id, env)
+                          Nothing ->  (Nothing, id, env))
 
 addToEnv :: String -> String -> Mm ()
 addToEnv src_nm new_nm = 

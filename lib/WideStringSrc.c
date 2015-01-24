@@ -107,7 +107,7 @@ wideToString ( WCHAR* wstr, char** pstr )
      multi-byte string...
   */
   len = WideCharToMultiByte ( CP_ACP, 0, wstr, -1
-			    , NULL, 0, NULL, NULL);
+                            , NULL, 0, NULL, NULL);
   if (len == 0) {
     return E_FAIL;
   }

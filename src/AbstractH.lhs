@@ -53,19 +53,19 @@ data HIEEntity
 \begin{code}
 data HImport 
   = HImport 
-      Bool		    --qualified?
-      (Maybe Name)	    --qualify as
-      Name		    --module name
+      Bool                  --qualified?
+      (Maybe Name)          --qualify as
+      Name                  --module name
       (Maybe [HIEEntity])   -- stuff to import, 
-			    --   Nothing => the lot.
-			    --   Just [] => ()  (i.e., bring instances into scope.)
+                            --   Nothing => the lot.
+                            --   Just [] => ()  (i.e., bring instances into scope.)
 \end{code}
 
 
 \begin{code}
 data HDecl 
  = AndDecl HDecl HDecl  -- for easy glomming together
-			-- of code fragments.
+                        -- of code fragments.
  
     -- function signature foo :: ctxt => type
  | TypeSig  Name (Maybe Context) Type  
@@ -152,10 +152,10 @@ tycon contexts tho')
 data TyDecl
  = TypeSyn Name [Name] Type
  | TyDecl TyDeclKind
-	  Name          -- type constructor
-	  [Name]        -- type vars
-	  [ConDecl]     -- data constructors
-	  [QualName]    -- derivings
+          Name          -- type constructor
+          [Name]        -- type vars
+          [ConDecl]     -- data constructors
+          [QualName]    -- derivings
 
 
 data TyDeclKind = Data | Newtype

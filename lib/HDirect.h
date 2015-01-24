@@ -85,18 +85,18 @@ typedef int   HugsStablePtr;
 typedef void* HugsForeign;
 
 
-#define primFun(name)	 static void name(HugsStackPtr hugs_root)
+#define primFun(name)    static void name(HugsStackPtr hugs_root)
 #define hugs_returnIO(n) hugs->returnIO(hugs_root,n)
 #define hugs_returnId(n) hugs->returnId(hugs_root,n)
 
 /* These declarations must exactly match those in storage.h */
 
-typedef void (*Prim) Args((HugsStackPtr)); /* primitive function	   */
+typedef void (*Prim) Args((HugsStackPtr)); /* primitive function           */
 
-extern struct hugs_primitive {		/* table of primitives		   */
-    char*  ref;				/* primitive reference string	   */
-    int	   arity;			/* primitive function arity	   */
-    Prim   imp;				/* primitive implementation	   */
+extern struct hugs_primitive {          /* table of primitives             */
+    char*  ref;                         /* primitive reference string      */
+    int    arity;                       /* primitive function arity        */
+    Prim   imp;                         /* primitive implementation        */
 } primitives[];
 
 struct hugs_primInfo {
@@ -112,7 +112,7 @@ typedef struct {
   /* evaluate next argument */
   HsInt          (*getInt)         (void);
   HsWord         (*getWord)        (void);
-  HsAddr    	 (*getAddr)        (void);
+  HsAddr         (*getAddr)        (void);
   HsFloat        (*getFloat)       (void);
   HsDouble       (*getDouble)      (void);
   HsChar         (*getChar)        (void);
@@ -121,27 +121,27 @@ typedef struct {
 
   /* push part of result   */
   void           (*putInt)         (HsInt);
-  void      	 (*putWord)        (HsWord);
-  void      	 (*putAddr)        (HsAddr);
+  void           (*putWord)        (HsWord);
+  void           (*putAddr)        (HsAddr);
   void           (*putFloat)       (HsFloat);
   void           (*putDouble)      (HsDouble);
   void           (*putChar)        (HsChar);
-  void      	 (*putForeign)     (HugsForeign, void (*)(HugsForeign));
+  void           (*putForeign)     (HugsForeign, void (*)(HugsForeign));
   void           (*putStablePtr)   (HugsStablePtr); /* deprecated */
 
   /* return n values in IO monad or Id monad */
-  void      	 (*returnIO)       (HugsStackPtr, int);
-  void      	 (*returnId)       (HugsStackPtr, int);
-  int      	 (*runIO)          (int);
+  void           (*returnIO)       (HugsStackPtr, int);
+  void           (*returnId)       (HugsStackPtr, int);
+  int            (*runIO)          (int);
 
-  /* free a stable pointer */	    			 
-  void      	 (*freeStablePtr)  (HugsStablePtr); /* deprecated */
+  /* free a stable pointer */                            
+  void           (*freeStablePtr)  (HugsStablePtr); /* deprecated */
 
-  /* register the prim table */	    			 
-  void      	 (*registerPrims)  (struct hugs_primInfo*);
-			   
+  /* register the prim table */                          
+  void           (*registerPrims)  (struct hugs_primInfo*);
+                           
   /* garbage collect */
-  void		 (*garbageCollect) (void);
+  void           (*garbageCollect) (void);
 
   /* API3 additions follow */
   HugsStablePtr  (*lookupName)     (char*, char*);
@@ -182,9 +182,9 @@ typedef struct {
 
   void           (*putStablePtr4)  (HsStablePtr);
   HsStablePtr    (*getStablePtr4)  (void);
-  void      	 (*freeStablePtr4) (HsStablePtr);
+  void           (*freeStablePtr4) (HsStablePtr);
 
-  int      	 (*runId)          (int);
+  int            (*runId)          (int);
 } HugsAPI4;
 
 HugsAPI4 *hugs; /* pointer to virtual function table */

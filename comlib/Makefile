@@ -24,7 +24,7 @@ HUGSDIR=hugs
 HDLIBDIR =../lib
 
 HC_OPTS += -package-name com
-HC_OPTS	+= -package lang -I$(HDLIBDIR) -DCOM
+HC_OPTS += -package lang -I$(HDLIBDIR) -DCOM
 # Since we are using FFI exts we have to compile through C.
 HC_OPTS += -fglasgow-exts -fvia-C
 ifeq "$(BUILD_STATICALLY)" "YES"
@@ -81,7 +81,7 @@ COMLIB_C_SRCS    = ComPrimSrc.c AutoPrimSrc.c Registry.c SafeArrayPrim.c
 COMLIB_HS_SRCS   = Com.lhs Automation.lhs AutoPrim.hs ComPrim.hs StdTypes.hs
 COMLIB_HS_SRCS  += SafeArray.hs ComException.lhs
 COMLIB_HS_SRCS  += TypeLib.hs Connection.hs
-H_SRCS		+= comPrim.h autoPrim.h Registry.h safeArrayPrim.h SafeArray.h StdTypes.h
+H_SRCS          += comPrim.h autoPrim.h Registry.h safeArrayPrim.h SafeArray.h StdTypes.h
 
 C_SRCS   += $(COMLIB_C_SRCS)
 HS_SRCS  += $(COMLIB_HS_SRCS)
@@ -121,7 +121,7 @@ CLEAN_FILES += $(patsubst %.idl,%.hs,$(wildcard *.idl)) $(COPIED_OVER)
 #
 # 'make install' setup:
 #
-INSTALL_DATAS	= com.pkg $(HS_IFACES) $(SRCS)
+INSTALL_DATAS   = com.pkg $(HS_IFACES) $(SRCS)
 INSTALL_LIBS   += libHScom$(_way).a
 ifneq "$(BUILD_STATICALLY)" "YES"
 INSTALL_PROGS  += HScom.dll
@@ -138,10 +138,10 @@ all :: libHScom$(_way).a HScom.$(way_)o
 # We put the generated output for Hugs98 in a separate directory, $(HUGSDIR), so that
 # GHC and Hugs builds can coexist.
 all :: 
-	@if [ -d $(HUGSDIR) ]; then : ; else mkdir $(HUGSDIR); fi;
+        @if [ -d $(HUGSDIR) ]; then : ; else mkdir $(HUGSDIR); fi;
 
-clean :: 	
-	if [ -d $(HUGSDIR) ]; then $(RM) -rf $(HUGSDIR)/ ; else : ; fi;
+clean ::        
+        if [ -d $(HUGSDIR) ]; then $(RM) -rf $(HUGSDIR)/ ; else : ; fi;
 
 all :: $(patsubst %.idl, $(HUGSDIR)/%.hs, $(IDL_SRCS))
 
@@ -180,58 +180,58 @@ $(HUGSDIR)/SafeArray.$(dllext) : HugsMod.def
 C_STUBS = $(patsubst %.idl, $(HUGSDIR)/%.c, $(filter-out StdTypes.idl, $(IDL_SRCS)))
 
 $(HUGSDIR)/%.hs: %.idl
-	$(IHC) $(HUGS_IHC_OPTS) -c $< -o $@
+        $(IHC) $(HUGS_IHC_OPTS) -c $< -o $@
 
 $(HUGSDIR)/%.c: $(HUGSDIR)/%.hs
-	@:
+        @:
 
 $(HUGSDIR)/%.$(STUB_OBJ_SUFFIX) : %.c
-	@$(RM) $@
-	$(CC) $(CC_OPTS) -c $< -o $@
+        @$(RM) $@
+        $(CC) $(CC_OPTS) -c $< -o $@
 
 $(HUGSDIR)/%.$(STUB_OBJ_SUFFIX) : $(HUGSDIR)/%.c
-	@$(RM) $@
-	$(CC) $(CC_OPTS) -c $< -o $@
+        @$(RM) $@
+        $(CC) $(CC_OPTS) -c $< -o $@
 
 ifeq "$(USE_MSVC_TOOLS)" "YES"
 $(HUGSDIR)/PointerSrcCom.$(STUB_OBJ_SUFFIX) : PointerSrc.c
-	@$(RM) $@
-	$(CCDLL) $(CCDLL_OPTS) -c -DCOM $< -Fo$@
+        @$(RM) $@
+        $(CCDLL) $(CCDLL_OPTS) -c -DCOM $< -Fo$@
 $(HUGSDIR)/%.obj : %.c
-	@$(RM) $@
-	$(CCDLL) $(CCDLL_OPTS) -c -DCOM $< -Fo$@
+        @$(RM) $@
+        $(CCDLL) $(CCDLL_OPTS) -c -DCOM $< -Fo$@
 $(HUGSDIR)/%.obj : $(HUGSDIR)/%.c
-	@$(RM) $@
-	$(CCDLL) $(CCDLL_OPTS) -c -DCOM $< -Fo$@
+        @$(RM) $@
+        $(CCDLL) $(CCDLL_OPTS) -c -DCOM $< -Fo$@
 else
 $(HUGSDIR)/PointerSrcCom.$(STUB_OBJ_SUFFIX) : PointerSrc.c
-	@$(RM) $@
-	$(CC) $(CC_OPTS) -c -DCOM $< -o $@
+        @$(RM) $@
+        $(CC) $(CC_OPTS) -c -DCOM $< -o $@
 endif
 
 .PRECIOUS: $(HUGSDIR)/%.$(STUB_OBJ_SUFFIX) $(HUGSDIR)/%.c $(HUGSDIR)/%.hs
 
 HugsMod.def :
-	@echo EXPORTS     > $@
-	@echo initModule >> $@
+        @echo EXPORTS     > $@
+        @echo initModule >> $@
 
 COPIED_OVER=HDirect.lhs Pointer.lhs  WideString.idl PointerPrim.idl PointerSrc.c WideStringSrc.c
 
 HDirect.lhs : $(HDLIBDIR)/HDirect.lhs
-	$(CP) $< $@ 
+        $(CP) $< $@ 
 Pointer.lhs : $(HDLIBDIR)/Pointer.lhs
-	$(CP) $< $@ 
+        $(CP) $< $@ 
 WideString.idl : $(HDLIBDIR)/WideString.idl
-	$(CP) $< $@ 
+        $(CP) $< $@ 
 PointerPrim.idl : $(HDLIBDIR)/PointerPrim.idl
-	$(CP) $< $@ 
+        $(CP) $< $@ 
 PointerSrc.c : $(HDLIBDIR)/PointerSrc.c
-	$(CP) $< $@ 
+        $(CP) $< $@ 
 WideStringSrc.c : $(HDLIBDIR)/WideStringSrc.c
-	$(CP) $< $@ 
+        $(CP) $< $@ 
 
 $(HUGSDIR)/%.$(dllext) : $(HUGSDIR)/%.$(STUB_OBJ_SUFFIX)
-	$(CCDLL) $(CCDLL_OPTS) -o $@ $^ $(CCDLL_LIBS)
+        $(CCDLL) $(CCDLL_OPTS) -o $@ $^ $(CCDLL_LIBS)
 
 dlls :: $(patsubst %.c, %.$(dllext), $(C_STUBS))
 
@@ -240,19 +240,19 @@ HUGS_COMLIB_LHSS = HDirect.lhs Pointer.lhs Automation.lhs Com.lhs ComException.l
 all :: $(patsubst %.lhs,$(HUGSDIR)/%.lhs,$(HUGS_COMLIB_LHSS))
 
 $(HUGSDIR)/HDirect.lhs : HDirect.lhs
-	$(CP) $^ $(HUGSDIR)/
+        $(CP) $^ $(HUGSDIR)/
 
 $(HUGSDIR)/Pointer.lhs : Pointer.lhs
-	$(CP) $^ $(HUGSDIR)/
+        $(CP) $^ $(HUGSDIR)/
 
 $(HUGSDIR)/Automation.lhs : Automation.lhs
-	$(CP) $^ $(HUGSDIR)/
+        $(CP) $^ $(HUGSDIR)/
 
 $(HUGSDIR)/Com.lhs : Com.lhs
-	$(CP) $^ $(HUGSDIR)/
+        $(CP) $^ $(HUGSDIR)/
 
 $(HUGSDIR)/ComException.lhs : ComException.lhs
-	$(CP) $^ $(HUGSDIR)/
+        $(CP) $^ $(HUGSDIR)/
 
 
 # Configuration of hugslibdir is for local testing only; remove before releasing.
@@ -261,45 +261,45 @@ hugslibdir=c:/src/hugs98/lib
 endif
 
 install-hugs ::
-	mkdir -p $(hugslibdir)/hdirect
-	cp $(HUGSDIR)/*.$(dllext) $(hugslibdir)/hdirect
-	cp $(HUGSDIR)/*.hs $(hugslibdir)/hdirect
-	cp *.lhs $(hugslibdir)/hdirect
+        mkdir -p $(hugslibdir)/hdirect
+        cp $(HUGSDIR)/*.$(dllext) $(hugslibdir)/hdirect
+        cp $(HUGSDIR)/*.hs $(hugslibdir)/hdirect
+        cp *.lhs $(hugslibdir)/hdirect
 
 # End of Hugs specific bit
 
 PointerSrcCom.$(way_)o : PointerSrc.c
-	@$(RM) $@
-	$(CC) $(CC_OPTS) -c -DCOM $< -o $@
+        @$(RM) $@
+        $(CC) $(CC_OPTS) -c -DCOM $< -o $@
 
 WideStringSrc.$(way_)o : WideStringSrc.c
-	@$(RM) $@
-	$(CC) $(CC_OPTS) -c -DCOM $< -o $@
+        @$(RM) $@
+        $(CC) $(CC_OPTS) -c -DCOM $< -o $@
 
 ComServ_stub.$(way_)o : ComServ.$(way_)o
-	@-
+        @-
 
 ClassFactory_stub.$(way_)o : ClassFactory.$(way_)o
-	@-
+        @-
 
 ComDll_stub.$(way_)o : ComDll.$(way_)o
-	@-
+        @-
 
 EnumInterface_stub.$(way_)o : EnumInterface.$(way_)o
-	@-
+        @-
 
 ConnectionPoint_stub.$(way_)o : ConnectionPoint.$(way_)o
-	@-
+        @-
 
 libHScom$(_way).a : $(LIBCOM_OBJS)
-	$(RM) $@
-	$(AR) $(AR_OPTS) $@ $^
+        $(RM) $@
+        $(AR) $(AR_OPTS) $@ $^
 
 HScom.$(way_)o: $(LIBCOM_OBJS)
-	$(LD) -r $(LD_X) -o $@ $(LIBCOM_OBJS)
+        $(LD) -r $(LD_X) -o $@ $(LIBCOM_OBJS)
 
 dll ::
-	$(HC) --mk-dll -o HScom.dll libHScom.a -fglasgow-exts -syslib lang -lwinmm -lole32 -loleaut32 -luser32 
+        $(HC) --mk-dll -o HScom.dll libHScom.a -fglasgow-exts -syslib lang -lwinmm -lole32 -loleaut32 -luser32 
 
 BOOT_SRCS=$(patsubst %.idl, %.hs, $(IDL_SRCS))
 boot :: $(COPIED_OVER) $(BOOT_SRCS)
@@ -327,4 +327,4 @@ GHC_PKG=ghc-pkg
 endif
 
 install-pkg: com.pkg
-	@hd_libdir="$(HDIRECT_LIBDIR)"  $(GHC_PKG) -u < com.pkg || echo "Unable to install 'com' package; try running ghc-pkg utility manually, i.e., \"ghc-pkg -u < com.pkg\""
+        @hd_libdir="$(HDIRECT_LIBDIR)"  $(GHC_PKG) -u < com.pkg || echo "Unable to install 'com' package; try running ghc-pkg utility manually, i.e., \"ghc-pkg -u < com.pkg\""

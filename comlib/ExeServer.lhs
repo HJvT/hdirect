@@ -2,10 +2,10 @@
 \begin{code}
 {-# OPTIONS -#include "comPrim.h" #-}
 module ExeServer 
-	(
-	  runExeServer       -- :: ComponentInfo -> IO ()
-	, registerExeServer  -- :: String -> ComponentInfo -> IO ()
-	) where
+        (
+          runExeServer       -- :: ComponentInfo -> IO ()
+        , registerExeServer  -- :: String -> ComponentInfo -> IO ()
+        ) where
 
 import ClassFactory
 import ComDll
@@ -30,8 +30,8 @@ runExeServer c = do
   pip    <- marshallIUnknown ip
   pclsid <- marshallCLSID (componentCLSID c)
   dw    <- coRegisterClassObject (castForeignPtr pclsid) pip
-  			(fromIntegral (fromEnum CLSCTX_LOCAL_SERVER))
-  			(fromIntegral (fromEnum REGCLS_SINGLEUSE))
+                        (fromIntegral (fromEnum CLSCTX_LOCAL_SERVER))
+                        (fromIntegral (fromEnum REGCLS_SINGLEUSE))
   waitForEvent ev
   coRevokeClassObject dw
   return ()
@@ -86,7 +86,7 @@ foreign import ccall "signalEvent" signalEvent :: Ptr () -> IO ()
 foreign import ccall "waitForEvent" waitForEvent :: Ptr () -> IO ()
 
 foreign import stdcall "CoRevokeClassObject"
-	coRevokeClassObject :: Word32 -> IO HRESULT
+        coRevokeClassObject :: Word32 -> IO HRESULT
 
 \end{code}
 

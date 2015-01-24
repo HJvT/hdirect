@@ -22,7 +22,7 @@ int wcslen(WCHAR* wstr)
 */
 HRESULT
 RegAddEntry(int hive,
-	    const char* path,
+            const char* path,
             const char* subKey1,
             const char* subKey2,
             const char* value)
@@ -46,30 +46,30 @@ RegAddEntry(int hive,
    /* construct complete path in buffer. */
    strcpy(keyBuffer, path) ;
    if (subKey1 != NULL) {
-	strcat(keyBuffer, "\\") ;
-	strcat(keyBuffer, subKey1 ) ;
+        strcat(keyBuffer, "\\") ;
+        strcat(keyBuffer, subKey1 ) ;
    }
 
    if (subKey2 != NULL) {
-	strcat(keyBuffer, "\\") ;
-	strcat(keyBuffer, subKey2 ) ;
+        strcat(keyBuffer, "\\") ;
+        strcat(keyBuffer, subKey2 ) ;
    }
 
    /* Create and open key and subkey. */
    result = RegCreateKeyEx(the_hive,
-	                   keyBuffer, 
-	                   0, NULL, REG_OPTION_NON_VOLATILE,
-	                   KEY_ALL_ACCESS, NULL, 
-	                   &hKey, NULL) ;
+                           keyBuffer, 
+                           0, NULL, REG_OPTION_NON_VOLATILE,
+                           KEY_ALL_ACCESS, NULL, 
+                           &hKey, NULL) ;
    if (result != ERROR_SUCCESS) {
-	return S_FALSE;
+        return S_FALSE;
    }
 
    /* Set the value */
    if (value != NULL) {
       RegSetValueEx(hKey, NULL, 0, REG_SZ, 
-	            (BYTE *)value, 
-	            strlen(value)+1) ;
+                    (BYTE *)value, 
+                    strlen(value)+1) ;
    }
 
    RegCloseKey(hKey) ;
@@ -94,11 +94,11 @@ primRegAddEntry ( int hive, const char* path, const char* val)
 HRESULT
 RegRemoveEntry
          ( int hive
-	 , const char* path
+         , const char* path
          , const char* subKey1
-	 , const char* subKey2
-	 , int deleteKey
-	 )
+         , const char* subKey2
+         , int deleteKey
+         )
 {
    HKEY hKey;
    LONG res;
@@ -120,17 +120,17 @@ RegRemoveEntry
    strcpy(keyBuffer, path);
 
    if (subKey1 != NULL) {
-	strcat(keyBuffer, "\\") ;
-	strcat(keyBuffer, subKey1 ) ;
+        strcat(keyBuffer, "\\") ;
+        strcat(keyBuffer, subKey1 ) ;
    }
 
    res = RegOpenKeyEx 
              ( the_hive
-	     , keyBuffer
-	     , 0
-	     , KEY_SET_VALUE
-	     , &hKey
-	     );
+             , keyBuffer
+             , 0
+             , KEY_SET_VALUE
+             , &hKey
+             );
    if ( res != ERROR_SUCCESS ) {
      MessageBox (NULL, "RegOpenKeyEx() failed", "RegRemoveEntry", MB_OK | MB_ICONINFORMATION );
      return S_FALSE;
@@ -154,11 +154,11 @@ primRegRemoveEntry ( int hive, const char* path, const char* val, int kind)
 #if 0
 HRESULT
 RegisterServer ( HMODULE  hMod
-	       , REFCLSID rclsid
-	       , const char* name
-	       , const char* verProgID
-	       , const char* progID
-	       )
+               , REFCLSID rclsid
+               , const char* name
+               , const char* verProgID
+               , const char* progID
+               )
 {
    char    modBuffer[1024]; /* Sigh! */
    WCHAR   wstr[45];
@@ -213,11 +213,11 @@ RegisterServer ( HMODULE  hMod
 HRESULT
 UnregisterServer 
                ( HMODULE  hMod
-	       , REFCLSID rclsid
-	       , const char* name
-	       , const char* verProgID
-	       , const char* progID
-	       )
+               , REFCLSID rclsid
+               , const char* name
+               , const char* verProgID
+               , const char* progID
+               )
 { 
    char    modBuffer[1024]; /* Sigh! */
    WCHAR   wstr[45];

@@ -52,7 +52,7 @@ marshallFun mb_mod_nm i (FunTy cc res ps)
   | otherwise = do
      h   <- setInterfaceFlag StdFFI (cgServMethod i real_result ps False False)
      d   <- setInterfaceFlag StdFFI (cgMethod (i{idName=uw_name}) cc real_result ps
-     					      Nothing (Just i_name))
+                                              Nothing (Just i_name))
      let decl_list = imp_decls ++ exp_decls
      ds  <- mapM exportDecl decl_list
      return (andDecls (ds ++ [d,h]))
@@ -123,7 +123,7 @@ marshallFun mb_mod_nm i (FunTy cc res ps)
   wr_tysig  = genTypeSig wr_name mb_c wr_type
   wr_type   = funTy (tyPtr (tyPtr ty)) $
               funTy ty                 $
-	      io_unit
+              io_unit
   wr_def    = funDef wr_name [patVar "fptr", patVar v_name] wr_rhs
   wr_rhs    = 
      bind (funApply (var m_name) [var v_name]) (var "ptr") $
@@ -137,7 +137,7 @@ marshallFun mb_mod_nm i (FunTy cc res ps)
   f_name    = 
        case (findAttribute "entry" (idAttributes i)) of
          Just (Attribute _ (ParamLit (StringLit x) : _)) -> mkQVarName mb_mod_nm x
-	 _ -> mkQVarName mb_mod_nm (idName i)
+         _ -> mkQVarName mb_mod_nm (idName i)
 
   (e_loc, e_ty)
     | exportFun = (Just (idName i), base_ty)
@@ -145,7 +145,7 @@ marshallFun mb_mod_nm i (FunTy cc res ps)
 
 
   i_decl    = primcst cc i_name (funTy (tyPtr ty) i_base_ty)
-  		      has_structs c_ty_args c_res_ty
+                      has_structs c_ty_args c_res_ty
 
   u_decl    = u_tysig `andDecl` u_def
   u_tysig   = genTypeSig u_name mb_c (funTy (tyPtr ty) (io ty))

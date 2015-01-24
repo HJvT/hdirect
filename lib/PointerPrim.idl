@@ -15,7 +15,7 @@ void primFreeMemory ([in,ptr]void* p);
 [ptr]void* primAllocMemory([in]unsigned int sz);
 
 void  primFinalise( [in,ptr]void* finaliser
-		  , [in,ptr]void* finalisee);
+                  , [in,ptr]void* finalisee);
 
 };
 

@@ -59,12 +59,12 @@ typedef struct IUnknownVtbl {
 
 struct IUnknown { struct IUnknownVtbl* lpVtbl;};
 
-#define IUnknown_QueryInterface(this,riid,ppvObject)	\
+#define IUnknown_QueryInterface(this,riid,ppvObject)    \
     (this)->lpVtbl->QueryInterface(this,riid,ppvObject)
 
-#define IUnknown_AddRef(this)	(this)->lpVtbl->AddRef(this)
+#define IUnknown_AddRef(this)   (this)->lpVtbl->AddRef(this)
 
-#define IUnknown_Release(this)	(this)->lpVtbl->Release(this)
+#define IUnknown_Release(this)  (this)->lpVtbl->Release(this)
 #endif
 
 #ifndef S_OK
@@ -131,80 +131,80 @@ extern
 HRESULT
 STDCALL
 CoCreateInstance (
-		  REFCLSID   rclsid,
-		  IUnknown*  pUnkOuter,
-		  DWORD      dwClsContext,
-		  REFIID     riid,
-		  void**     ppv);
+                  REFCLSID   rclsid,
+                  IUnknown*  pUnkOuter,
+                  DWORD      dwClsContext,
+                  REFIID     riid,
+                  void**     ppv);
 
 #if __W32API_MAJOR_VERSION == 1
 extern
 HRESULT
 STDCALL
 CoCreateInstanceEx (
-		  REFCLSID   rclsid,
-		  IUnknown*  pUnkOuter,
-		  DWORD      dwClsContext,
-		  void*      pServerInfo,
-		  ULONG      cmq,
-		  void*      pResults);
+                  REFCLSID   rclsid,
+                  IUnknown*  pUnkOuter,
+                  DWORD      dwClsContext,
+                  void*      pServerInfo,
+                  ULONG      cmq,
+                  void*      pResults);
 
 extern
 HRESULT
 STDCALL
 CoRegisterClassObject (
-		  REFCLSID   rclsid,
-		  IUnknown*  pUnkOuter,
-		  DWORD      dwClsContext,
-		  DWORD      flags,
-		  DWORD**    pdwRegister);
+                  REFCLSID   rclsid,
+                  IUnknown*  pUnkOuter,
+                  DWORD      dwClsContext,
+                  DWORD      flags,
+                  DWORD**    pdwRegister);
 #endif
 
 extern
 HRESULT
 STDCALL
 CoRevokeClassObject (
-		  DWORD      dwRegister
+                  DWORD      dwRegister
                     );
 
 extern
 HRESULT
 STDCALL
 primCreateInstance (
-		  CLSID*     clsid,
-		  IUnknown*  pUnkOuter,
-		  DWORD      dwClsContext,
-		  IID*       iid,
-		  void**     ppv);
+                  CLSID*     clsid,
+                  IUnknown*  pUnkOuter,
+                  DWORD      dwClsContext,
+                  IID*       iid,
+                  void**     ppv);
 extern
 HRESULT
 STDCALL
 StringFromCLSID
              (REFCLSID rclsid,
-	      WCHAR** lplpsz);
+              WCHAR** lplpsz);
 
 extern
 int
 STDCALL
 StringFromGUID2
              ( const GUID* rguid
-	     , LPOLESTR    lpsz
-	     , int         cbMax
-	     );
+             , LPOLESTR    lpsz
+             , int         cbMax
+             );
 
 extern
 HRESULT
 STDCALL
 ProgIDFromCLSID
              (REFCLSID rclsid,
-	      WCHAR** lplpsz);
+              WCHAR** lplpsz);
 
 extern
 HRESULT
 STDCALL
 CLSIDFromString
              (WCHAR* lpsz,
-	      CLSID* pclsid);
+              CLSID* pclsid);
 
 /* Helper functions defined in ComPrimSrc.c */
 extern HRESULT primStringToGUID( WCHAR* guidStr, GUID* guid );
@@ -242,64 +242,64 @@ typedef struct IBindCtx IBindCtx;
     typedef struct IBindCtxVtbl
     {
         HRESULT ( STDCALL *QueryInterface )
-	           ( IBindCtx * This
-		   , REFIID riid
-		   , void **ppvObject
-		   );
+                   ( IBindCtx * This
+                   , REFIID riid
+                   , void **ppvObject
+                   );
         
         ULONG ( STDCALL *AddRef )( IBindCtx * This );
         
         ULONG ( STDCALL *Release )( IBindCtx * This );
         
         HRESULT ( STDCALL *RegisterObjectBound )
-	           ( IBindCtx * This
-		   , IUnknown *punk
-		   );
+                   ( IBindCtx * This
+                   , IUnknown *punk
+                   );
         
         HRESULT ( STDCALL *RevokeObjectBound )
-	           ( IBindCtx * This
-		   , IUnknown *punk
-		   );
+                   ( IBindCtx * This
+                   , IUnknown *punk
+                   );
         
         HRESULT ( STDCALL *ReleaseBoundObjects )
-	           ( IBindCtx * This );
+                   ( IBindCtx * This );
         
         /* [local] */ HRESULT ( STDCALL *SetBindOptions )
-	           ( IBindCtx * This
-		   , BIND_OPTS *pbindopts
-		   );
+                   ( IBindCtx * This
+                   , BIND_OPTS *pbindopts
+                   );
         
         /* [local] */ HRESULT ( STDCALL *GetBindOptions )
-	           ( IBindCtx * This
-		   , BIND_OPTS *pbindopts
-		   );
+                   ( IBindCtx * This
+                   , BIND_OPTS *pbindopts
+                   );
         
         HRESULT ( STDCALL *GetRunningObjectTable )
-	           ( IBindCtx * This
-		   , IRunningObjectTable **pprot
-		   );
+                   ( IBindCtx * This
+                   , IRunningObjectTable **pprot
+                   );
         
         HRESULT ( STDCALL *RegisterObjectParam )
-	           ( IBindCtx * This
-		   , LPOLESTR pszKey
-		   , IUnknown *punk
-		   );
+                   ( IBindCtx * This
+                   , LPOLESTR pszKey
+                   , IUnknown *punk
+                   );
         
         HRESULT ( STDCALL *GetObjectParam )
-	           ( IBindCtx * This
-		   , LPOLESTR pszKey
-		   , IUnknown **ppunk
-		   );
+                   ( IBindCtx * This
+                   , LPOLESTR pszKey
+                   , IUnknown **ppunk
+                   );
         
         HRESULT ( STDCALL *EnumObjectParam )
-	           ( IBindCtx * This
-		   , IEnumString **ppenum
-		   );
+                   ( IBindCtx * This
+                   , IEnumString **ppenum
+                   );
         
         HRESULT ( STDCALL *RevokeObjectParam )
-	           ( IBindCtx * This
-		   , LPOLESTR pszKey
-		   );
+                   ( IBindCtx * This
+                   , LPOLESTR pszKey
+                   );
     } IBindCtxVtbl;
 
 struct IBindCtx { struct IBindCtxVtbl *lpVtbl; };
@@ -311,141 +311,141 @@ typedef struct IMoniker IMoniker;
     typedef struct IMonikerVtbl
     {
         HRESULT ( STDCALL *QueryInterface )
-	           ( IMoniker * This
-		   , REFIID riid
-		   , void **ppvObject
-		   );
+                   ( IMoniker * This
+                   , REFIID riid
+                   , void **ppvObject
+                   );
         
         ULONG ( STDCALL *AddRef )( IMoniker * This );
         
         ULONG ( STDCALL *Release )( IMoniker * This );
 
         HRESULT ( STDCALL *GetClassID )
-	           ( IMoniker * This
-		   , CLSID *pClassID
-		   );
+                   ( IMoniker * This
+                   , CLSID *pClassID
+                   );
         
         HRESULT ( STDCALL *IsDirty )( IMoniker * This );
         
         HRESULT ( STDCALL *Load )
-	           ( IMoniker * This
-		   , IStream *pStm
-		   );
+                   ( IMoniker * This
+                   , IStream *pStm
+                   );
         
         HRESULT ( STDCALL *Save )
-	           ( IMoniker * This
-		   , IStream *pStm
-		   , BOOL fClearDirty
-		   );
+                   ( IMoniker * This
+                   , IStream *pStm
+                   , BOOL fClearDirty
+                   );
         
         HRESULT ( STDCALL *GetSizeMax )
-	           ( IMoniker * This
-		   , ULARGE_INTEGER *pcbSize
-		   );
+                   ( IMoniker * This
+                   , ULARGE_INTEGER *pcbSize
+                   );
         
         HRESULT ( STDCALL *BindToObject )
-	           ( IMoniker * This
-		   , IBindCtx *pbc
-		   , IMoniker *pmkToLeft
-		   , REFIID riidResult
-		   , void **ppvResult
-		   );
+                   ( IMoniker * This
+                   , IBindCtx *pbc
+                   , IMoniker *pmkToLeft
+                   , REFIID riidResult
+                   , void **ppvResult
+                   );
         
         HRESULT ( STDCALL *BindToStorage )
-	           ( IMoniker * This
-		   , IBindCtx *pbc
-		   , IMoniker *pmkToLeft
-		   , REFIID riid
-		   , void **ppvObj
-		   );
+                   ( IMoniker * This
+                   , IBindCtx *pbc
+                   , IMoniker *pmkToLeft
+                   , REFIID riid
+                   , void **ppvObj
+                   );
         
         HRESULT ( STDCALL *Reduce )
-	           ( IMoniker * This
-		   , IBindCtx *pbc
-		   , DWORD dwReduceHowFar
-		   , IMoniker **ppmkToLeft
-		   , IMoniker **ppmkReduced
-		   );
+                   ( IMoniker * This
+                   , IBindCtx *pbc
+                   , DWORD dwReduceHowFar
+                   , IMoniker **ppmkToLeft
+                   , IMoniker **ppmkReduced
+                   );
         
         HRESULT ( STDCALL *ComposeWith )
-	           ( IMoniker * This
-		   , IMoniker *pmkRight
-		   , BOOL fOnlyIfNotGeneric
-		   , IMoniker **ppmkComposite
-		   );
+                   ( IMoniker * This
+                   , IMoniker *pmkRight
+                   , BOOL fOnlyIfNotGeneric
+                   , IMoniker **ppmkComposite
+                   );
         
         HRESULT ( STDCALL *Enum )
-	           ( IMoniker * This
-		   , BOOL fForward
-		   , IEnumMoniker **ppenumMoniker
-		   );
+                   ( IMoniker * This
+                   , BOOL fForward
+                   , IEnumMoniker **ppenumMoniker
+                   );
         
         HRESULT ( STDCALL *IsEqual )
-	           ( IMoniker * This
-		   , IMoniker *pmkOtherMoniker
-		   );
+                   ( IMoniker * This
+                   , IMoniker *pmkOtherMoniker
+                   );
         
         HRESULT ( STDCALL *Hash )
-	           ( IMoniker * This
-		   , DWORD *pdwHash
-		   );
+                   ( IMoniker * This
+                   , DWORD *pdwHash
+                   );
         
         HRESULT ( STDCALL *IsRunning )
-	           ( IMoniker * This
-		   , IBindCtx *pbc
-		   , IMoniker *pmkToLeft
-		   , IMoniker *pmkNewlyRunning
-		   );
+                   ( IMoniker * This
+                   , IBindCtx *pbc
+                   , IMoniker *pmkToLeft
+                   , IMoniker *pmkNewlyRunning
+                   );
         
         HRESULT ( STDCALL *GetTimeOfLastChange )
-	           ( IMoniker * This
-		   , IBindCtx *pbc
-		   , IMoniker *pmkToLeft
-		   , FILETIME *pFileTime
-		   );
+                   ( IMoniker * This
+                   , IBindCtx *pbc
+                   , IMoniker *pmkToLeft
+                   , FILETIME *pFileTime
+                   );
         
         HRESULT ( STDCALL *Inverse )
-	           ( IMoniker * This
-		   , IMoniker **ppmk
-		   );
+                   ( IMoniker * This
+                   , IMoniker **ppmk
+                   );
         
         HRESULT ( STDCALL *CommonPrefixWith )
-	           ( IMoniker * This
-		   , IMoniker *pmkOther
-		   , IMoniker **ppmkPrefix
-		   );
+                   ( IMoniker * This
+                   , IMoniker *pmkOther
+                   , IMoniker **ppmkPrefix
+                   );
         
         HRESULT ( STDCALL *RelativePathTo )
-	           ( IMoniker * This
-		   , IMoniker *pmkOther
-		   , IMoniker **ppmkRelPath
-		   );
+                   ( IMoniker * This
+                   , IMoniker *pmkOther
+                   , IMoniker **ppmkRelPath
+                   );
         
         HRESULT ( STDCALL *GetDisplayName )
-	           ( IMoniker * This
-		   , IBindCtx *pbc
-		   , IMoniker *pmkToLeft
-		   , LPOLESTR *ppszDisplayName
-		   );
+                   ( IMoniker * This
+                   , IBindCtx *pbc
+                   , IMoniker *pmkToLeft
+                   , LPOLESTR *ppszDisplayName
+                   );
         
         HRESULT ( STDCALL *ParseDisplayName )
-	           ( IMoniker * This
-		   , IBindCtx *pbc
-		   , IMoniker *pmkToLeft
-		   , LPOLESTR pszDisplayName
-		   , ULONG *pchEaten
-		   , IMoniker **ppmkOut
-		   );
+                   ( IMoniker * This
+                   , IBindCtx *pbc
+                   , IMoniker *pmkToLeft
+                   , LPOLESTR pszDisplayName
+                   , ULONG *pchEaten
+                   , IMoniker **ppmkOut
+                   );
         
         HRESULT ( STDCALL *IsSystemMoniker )
-	           ( IMoniker * This
-		   , DWORD *pdwMksys
-		   );
+                   ( IMoniker * This
+                   , DWORD *pdwMksys
+                   );
     } IMonikerVtbl;
 
 struct IMoniker { struct IMonikerVtbl* lpVtbl; };
 
-#define IMoniker_BindToObject(This,pbc,pmkToLeft,riidResult,ppvResult)	\
+#define IMoniker_BindToObject(This,pbc,pmkToLeft,riidResult,ppvResult)  \
     (This)->lpVtbl -> BindToObject(This,pbc,pmkToLeft,riidResult,ppvResult)
 
 typedef struct IEnumUnknown IEnumUnknown;
@@ -453,26 +453,26 @@ typedef struct IEnumUnknown IEnumUnknown;
 typedef struct IEnumUnknownVtbl
     {
         HRESULT ( STDCALL *QueryInterface )
-	            ( IEnumUnknown * This
-		    , REFIID riid
-		    , void **ppvObject
-		    );
+                    ( IEnumUnknown * This
+                    , REFIID riid
+                    , void **ppvObject
+                    );
         
         ULONG ( STDCALL *AddRef )( IEnumUnknown * This );
         
         ULONG ( STDCALL *Release )( IEnumUnknown * This );
         
         HRESULT ( STDCALL *Next )
-	            ( IEnumUnknown * This
-		    , ULONG celt
-		    , IUnknown **rgelt
-		    , ULONG *pceltFetched
-		    );
+                    ( IEnumUnknown * This
+                    , ULONG celt
+                    , IUnknown **rgelt
+                    , ULONG *pceltFetched
+                    );
         
         HRESULT ( STDCALL *Skip )
-	            ( IEnumUnknown * This
-		    , ULONG celt
-		    );
+                    ( IEnumUnknown * This
+                    , ULONG celt
+                    );
         
         HRESULT ( STDCALL *Reset )(  IEnumUnknown * This );
         
@@ -506,9 +506,9 @@ extern
 HRESULT
 STDCALL
 MkParseDisplayName( IBindCtx* pbc
-		  , LPCOLESTR szUserName
-		  , unsigned long* eatern
-		  , IMoniker** ppmk);
+                  , LPCOLESTR szUserName
+                  , unsigned long* eatern
+                  , IMoniker** ppmk);
 
 extern
 HRESULT
@@ -543,37 +543,37 @@ HRESULT
 STDCALL
 LoadTypeLib
              ( LPOLESTR    lpsz
-	     , IUnknown**  ppv
-	     );
+             , IUnknown**  ppv
+             );
 
 HRESULT
 STDCALL
 LoadTypeLibEx
              ( LPOLESTR    lpsz
-	     , int         kind
-	     , IUnknown**  ppv
-	     );
+             , int         kind
+             , IUnknown**  ppv
+             );
 
 HRESULT
 STDCALL
 LoadRegTypeLib
              ( GUID*       rguid
-	     , WORD        wVerMajor
-	     , WORD        wVerMinor
-	     , LCID        lcid
-	     , IUnknown**  ppv
-	     );
+             , WORD        wVerMajor
+             , WORD        wVerMinor
+             , LCID        lcid
+             , IUnknown**  ppv
+             );
 #endif
 
 extern
 HRESULT
 primLoadRegTypeLib 
                 ( GUID* rguid
-		, short wMaj
-		, short wMin
-		, LCID lcid
-		, void** ppv
-		);
+                , short wMaj
+                , short wMin
+                , LCID lcid
+                , void** ppv
+                );
 
 #if __W32API_MAJOR_VERSION == 1
 extern
@@ -581,11 +581,11 @@ HRESULT
 STDCALL
 QueryPathOfRegTypeLib
              ( GUID* rguid
-	     , unsigned short maj
-	     , unsigned short min
-	     , LCID  lcid
-	     , BSTR* pbstr
-	     );
+             , unsigned short maj
+             , unsigned short min
+             , LCID  lcid
+             , BSTR* pbstr
+             );
 
 #endif
 
@@ -593,15 +593,15 @@ extern
 BSTR
 primQueryPathOfRegTypeLib
              ( GUID* rguid
-	     , unsigned short maj
-	     , unsigned short min
-	     );
+             , unsigned short maj
+             , unsigned short min
+             );
 
 extern
 char*
 getModuleFileName
              ( HANDLE hMod
-	     );
+             );
 
 #if __W32API_MAJOR_VERSION == 1
 extern
@@ -609,9 +609,9 @@ DWORD
 WINAPI
 GetModuleFileNameA
              ( HINSTANCE hMod
-	     , LPSTR     lpFileName
-	     , DWORD     size
-	     );
+             , LPSTR     lpFileName
+             , DWORD     size
+             );
 
 extern
 LCID

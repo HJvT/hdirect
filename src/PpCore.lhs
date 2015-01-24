@@ -15,8 +15,8 @@ import Literal
 import BasicTypes
 import PP
 import Opts  ( optDebug, optHaskellToC, optShortHeader,
-	       optCompilingMsIDL
-	     )
+               optCompilingMsIDL
+             )
 import Data.List  ( partition )
 import Utils      ( mapMb, notNull )
 import Attribute  ( hasAttributeWithName )
@@ -33,11 +33,11 @@ a flag indicating how much info we should print out.
 type CoreDoc = 
   PPDoc ( Bool   -- output debugging information?
         , Bool   -- output as C decls?
-	, Bool   -- within a C comment?
-	, Bool   -- expand library decls?
-	, String -- type of the 'this' pointer.
-		 -- "" => not processing an object interface.
-	)
+        , Bool   -- within a C comment?
+        , Bool   -- expand library decls?
+        , String -- type of the 'this' pointer.
+                 -- "" => not processing an object interface.
+        )
 
 showCore :: CoreDoc -> String
 showCore cd = showPPDoc cd (optDebug, False, False, True, "")
@@ -45,9 +45,9 @@ showCore cd = showPPDoc cd (optDebug, False, False, True, "")
 showHeader :: String -> CoreDoc -> String
 showHeader fname cd = 
   showPPDoc (text "#ifndef" <+> text fname' $$
-  	     text "#define" <+> text fname' $$
-	     cd $$ text "#endif")
-	    (False, True{-as C-}, False, True, "")
+             text "#define" <+> text fname' $$
+             cd $$ text "#endif")
+            (False, True{-as C-}, False, True, "")
  where
   uu     = "__"
   fname' = uu ++ map canon fname ++ uu
@@ -62,8 +62,8 @@ ppCore ls = vsep (map ppDecl ls) $$ text ""
 
 ppHeaderDecl :: [Id] -> Decl -> CoreDoc
 ppHeaderDecl is d = vsep (map forwardDecl is) $$
-		    ppDecl d $$
-		    text ""
+                    ppDecl d $$
+                    text ""
  where 
    forwardDecl i
      | is_object =
@@ -76,8 +76,8 @@ ppHeaderDecl is d = vsep (map forwardDecl is) $$
     where
      attrs      = idAttributes i
      is_object  = 
-	attrs `hasAttributeWithName` "object" ||
-	attrs `hasAttributeWithName` "odl"
+        attrs `hasAttributeWithName` "object" ||
+        attrs `hasAttributeWithName` "odl"
     
 
 setDebug :: Bool -> CoreDoc -> CoreDoc
@@ -165,7 +165,7 @@ ppDecl (Typedef i t orig_ty) =
   case orig_ty of
    FunTy cc res ps ->
         text "typedef" <+> ppType (resultType res) <+> 
-	     parens ( ppCallConv True cc <+> char '*' <> ppId i id) <>
+             parens ( ppCallConv True cc <+> char '*' <> ppId i id) <>
              ppTuple (map ppParam ps) <> semi
    _ ->
     ifC (ppId i (\ x -> text "typedef" <+> x <+> ppType orig_ty))
@@ -179,18 +179,18 @@ ppDecl (Constant i _ o_t e) =
 ppDecl (Interface i is_ref inherit decls)
   | is_ref =
     ifC empty
-	(ppId i ($+$ (text "interface")) <> semi)
+        (ppId i ($+$ (text "interface")) <> semi)
   | otherwise  =
     ifC
       pprIface
       ((hang (ppIdVert i ($+$ (text "interface")) <+> pp_inherit <+> char '{')
-	 3   (ppCoreDecls decls (map ppDecl decls))) $$
+         3   (ppCoreDecls decls (map ppDecl decls))) $$
        char '}' <> semi)
  where
   attrs      = idAttributes i
   is_object  = 
-	attrs `hasAttributeWithName` "object" ||
-	attrs `hasAttributeWithName` "odl"
+        attrs `hasAttributeWithName` "object" ||
+        attrs `hasAttributeWithName` "odl"
 
   pprIface
    | optShortHeader || pure_dispatch = commentOutIfC (text "interface" <+> text (idOrigName i) <+> text "{};")
@@ -200,18 +200,18 @@ ppDecl (Interface i is_ref inherit decls)
       ppCoreDecls non_meth_decls (map ppDecl non_meth_decls) $$
        (hang (text "typedef struct" <+> text (idOrigName i ++ "Vtbl") <+> char '{')
          3   ((if optHaskellToC then id else setThisType (idOrigName i))
-	        ( ppInhMethodFiller $$ 
-		  ppCoreDecls meth_decls (map ppDecl the_meth_decls)))) $$
+                ( ppInhMethodFiller $$ 
+                  ppCoreDecls meth_decls (map ppDecl the_meth_decls)))) $$
        char '}' <+> text (idName i ++ "Vtbl") <> semi $$ text "" $$
        hang (text "struct" <+> text (idName i) <+> char '{')
          2  (text "struct" <+> text (idName i ++ "Vtbl") <+> char '*' <> text "lpVtbl" <> semi $$
-	     char '}' <> semi) $$
+             char '}' <> semi) $$
        if optHaskellToC then 
           empty 
        else
-	  text "#ifdef COBJMACROS" $$
-	  vcat (map (mkObjMacros (idName i)) decls) $$
-	  text "#endif" <+> commentOut (text "COBJMACROS")
+          text "#ifdef COBJMACROS" $$
+          vcat (map (mkObjMacros (idName i)) decls) $$
+          text "#endif" <+> commentOut (text "COBJMACROS")
 
   the_meth_decls = map (removeAttrs) meth_decls
 
@@ -230,14 +230,14 @@ ppDecl (Interface i is_ref inherit decls)
     case (idOrigName i) of
       "IDispatch" -> (True, False)
       "IUnknown"  -> (False, True)
-      _		  -> (False, False)
+      _           -> (False, False)
 
   pure_dispatch = not is_idispatch && is_dispatch && not has_dual
     
   has_dual = (idAttributes i) `hasAttributeWithName` "dual"
 
   isMethod (Method _ _ _ _ _) = True
-  isMethod _		      = False
+  isMethod _                  = False
 
   mkObjMacros if_nm (Method methId _ _ args _) = 
     hang (text "#define" <+> text (if_nm ++ '_':idOrigName methId) <> arg_list <+> char '\\')
@@ -249,13 +249,13 @@ ppDecl (Interface i is_ref inherit decls)
   pp_inherit
    | not optDebug && optCompilingMsIDL =
       case inherit of
-	  []        -> empty
-	  ((x,_):_) -> char ':' <+> text (qName x)
+          []        -> empty
+          ((x,_):_) -> char ':' <+> text (qName x)
    | otherwise =
    case inherit of
      [] -> empty
      ls -> char ':' <+> hsep (punctuate comma (map (\ (x,y) -> ppQualName x <> 
-							       commentOut (text (show y))) ls))
+                                                               commentOut (text (show y))) ls))
 
 ppDecl (Module i decls) =
  ifC (ppCoreDecls decls (map ppDecl decls))
@@ -274,7 +274,7 @@ ppDecl (DispInterface i _ props meths) =
      (hang (ppIdVert i ($+$ (text "dispinterface")) <+> char '{')
        3   (hang (text "properties:")
              2   (ppDecls (map ppDecl props)) $$
-	    hang (text "methods:")
+            hang (text "methods:")
              2   (ppCoreDecls meths (map ppDecl meths))) $$
       text "};")
 
@@ -287,7 +287,7 @@ ppDecl (Library i decls) =
  ifTopLevLib 
    (commentOutIfC (char '{') $$
     setLibFlag False (ppFwdDecls $$
-		      ppCoreDecls decls (map ppDecl decls)) $$
+                      ppCoreDecls decls (map ppDecl decls)) $$
     commentOutIfC (text "};"))
    (commentOutIfC (text "{};"))
  where
@@ -298,14 +298,14 @@ ppDecl (Library i decls) =
   ppFwdDecl (Interface ifaceId _ inherit _) =
    ifC (if pure_dispatch then 
            empty 
-	else 
-	   text "typedef struct" <+> text (idOrigName ifaceId) <+> text (idOrigName ifaceId) <> semi)
+        else 
+           text "typedef struct" <+> text (idOrigName ifaceId) <+> text (idOrigName ifaceId) <> semi)
        (text "interface" <+> text (idOrigName ifaceId) <> semi)
     where
      is_idispatch =
       case (idOrigName ifaceId) of
         "IDispatch" -> True
-        _	    -> False
+        _           -> False
 
      pure_dispatch = not is_idispatch && is_dispatch && not has_dual
      is_dispatch = any (\ x -> qName (fst x) == "IDispatch") inherit
@@ -314,7 +314,7 @@ ppDecl (Library i decls) =
   ppFwdDecl _ = empty
 
   isInterface Interface{} = True
-  isInterface _		  = False
+  isInterface _           = False
 
 
 ppDecl (CoClass i decls) =
@@ -342,7 +342,7 @@ ppDecl (Method i cconv res args _) =
    | attrs `hasAttributeWithName` "propget" = i{idOrigName="get"++idOrigName i}
    | attrs `hasAttributeWithName` "propput" = i{idOrigName="put"++idOrigName i}
    | attrs `hasAttributeWithName` "propputref" = i{idOrigName="put"++idOrigName i}
-   | otherwise				       = i
+   | otherwise                                 = i
 
   pp_param =
    getThisType $ \ str ->
@@ -352,8 +352,8 @@ ppDecl (Method i cconv res args _) =
     args' 
      | null str  = args
      | otherwise = (Param (Id "This" "This" Nothing []) 
-			  In ty ty False):args
-   in			  
+                          In ty ty False):args
+   in                     
    ppTupleVert (map ppParam args')
 
 ppDecl (HsLiteral str) = whenNotC (text "haskell" <> parens (text str) <> semi)
@@ -397,7 +397,7 @@ ppId i ty
 -- foo
 
 ppIdVert :: Id -> (CoreDoc -> CoreDoc) -> CoreDoc
-ppIdVert i ty		  
+ppIdVert i ty             
   | notNull attrs' = (ty (commentOutIfC (ppListVert (map ppAttr attrs')))) <+> ppModule i
   | otherwise      = ty empty <+> ppModule i
   where
@@ -405,7 +405,7 @@ ppIdVert i ty
     attrs' = filter notIsAny attrs
     
     notIsAny (Attribute "any" _) = False
-    notIsAny _			 = True
+    notIsAny _                   = True
 
 -- print the name of an Id, and possibly what 
 -- file/module it is coming from.
@@ -469,7 +469,7 @@ ppType (Float sz) =
    Short    -> text "float"
    Long     -> text "double"
    LongLong -> text "long double"
-   Natural  -> text "float"	       
+   Natural  -> text "float"            
 
 ppType (Char signed)
  | signed    = text "signed char"
@@ -544,9 +544,9 @@ ppType Void                = text "void"
 ppType (Iface nm md onm _ _ _) = ppModule (Id nm onm md [])
 
 ppType (SafeArray t)      = text "SAFEARRAY" <> ifC (char '*') (parens (ppType t))
-				    -- In .h mode, we run the risk of nested comments here
-				    -- should we have a SAFEARRAY of a SAFEARRAY (yes, it does
-				    -- happen!).
+                                    -- In .h mode, we run the risk of nested comments here
+                                    -- should we have a SAFEARRAY of a SAFEARRAY (yes, it does
+                                    -- happen!).
 
 ppEnumValue :: EnumValue -> CoreDoc
 ppEnumValue (EnumValue vi (Left val)) = ppId vi id <+> equals <+> text (show val)
@@ -571,7 +571,7 @@ ppFunTy :: CallConv -> Result -> [Param] -> CoreDoc
 ppFunTy cc res params = 
   parens (ppResult res <+> 
           parens (ppCallConv True cc <+> char '*') <>
-	  ppTuple (map ppParam params))
+          ppTuple (map ppParam params))
 
 ppArrayDims :: [Expr] -> CoreDoc
 ppArrayDims []    = ifC (text "[1]") (text "[]")
@@ -627,7 +627,7 @@ ppField (Field i t orig_ty mb_sz _) =
 ppResult :: Result -> CoreDoc
 ppResult (Result red_ty orig_ty) =
   ifDebug (ppType red_ty <> parens (ppType orig_ty))
-	  (ppType orig_ty)
+          (ppType orig_ty)
 
 ppCaseLabels :: Bool -> [CaseLabel] -> CoreDoc
 ppCaseLabels inEncUn ls 

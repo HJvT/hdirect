@@ -10,192 +10,192 @@ type.
 
 \begin{code}
 module AbsHUtils 
-	(
-	  tyConst
-	, tyQConst
-	, libTyQConst
-	, mkTyConst
-	, deTyCon
-	, tyCon
-	, tyQCon
-	, mkTyCon
-	, tyVar
-	, uniqueTyVar
-	, tyQVar
-	, isTyVar
+        (
+          tyConst
+        , tyQConst
+        , libTyQConst
+        , mkTyConst
+        , deTyCon
+        , tyCon
+        , tyQCon
+        , mkTyCon
+        , tyVar
+        , uniqueTyVar
+        , tyQVar
+        , isTyVar
 
-	, generaliseTys
-	, overloadedTyVar
-	, ctxtTyApp
-	, ctxtClass
-	, mbCtxtTyApp
+        , generaliseTys
+        , overloadedTyVar
+        , ctxtTyApp
+        , ctxtClass
+        , mbCtxtTyApp
 
-	, tyList
-	, tyMaybe
-	, tyVariant
-	, tuple
-	, tyInt8Name, tyInt16Name, tyInt32Name, tyInt64Name, tyIntName
-	, tyInt8, tyInt16, tyInt32, tyInt64, tyInt
-	, tyInteger, tyIntegerName
-	, tyFloat, tyDouble, tyLongDouble
-	, tyAddr
-	, tyPtr
-	, anyTyPtr
-	, tyFunPtr
-	, tyForeignObj
-	, tyForeignPtr
-	, isFOTy
-	, isPtrTy
-	, isVARIANTTy
-	, toPtrTy
+        , tyList
+        , tyMaybe
+        , tyVariant
+        , tuple
+        , tyInt8Name, tyInt16Name, tyInt32Name, tyInt64Name, tyIntName
+        , tyInt8, tyInt16, tyInt32, tyInt64, tyInt
+        , tyInteger, tyIntegerName
+        , tyFloat, tyDouble, tyLongDouble
+        , tyAddr
+        , tyPtr
+        , anyTyPtr
+        , tyFunPtr
+        , tyForeignObj
+        , tyForeignPtr
+        , isFOTy
+        , isPtrTy
+        , isVARIANTTy
+        , toPtrTy
 
-	, tyStable
-	, tyString
-	, tyWString
-	, tyByte, tyChar, tyWChar
-	, tyBool
-	, tyWord8Name, tyWord16Name, tyWord32Name, tyWord64Name
-	, tyWord8, tyWord16, tyWord32, tyWord64
-	, funTy
-	, funTys
-	, io
-	, io_unit
-	, tyUnit
-	, purifyType
-	, isIOTy
+        , tyStable
+        , tyString
+        , tyWString
+        , tyByte, tyChar, tyWChar
+        , tyBool
+        , tyWord8Name, tyWord16Name, tyWord32Name, tyWord64Name
+        , tyWord8, tyWord16, tyWord32, tyWord64
+        , funTy
+        , funTys
+        , io
+        , io_unit
+        , tyUnit
+        , purifyType
+        , isIOTy
 
-	, recCon
-	, recConBanged
-	, conDecl
-	, recToConDecl
+        , recCon
+        , recConBanged
+        , conDecl
+        , recToConDecl
 
-	, dataTy
-	, newTy
-	, tySyn
-	, conDeclToCon
-	, conDeclToPat
-	, splitFunTys
-	, hInstance
-	, hClass
+        , dataTy
+        , newTy
+        , tySyn
+        , conDeclToCon
+        , conDeclToPat
+        , splitFunTys
+        , hInstance
+        , hClass
 
-	, groundTyVars
-	, unconstrainType
+        , groundTyVars
+        , unconstrainType
 
-	, andDecl
-	, andDecls
-	, emptyDecl
-	, comment
-	, isEmptyDecl
-	, cCode
+        , andDecl
+        , andDecls
+        , emptyDecl
+        , comment
+        , isEmptyDecl
+        , cCode
 
-	, typeSig
-	, genTypeSig
-	, mkTypeSig
-	, funDef
-	, valDef
-	, methodDef
-	, guardedFunDef
-	, prim
-	, primcst
-	, fexport
-	, extLabel
+        , typeSig
+        , genTypeSig
+        , mkTypeSig
+        , funDef
+        , valDef
+        , methodDef
+        , guardedFunDef
+        , prim
+        , primcst
+        , fexport
+        , extLabel
 
-	, conPat
-	, patVar
-	, patRec
-	, qpatVar
-	, litPat
-	, varPat
-	, tuplePat
-	, exprToPat
-	, wildPat
-	, isVarPat
+        , conPat
+        , patVar
+        , patRec
+        , qpatVar
+        , litPat
+        , varPat
+        , tuplePat
+        , exprToPat
+        , wildPat
+        , isVarPat
 
-	, ret
-	, genBind
-	, bind
-	, bind_
-	, var
-	, varName
-	, qvar
-	, lam
-	, lit
-	, integerLit
-	, dataConst
-	, dataCon
-	, funApp
-	, contApply
-	, funApply
-	, infixOp
-	, binOp
-	, unaryOp
-	, tup
-	, hList
-	, hCase
-	, hIf
-	, alt
-	, genAlt
-	, defaultAlt
-	, equals
-	, hLet
-	, hLets
+        , ret
+        , genBind
+        , bind
+        , bind_
+        , var
+        , varName
+        , qvar
+        , lam
+        , lit
+        , integerLit
+        , dataConst
+        , dataCon
+        , funApp
+        , contApply
+        , funApply
+        , infixOp
+        , binOp
+        , unaryOp
+        , tup
+        , hList
+        , hCase
+        , hIf
+        , alt
+        , genAlt
+        , defaultAlt
+        , equals
+        , hLet
+        , hLets
 
-	, intLit
-	, stringLit
+        , intLit
+        , stringLit
 
-	, addPtr
-	, castPtr
-	, nothing
-	, just
-	, unit
+        , addPtr
+        , castPtr
+        , nothing
+        , just
+        , unit
 
-	, prefix
-	, prefixApp
-	, appendStr
+        , prefix
+        , prefixApp
+        , appendStr
 
-	, isVarsEq
-	
-	, hModule
-	, hMeta
-	, cMeta
-	, hInclude
+        , isVarsEq
+        
+        , hModule
+        , hMeta
+        , cMeta
+        , hInclude
 
-	, hExport
-	, hImport
-	, hQImport
-	, ieModule
-	, ieValue
-	, ieClass
-	, ieType
-	, subst
+        , hExport
+        , hImport
+        , hQImport
+        , ieModule
+        , ieValue
+        , ieClass
+        , ieType
+        , subst
 
-	, mkQVarName
-	, mkVarName
-	, mkConName
-	, mkQConName
-	, mkTyVar
-	, mkQTyVar
-	, mkQTyCon
-	
-	, mkIntTy
-	, mkCharTy
-	, mkFloatTy
-	
-	, findIncludes
-	
-	, mkTySig
-	, replaceTyVar
+        , mkQVarName
+        , mkVarName
+        , mkConName
+        , mkQConName
+        , mkTyVar
+        , mkQTyVar
+        , mkQTyCon
+        
+        , mkIntTy
+        , mkCharTy
+        , mkFloatTy
+        
+        , findIncludes
+        
+        , mkTySig
+        , replaceTyVar
 
-	) where
+        ) where
 
 import AbstractH
 import Literal
 import BasicTypes
 import LibUtils
 import Opts    ( optIntsEverywhere, optIntAsWord
-	       , optIntIsInt, optLongLongIsInteger
-	       , optNoWideStrings
-	       )
+               , optIntIsInt, optLongLongIsInteger
+               , optNoWideStrings
+               )
 import Data.Maybe   ( fromMaybe, isJust )
 import Data.Char    ( isLower )
 import Data.List    ( mapAccumL, intersperse )
@@ -284,29 +284,29 @@ unconstrainType tx = go [] tx
    go acc t = 
     case t of
       TyApply f args  -> 
-		let
-		 (acc1, f')    = go acc f
-		 (acc2, args') = mapAccumL go acc1 args
-		in
-		(acc2, TyApply f' args')
+                let
+                 (acc1, f')    = go acc f
+                 (acc2, args') = mapAccumL go acc1 args
+                in
+                (acc2, TyApply f' args')
       TyTuple ts      -> 
-    		let
-		 (acc1, ts') = mapAccumL go acc ts
-		 in
-		 (acc1, TyTuple ts')
+                let
+                 (acc1, ts') = mapAccumL go acc ts
+                 in
+                 (acc1, TyTuple ts')
       TyFun t1 t2     -> 
-		let
-		 (acc1, t1') = go acc  t1
-		 (acc2, t2') = go acc1 t2
-		in
-		(acc2, TyFun t1' t2')
+                let
+                 (acc1, t1') = go acc  t1
+                 (acc2, t2') = go acc1 t2
+                in
+                (acc2, TyFun t1' t2')
       TyList t1   ->
-    		let
-		 (acc1, t1') = go acc t1
-		in
-		(acc1, TyList t1')
+                let
+                 (acc1, t1') = go acc t1
+                in
+                (acc1, TyList t1')
       TyCtxt ctxt t1@(TyVar _ tv) -> ((ctxt,tv):acc, t1)
-      _		    -> (acc, t)
+      _             -> (acc, t)
 
 groundTyVars :: Type -> Type
 groundTyVars t =
@@ -318,17 +318,17 @@ groundTyVars t =
     TyFun t1 t2     -> TyFun (groundTyVars t1) (groundTyVars t2)
     TyList t1       -> TyList (groundTyVars t1)
     TyCtxt _ _      -> t
-    _		    -> t
+    _               -> t
  where
   groundTyVar ty
     | isNonUniqTyVar ty = tyUnit
     | otherwise         = 
-    	case ty of
---	  TyApply (TyCon tc) args 
---	    | qName tc == "Maybe" -> TyApply (TyCon tc) (map groundTyVars args)
-	  TyApply tc args -> TyApply tc (map groundTyVars args)
-	  TyFun t1 t2 -> TyFun (groundTyVars t1) (groundTyVars t2)
-	  _ -> ty
+        case ty of
+--        TyApply (TyCon tc) args 
+--          | qName tc == "Maybe" -> TyApply (TyCon tc) (map groundTyVars args)
+          TyApply tc args -> TyApply tc (map groundTyVars args)
+          TyFun t1 t2 -> TyFun (groundTyVars t1) (groundTyVars t2)
+          _ -> ty
 
 renameTyVar :: String -> Type -> Type
 renameTyVar new_nm (TyVar x _) = TyVar x (mkTyVar new_nm)
@@ -361,61 +361,61 @@ generaliseTys tys =
     substTyVar o_t x t =
       case t of
         TyVar fixed n | not fixed && n == x -> o_t
-	TyApply t1 ty_args -> TyApply t' ty_args'
-	  where
-	   (t':ty_args') = map (substTyVar o_t x) (t1:ty_args)
+        TyApply t1 ty_args -> TyApply t' ty_args'
+          where
+           (t':ty_args') = map (substTyVar o_t x) (t1:ty_args)
         TyList t1  -> TyList  (substTyVar o_t x t1)    
-	TyTuple ts -> TyTuple (map (substTyVar o_t x) ts)
-	TyFun a b  -> TyFun   (substTyVar o_t x a)
-			      (substTyVar o_t x b)
-	TyCtxt c t1 -> TyCtxt (substCtxt o_t x c)
-			      (substTyVar o_t x t1)
-	_ -> t			      
+        TyTuple ts -> TyTuple (map (substTyVar o_t x) ts)
+        TyFun a b  -> TyFun   (substTyVar o_t x a)
+                              (substTyVar o_t x b)
+        TyCtxt c t1 -> TyCtxt (substCtxt o_t x c)
+                              (substTyVar o_t x t1)
+        _ -> t                        
 
     go _ acc [] = ([], acc)
     go supply@(s:ss) acc_ctxt (x:xs) =
       case x of
         TyVar fixed _ | not fixed ->
-	  let
-	    x'        = renameTyVar s x
-	    (xs',acc) = go ss acc_ctxt xs
-	  in
-	  (x' : xs', acc)
-	TyCtxt ctxt tv@(TyVar fixed n) | not fixed -> 
-	  let
-	    tv'   = renameTyVar s tv
-	    ctxt' = substCtxt tv' n ctxt
-	    (xs',acc) = go ss (ctxt' : acc_ctxt) xs
-	  in
-	  (tv' : xs', acc)
-	TyApply t ty_args ->
-	  let
-	   (ts, acc) = go supply acc_ctxt (t:ty_args++xs)
-	   (t':ty_args', rs) = splitAt (length ty_args + 1) ts
-          in
-	  (TyApply t' ty_args' : rs, acc)
-	TyList t   -> 
-	  let
-	   (t':xs', acc) = go supply acc_ctxt (t:xs)
-	  in
-	  (TyList t' : xs' , acc)
-        TyTuple tuple_tys ->
-	  let
-	   (ts, acc)  = go supply acc_ctxt (tuple_tys++xs)
-	   (tys', rs) = splitAt (length tuple_tys) ts
-          in
-	  (TyTuple tys' : rs, acc)
-
-	TyFun t1 t2 ->
-	  let
-	   (t1' : t2' : xs', acc) = go supply acc_ctxt (t1:t2:xs)
-          in
-	  (TyFun t1' t2' :  xs', acc)
-	_ -> 
           let
-	   (xs', acc) = go supply acc_ctxt xs
-	  in
-	  (x:xs', acc)
+            x'        = renameTyVar s x
+            (xs',acc) = go ss acc_ctxt xs
+          in
+          (x' : xs', acc)
+        TyCtxt ctxt tv@(TyVar fixed n) | not fixed -> 
+          let
+            tv'   = renameTyVar s tv
+            ctxt' = substCtxt tv' n ctxt
+            (xs',acc) = go ss (ctxt' : acc_ctxt) xs
+          in
+          (tv' : xs', acc)
+        TyApply t ty_args ->
+          let
+           (ts, acc) = go supply acc_ctxt (t:ty_args++xs)
+           (t':ty_args', rs) = splitAt (length ty_args + 1) ts
+          in
+          (TyApply t' ty_args' : rs, acc)
+        TyList t   -> 
+          let
+           (t':xs', acc) = go supply acc_ctxt (t:xs)
+          in
+          (TyList t' : xs' , acc)
+        TyTuple tuple_tys ->
+          let
+           (ts, acc)  = go supply acc_ctxt (tuple_tys++xs)
+           (tys', rs) = splitAt (length tuple_tys) ts
+          in
+          (TyTuple tys' : rs, acc)
+
+        TyFun t1 t2 ->
+          let
+           (t1' : t2' : xs', acc) = go supply acc_ctxt (t1:t2:xs)
+          in
+          (TyFun t1' t2' :  xs', acc)
+        _ -> 
+          let
+           (xs', acc) = go supply acc_ctxt xs
+          in
+          (x:xs', acc)
     go _ _ _ = error "generaliseTys"
 
 --
@@ -433,49 +433,49 @@ relabelTypes ts =
     go supply@(s:ss) acc (x:xs) =
       case x of
         TyVar fixed v ->
-	  case lookup v acc of
-	    Nothing -> 
-		let (xs',s',acc') = go ss ((v,s):acc) xs in
-		((TyVar fixed (mkTyVar s)):xs',s',acc')
-	    Just tv -> 
-	        let (xs',s',acc') = go supply acc xs in
-		(TyVar fixed (mkTyVar tv) : xs',s',acc')
+          case lookup v acc of
+            Nothing -> 
+                let (xs',s',acc') = go ss ((v,s):acc) xs in
+                ((TyVar fixed (mkTyVar s)):xs',s',acc')
+            Just tv -> 
+                let (xs',s',acc') = go supply acc xs in
+                (TyVar fixed (mkTyVar tv) : xs',s',acc')
         TyApply t tvs ->
-	    let
-	     ([t'], supply', acc')      = go supply acc [t]
-	     (tvs',supply'',  acc'')  = go supply' acc' tvs
-	     (xs', supply''', acc''') = go supply'' acc'' xs
-	    in
-	    (TyApply t' tvs' : xs', supply''', acc''')
+            let
+             ([t'], supply', acc')      = go supply acc [t]
+             (tvs',supply'',  acc'')  = go supply' acc' tvs
+             (xs', supply''', acc''') = go supply'' acc'' xs
+            in
+            (TyApply t' tvs' : xs', supply''', acc''')
         TyTuple ts ->
-	    let
-	     (ts', supply', acc')   = go supply acc ts
-	     (xs', supply'', acc'') = go supply' acc' xs
-	    in
-	    (TyTuple ts' : xs', supply'', acc'')
+            let
+             (ts', supply', acc')   = go supply acc ts
+             (xs', supply'', acc'') = go supply' acc' xs
+            in
+            (TyTuple ts' : xs', supply'', acc'')
         TyList ts ->
-	    let
-	     ([ts'], supply', acc')   = go supply acc [ts]
-	     (xs', supply'', acc'') = go supply' acc' xs
-	    in
-	    (TyList ts' : xs', supply'', acc'')
-	TyFun f a ->
-	    let
-	     ([f'], supply', acc') = go supply acc [f]
-	     ([a'], supply'', acc'') = go supply' acc' [a]
-	     (xs', supply''', acc''') = go supply'' acc'' xs
-	    in
-	    ((TyFun f' a') : xs', supply''', acc''')
-	TyCtxt c t ->
-	    let
-	     ([t'], supply', acc') = go supply acc [t]
-	    in
-	    ([TyCtxt c t'], supply', acc')
-	_ -> 
-	    let
-	     (xs', ss , acc') = go supply acc xs
-	    in
-	    (x : xs', ss, acc')
+            let
+             ([ts'], supply', acc')   = go supply acc [ts]
+             (xs', supply'', acc'') = go supply' acc' xs
+            in
+            (TyList ts' : xs', supply'', acc'')
+        TyFun f a ->
+            let
+             ([f'], supply', acc') = go supply acc [f]
+             ([a'], supply'', acc'') = go supply' acc' [a]
+             (xs', supply''', acc''') = go supply'' acc'' xs
+            in
+            ((TyFun f' a') : xs', supply''', acc''')
+        TyCtxt c t ->
+            let
+             ([t'], supply', acc') = go supply acc [t]
+            in
+            ([TyCtxt c t'], supply', acc')
+        _ -> 
+            let
+             (xs', ss , acc') = go supply acc xs
+            in
+            (x : xs', ss, acc')
 
     go _ _ _ = error "relabelTypes"
 -}
@@ -620,7 +620,7 @@ io x = tyQCon prelude "IO" [x]
 isIOTy :: Type -> Bool
 isIOTy (TyApply (TyCon q) _)
    | qName q == "IO" && qModule q == Just "Prelude" = True
-isIOTy _					    = False
+isIOTy _                                            = False
 
 purifyType :: Type -> Type
 purifyType (TyFun x y@TyFun{}) = TyFun x (purifyType y)
@@ -701,7 +701,7 @@ andDecls = foldr (andDecl) emptyDecl
 
 isEmptyDecl :: HDecl -> Bool
 isEmptyDecl EmptyDecl = True
-isEmptyDecl _	      = False
+isEmptyDecl _         = False
 
 emptyDecl :: HDecl
 emptyDecl = EmptyDecl
@@ -763,7 +763,7 @@ patVar v = PatVar (mkVarName v)
 
 isVarPat :: Pat -> Bool
 isVarPat (PatVar _) = True
-isVarPat _	    = False
+isVarPat _          = False
 
 wildPat :: Pat
 wildPat = PatWildCard
@@ -792,7 +792,7 @@ exprToPat (Apply (Con c) ls) = Just (PatCon c (map ((fromMaybe PatWildCard).expr
 exprToPat (Lit l)   = Just (PatLit l)
 exprToPat (List ls) = Just (PatList  (map ((fromMaybe PatWildCard).exprToPat) ls))
 exprToPat (Tup ls)  = Just (tuplePat (map ((fromMaybe PatWildCard).exprToPat) ls))
-exprToPat _	    = Nothing
+exprToPat _         = Nothing
 \end{code}
 
 Expressions:
@@ -1027,24 +1027,24 @@ mkIntTy sz isSigned
   | isSigned =
       case sz of
          Short    -> tyInt16
-	 Long     -> tyInt32
-	 Natural
-	  | optIntIsInt -> tyInt
-	  | otherwise   -> tyInt32
+         Long     -> tyInt32
+         Natural
+          | optIntIsInt -> tyInt
+          | otherwise   -> tyInt32
 
-	 LongLong 
-	    | optLongLongIsInteger -> tyInteger
-	    | otherwise            -> tyInt64
+         LongLong 
+            | optLongLongIsInteger -> tyInteger
+            | otherwise            -> tyInt64
   | otherwise =
       case sz of 
          Short    -> tyWord16
-	 Long     -> tyWord32
-	 Natural
-	  | optIntIsInt -> tyWord
-	  | otherwise   -> tyWord32
-	 LongLong 
-	  | optLongLongIsInteger -> tyInteger
-	  | otherwise		 -> tyWord64
+         Long     -> tyWord32
+         Natural
+          | optIntIsInt -> tyWord
+          | otherwise   -> tyWord32
+         LongLong 
+          | optLongLongIsInteger -> tyInteger
+          | otherwise            -> tyWord64
 \end{code}
 
 
@@ -1071,7 +1071,7 @@ findIncludes d = whizz d []
  where
   whizz (AndDecl h1 h2) rs = whizz h1 (whizz h2 rs)
   whizz (Include x)     rs = x:rs
-  whizz _		rs = rs
+  whizz _               rs = rs
 
 \end{code}
 
@@ -1084,7 +1084,7 @@ mkTySig ps res = concat (intersperse "-" ls)
       case qName tc of
         'I':'n':'t':xs -> 'I':xs 
         'W':'o':'r':'d':xs -> 'W':xs 
-	v -> v
+        v -> v
    toSig (TyVar _ tv) = qName tv
    toSig (TyApply tc@TyCon{} ts) = concatMap toSig (tc:ts)
     -- weaken once debugged.

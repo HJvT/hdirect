@@ -152,7 +152,7 @@ mkFunId f ps =
       i' = ripOffCC i
       
   ripOffCC (CConvId _ ci) = ripOffCC ci
-  ripOffCC i	          = snd (findCC i)
+  ripOffCC i              = snd (findCC i)
 
 -- push pointedness and callconvs inwards.
 massageId :: Id -> Id
@@ -173,9 +173,9 @@ mkMethodId m_id = go m_id Nothing []
    go (AttrId _  i)  cacc qacc     = go i cacc qacc
    go (BitFieldId _ i) cacc qacc   = go i cacc qacc
    go (FunId i mb_cc ps) cacc qacc = 
-   	  FunId (foldr Pointed i (reverse qacc))
-		(cacc `mplus` mb_cc)
-		ps
+          FunId (foldr Pointed i (reverse qacc))
+                (cacc `mplus` mb_cc)
+                ps
 
    go _ _ _ = m_id -- in vain, just return orig id.
 
@@ -193,7 +193,7 @@ transferPointedness pid ty =
     ArrayId i e   -> transferPointedness i (TyArray ty e)
     FunId i cc ps -> transferPointedness i (TyFun cc ty ps)
     AttrId _ i    -> transferPointedness i ty
-    _		  -> ty
+    _             -> ty
 
 \end{code}
 
@@ -240,15 +240,15 @@ isConstructedTy _            = False
 
 isEmptyStructTy :: Type -> Bool
 isEmptyStructTy (TyStruct _ [] _) = True
-isEmptyStructTy _		  = False
+isEmptyStructTy _                 = False
 
 isAnonTy :: Type -> Bool
 isAnonTy (TyName nm _) = "__IHC_TAG" `isPrefixOf` nm
-isAnonTy _	  = False
+isAnonTy _        = False
 
 isFunTy :: Type -> Bool
 isFunTy TyFun{} = True
-isFunTy _	= False
+isFunTy _       = False
 
 isCompleteTy :: Type -> Bool
 isCompleteTy ty = 
@@ -258,7 +258,7 @@ isCompleteTy ty =
     TyUnion _ _ _ _ ls -> notNull ls
     TyUnionNon _ ls    -> notNull ls
     TyCUnion _ ls _    -> notNull ls
-    _		       -> error "isCompleteTy"
+    _                  -> error "isCompleteTy"
 
 isReferenceTy :: Type -> Bool
 isReferenceTy = not.isCompleteTy
@@ -297,7 +297,7 @@ isMIDLishTy :: Type -> Bool
 isMIDLishTy ty =
   case ty of
     TyName nm _ -> isMIDLishNm nm
-    _	        -> False
+    _           -> False
 
 isMIDLishId :: Id -> Bool
 isMIDLishId (Id s) = isMIDLishNm s
@@ -322,8 +322,8 @@ tyTag (TyEnum     (Just i) _)       = iName i
 tyTag (TyUnion    (Just i) _ _ _ _) = iName i
 tyTag (TyUnionNon (Just i) _)       = iName i
 tyTag (TyCUnion   (Just i) _ _)     = iName i
-tyTag (TyName nm _)		    = nm
-tyTag _				    = ""
+tyTag (TyName nm _)                 = nm
+tyTag _                             = ""
 
 withTyTag :: String -> Type -> Type
 withTyTag tg ty = 
@@ -385,7 +385,7 @@ reduceExpr redType expr =
       t'  <- redType t
       case res of
         Left  i  -> return (Left i)  -- ToDo: perform cast operation on the result.
-	Right e' -> return (Right (Core.Cast t' e'))
+        Right e' -> return (Right (Core.Cast t' e'))
    Sizeof t -> do
       t' <- redType t
       return (Right (Core.Sizeof t'))
@@ -398,8 +398,8 @@ reduceLit l =
 
 binop_m :: BinaryOp 
         -> Either Int32 Core.Expr
-	-> Either Int32 Core.Expr
-	-> Either Int32 Core.Expr
+        -> Either Int32 Core.Expr
+        -> Either Int32 Core.Expr
 binop_m op (Left i1) (Left i2)   = Left (binop op i1 i2)
 binop_m op e1 e2  = Right (Core.Binary op (toExpr e1) (toExpr e2))
 
@@ -449,7 +449,7 @@ isLeafDefn TypeDecl{}  = True
 isLeafDefn Typedef{}   = True
 isLeafDefn Operation{} = True
 isLeafDefn Constant{}  = True
-isLeafDefn _	       = False
+isLeafDefn _           = False
 
 \end{code}
 
@@ -483,23 +483,23 @@ idlToCoreTy ty =
   TyApply t (TyQualifier _) -> idlToCoreTy t
   TyString mb_expr     ->
      let core_expr = mapFromMb Nothing
-			       (Just . idlToCoreExpr) 
-			       mb_expr
+                               (Just . idlToCoreExpr) 
+                               mb_expr
      in
      Core.String (Core.Char False) False core_expr
   TyWString mb_expr    ->
      let 
        core_expr = mapFromMb Nothing
-			     (Just . idlToCoreExpr) 
-			     mb_expr
+                             (Just . idlToCoreExpr) 
+                             mb_expr
      in
      Core.WString False core_expr
   TySequence t mb_expr ->
      let
        core_ty   = idlToCoreTy t
        core_expr = mapFromMb Nothing
-       			     (Just . idlToCoreExpr)
-			     mb_expr
+                             (Just . idlToCoreExpr)
+                             mb_expr
      in
      Core.Sequence core_ty core_expr Nothing
   TyApply (TyQualifier _) t -> idlToCoreTy t
@@ -508,12 +508,12 @@ idlToCoreTy ty =
   TyStruct (Just (Id nm)) _ mb_pack -> Core.Struct (mkId nm nm Nothing []) [] mb_pack
   TyUnion (Just (Id nm1)) t 
               (Id nm2) (Just (Id nm3)) _-> 
-	Core.Union (mkId nm1 nm1 Nothing []) (idlToCoreTy t)
-		   (mkId nm2 nm2 Nothing []) (mkId nm3 nm3 Nothing []) []
+        Core.Union (mkId nm1 nm1 Nothing []) (idlToCoreTy t)
+                   (mkId nm2 nm2 Nothing []) (mkId nm3 nm3 Nothing []) []
   TyUnionNon (Just (Id nm1)) _ -> 
         Core.UnionNon (mkId nm1 nm1 Nothing []) []
   TyCUnion (Just (Id nm)) _ mb_pack ->
-	Core.CUnion (mkId nm nm Nothing []) [] mb_pack
+        Core.CUnion (mkId nm nm Nothing []) [] mb_pack
 
 end{code}
 
@@ -525,10 +525,10 @@ idlToCoreExpr :: Expr -> Core.Expr
 idlToCoreExpr e =
  case e of
   Binary bop e1 e2 -> Core.Binary bop (idlToCoreExpr e1)
-  				      (idlToCoreExpr e2)
+                                      (idlToCoreExpr e2)
   Cond e1 e2 e3 -> Core.Cond (idlToCoreExpr e1)
-  			     (idlToCoreExpr e2)
-			     (idlToCoreExpr e3)
+                             (idlToCoreExpr e2)
+                             (idlToCoreExpr e3)
   Unary op e1 -> Core.Unary op (idlToCoreExpr e1)
   Var nm      -> Core.Var nm
   Lit l       -> Core.Lit l
@@ -543,14 +543,14 @@ simpleAttr :: String -> Attribute
 simpleAttr nm = Attrib (Id nm) []
 
 retValAttribute, lcidAttribute, optionalAttribute :: Attribute
-retValAttribute		= simpleAttr "retval"
-lcidAttribute	        = simpleAttr "lcid"
+retValAttribute         = simpleAttr "retval"
+lcidAttribute           = simpleAttr "lcid"
 optionalAttribute       = simpleAttr "optional"
 
 controlAttribute, restrictedAttribute, hiddenAttribute :: Attribute
-controlAttribute	= simpleAttr "control"
-restrictedAttribute	= simpleAttr "restricted"
-hiddenAttribute	        = simpleAttr "hidden"
+controlAttribute        = simpleAttr "control"
+restrictedAttribute     = simpleAttr "restricted"
+hiddenAttribute         = simpleAttr "hidden"
 
 defaultAttribute :: Maybe Literal -> Maybe Attribute
 defaultAttribute Nothing  = Nothing
@@ -558,11 +558,11 @@ defaultAttribute (Just x) = Just (Attrib (Id "defaultvalue") [AttrLit x])
 
 versionAttr :: Word16 -> Word16 -> Maybe Attribute
 versionAttr maj mino    = toMaybe (\ _ -> maj /=0 || mino /=0)
-				  (Attrib (Id "version") [AttrLit (LitLit ((show maj) ++'.':show mino))])
-				  undefined
+                                  (Attrib (Id "version") [AttrLit (LitLit ((show maj) ++'.':show mino))])
+                                  undefined
 
 helpStringAttr :: String -> Maybe Attribute
-helpStringAttr	s
+helpStringAttr  s
   = toMaybe notNull (Attrib (Id "helpstring") [AttrLit (StringLit s)]) s
 
 helpContextAttr :: Integer -> Maybe Attribute
@@ -575,12 +575,12 @@ helpFileAttr hfile
 helpStringDllAttr :: String -> Maybe Attribute
 helpStringDllAttr dll
   = toMaybe notNull (Attrib (Id "helpstringdll")
-  			    [AttrLit (StringLit dll)]) dll
+                            [AttrLit (StringLit dll)]) dll
 
 helpStringCtxtAttr :: Integer -> Maybe Attribute
 helpStringCtxtAttr hc   = 
    toMaybe (/=0) (Attrib (Id "helpstringcontext")
-   			 [AttrLit (IntegerLit (ILit 16 hc))]) hc
+                         [AttrLit (IntegerLit (ILit 16 hc))]) hc
 
 lcidvalAttribute :: Integer -> Maybe Attribute
 lcidvalAttribute lc     = 
@@ -589,7 +589,7 @@ lcidvalAttribute lc     =
 toMaybe :: (a -> Bool) -> b -> a -> Maybe b
 toMaybe predic res mb_val
   | predic mb_val = Just res
-  | otherwise	  = Nothing
+  | otherwise     = Nothing
 
 \end{code}
 
@@ -607,11 +607,11 @@ tyInt16   = tyShort
 tyInt32   = TyApply (TySigned True) (TyInteger Long)
 tyInt64   = TyApply (TySigned True) (TyInteger LongLong)
 tyShort   = TyApply (TySigned True) (TyInteger Short)
-tyInt	      = tyInt32
+tyInt         = tyInt32
 
 tyChar, tyByte :: Type
-tyChar	      = TyChar
-tyByte	      = TyOctet
+tyChar        = TyChar
+tyByte        = TyOctet
 
 tyAddr, tyVoid :: Type
 tyAddr        = TyPointer TyVoid
@@ -649,7 +649,7 @@ tyHRESULT     = TyName "HRESULT" Nothing
 tyBSTR, tyString, tyWString :: Type
 tyString      = TyString Nothing
 tyWString     = TyWString Nothing
-tyBSTR	      = TyBString
+tyBSTR        = TyBString
 
 tyFloat, tyDouble :: Type
 tyFloat       = TyFloat Short
@@ -673,7 +673,7 @@ sortDefns ds = map sortDefn ds_sorted
    isImport (Import _)    = True
    isImport (ImportLib _) = True
    isImport (CInclude _)  = True
-   isImport _	          = False
+   isImport _             = False
 
      -- expand the cyclic groups, taking care to leave
      -- the import statements up front.
@@ -684,7 +684,7 @@ sortDefn (Library i ds) = Library i (sortDefns ds)
 sortDefn (Module i ds)  = Module i (sortDefns ds)
 --sortDefn (Import ls)    = Import (map (\ (x,ds) -> (x, sortDefns ds)) ls)
 sortDefn (Attributed x d) = Attributed x (sortDefn d)
-sortDefn x		= x
+sortDefn x              = x
 
 mkDefnDep :: Defn -> (Defn, String, [String])
 mkDefnDep d = let (def,uses) = getDefUses d in (d,def,uses)
@@ -699,34 +699,34 @@ getDef :: Defn -> String
 getDef d =
  case d of
    Typedef _ _ (i:_)        -> iName i
-   Attributed _ d1	    -> getDef d1
+   Attributed _ d1          -> getDef d1
    ExternDecl _ [i]         -> iName i
    Operation i _ _ _        -> iName i
    Interface (Id i) _ _     -> i
    Module (Id i) _          -> i
    DispInterface (Id i) _ _ -> i
-   CoClass (Id i) _	    -> i
-   Library (Id i) _	    -> i
-   TypeDecl t		    -> tyTag t
-   _			    -> ""
+   CoClass (Id i) _         -> i
+   Library (Id i) _         -> i
+   TypeDecl t               -> tyTag t
+   _                        -> ""
 
 getUses :: Defn -> [String]
 getUses d = 
   case d of 
-    Typedef ty _ _	  -> getTyUses ty
-    Constant _ _ ty _	  -> getTyUses ty  -- expressions will never, 
-					   -- ever have free variables (in fact, const is a foreign concept
-					   -- to typelibs.)
-    Interface _ is ds	  -> is ++ concatMap getUses ds
-    Module _ ds	          -> concatMap getUses ds
+    Typedef ty _ _        -> getTyUses ty
+    Constant _ _ ty _     -> getTyUses ty  -- expressions will never, 
+                                           -- ever have free variables (in fact, const is a foreign concept
+                                           -- to typelibs.)
+    Interface _ is ds     -> is ++ concatMap getUses ds
+    Module _ ds           -> concatMap getUses ds
     DispInterface _ ps ds -> concatMap (\ (_,t, _) -> getTyUses t) ps ++ concatMap getUses ds
-    CoClass _ cs	  -> map (\ (_,Id i,_) -> i) cs
-    Library _ ds	  -> concatMap getUses ds
-    Attributed _ d1	  -> getUses d1
-    TypeDecl t		  -> getTyUses t
+    CoClass _ cs          -> map (\ (_,Id i,_) -> i) cs
+    Library _ ds          -> concatMap getUses ds
+    Attributed _ d1       -> getUses d1
+    TypeDecl t            -> getTyUses t
     ExternDecl t _        -> getTyUses t
     Operation (FunId _ _ ps) r _ _ -> getTyUses r ++ concatMap (\ (Param _ t _) -> getTyUses t) ps
-    _			  -> []
+    _                     -> []
 
 -- Since the types were constructed from type libraries, we can make
 -- a number of simplifying assumptions.
@@ -742,8 +742,8 @@ getTyUses ty =
     TyStruct (Just (Id n)) [] _ -> [n]
     TyStruct _ fs _ -> concatMap (\ (t,_,_) -> getTyUses t) fs
     TyEnum (Just (Id n)) []   -> [n]
-    TyApply t1 t2	      -> getTyUses t1 ++ getTyUses t2
-    _			      -> []
+    TyApply t1 t2             -> getTyUses t1 ++ getTyUses t2
+    _                         -> []
 
 expandGroup :: SCC Defn -> [Defn]
 expandGroup (AcyclicSCC d) = [d]
@@ -818,8 +818,8 @@ The user can off-line specify which of the defns are (or aren't) of interest.
 
 \begin{code}
 winnowDefns :: Env String (Bool,[Attribute]) 
-	    -> [Defn]
-	    -> [Defn]
+            -> [Defn]
+            -> [Defn]
 winnowDefns wenv ws = reverse $ fst (go wenv "" (reverse ws))
  where
    go env _          [] = ([], env)
@@ -827,79 +827,79 @@ winnowDefns wenv ws = reverse $ fst (go wenv "" (reverse ws))
      case getDef d of 
        "" -> let (ds', e) = go env prefix ds in (d:ds', e)
        nm -> let
-	       res  = lookupEnv env nm `mplus` lookupEnv env (prefix ++ '.':nm)
-	       uses = getUses d
-	       
-		-- for a names that are to be retained, arrange for
-		-- any of its uses to be retained also.
-	       inh_value = (True, [Mode In])
+               res  = lookupEnv env nm `mplus` lookupEnv env (prefix ++ '.':nm)
+               uses = getUses d
+               
+                -- for a names that are to be retained, arrange for
+                -- any of its uses to be retained also.
+               inh_value = (True, [Mode In])
 
                 -- keep the decl iff:
-		--   * it didn't have remove-me flag 
-		--   * it was found in the environment nontheless.
-		--   * we're in remove-only mode.
-	       keep_it = not remove_it && (optOnlyRemoveDefns || isJust res)
+                --   * it didn't have remove-me flag 
+                --   * it was found in the environment nontheless.
+                --   * we're in remove-only mode.
+               keep_it = not remove_it && (optOnlyRemoveDefns || isJust res)
 
-	       remove_it =
-	         case res of
-		   Just (flg,ls) -> not flg && null ls 
-		   		-- an asf entry is a 'remove-me' entry iff
-				-- it is of the form "Name=<empty>"
-		   _		 -> False
+               remove_it =
+                 case res of
+                   Just (flg,ls) -> not flg && null ls 
+                                -- an asf entry is a 'remove-me' entry iff
+                                -- it is of the form "Name=<empty>"
+                   _             -> False
 
-	       env'
-		| isJust res    =
-		   if remove_it || optOnlyRemoveDefns then
-		      env
-		   else
-		      addListToEnv env (map (\ x -> (x, inh_value)) uses)
-		| otherwise     = env
-		
-	       newPrefix i
-	        | null prefix = iName i
-		| otherwise   = prefix ++ '.':iName i
-	      in
-	      case d of
-	        Attributed as d1 ->
-		    case go env' prefix [d1] of
-		      ([],_)     -> go env' prefix ds
-		      ((x:_), e) -> let 
-		                     (ds', e1) = go e prefix ds
-				    in 
-				    (Attributed as x : ds', e1)
-	        Interface i inhs ms ->
-		    case go env' (newPrefix i) (reverse ms) of
-		      (ms', e) -> let (ds', e1) = go e prefix ds in
-		                  if remove_it || (null ms' && (notNull ms || not keep_it)) then
-				     (ds', e1)
-				  else
-				     (Interface i inhs (reverse ms') : ds', e1)
-	        DispInterface i props ms ->
-		    case go env' (newPrefix i) (reverse ms) of
-		      (ms', e) -> let (ds', e1) = go e prefix ds in
-		                  if remove_it || (null ms' && (notNull ms || not keep_it)) then
-				     (ds', e1)
-				  else
-				     (DispInterface i props (reverse ms') : ds', e1)
-		Library i ls ->
-		    case go env' (newPrefix i) (reverse ls) of
-		      (ls', e) -> let (ds', e1) = go e prefix ds in
-		                  if remove_it || (null ls' && (notNull ls || not keep_it)) then
-				     (ds', e1)
-				  else
-		                     (Library i (reverse ls') : ds', e1)
-		Module i ms ->
-		    case go env' (newPrefix i) (reverse ms) of
-		      (ms', e) -> let (ds', e1) = go e prefix ds in
-		                  if remove_it || (null ms' && (notNull ms || not keep_it)) then
-				     (ds', e1)
-				  else
-		                     (Module i (reverse ms') : ds', e1)
-	        _ -> let (ds', e) = go env' prefix ds in 
-		     if keep_it then
-		        (d:ds', e)
-	             else
-		        (ds', e)
+               env'
+                | isJust res    =
+                   if remove_it || optOnlyRemoveDefns then
+                      env
+                   else
+                      addListToEnv env (map (\ x -> (x, inh_value)) uses)
+                | otherwise     = env
+                
+               newPrefix i
+                | null prefix = iName i
+                | otherwise   = prefix ++ '.':iName i
+              in
+              case d of
+                Attributed as d1 ->
+                    case go env' prefix [d1] of
+                      ([],_)     -> go env' prefix ds
+                      ((x:_), e) -> let 
+                                     (ds', e1) = go e prefix ds
+                                    in 
+                                    (Attributed as x : ds', e1)
+                Interface i inhs ms ->
+                    case go env' (newPrefix i) (reverse ms) of
+                      (ms', e) -> let (ds', e1) = go e prefix ds in
+                                  if remove_it || (null ms' && (notNull ms || not keep_it)) then
+                                     (ds', e1)
+                                  else
+                                     (Interface i inhs (reverse ms') : ds', e1)
+                DispInterface i props ms ->
+                    case go env' (newPrefix i) (reverse ms) of
+                      (ms', e) -> let (ds', e1) = go e prefix ds in
+                                  if remove_it || (null ms' && (notNull ms || not keep_it)) then
+                                     (ds', e1)
+                                  else
+                                     (DispInterface i props (reverse ms') : ds', e1)
+                Library i ls ->
+                    case go env' (newPrefix i) (reverse ls) of
+                      (ls', e) -> let (ds', e1) = go e prefix ds in
+                                  if remove_it || (null ls' && (notNull ls || not keep_it)) then
+                                     (ds', e1)
+                                  else
+                                     (Library i (reverse ls') : ds', e1)
+                Module i ms ->
+                    case go env' (newPrefix i) (reverse ms) of
+                      (ms', e) -> let (ds', e1) = go e prefix ds in
+                                  if remove_it || (null ms' && (notNull ms || not keep_it)) then
+                                     (ds', e1)
+                                  else
+                                     (Module i (reverse ms') : ds', e1)
+                _ -> let (ds', e) = go env' prefix ds in 
+                     if keep_it then
+                        (d:ds', e)
+                     else
+                        (ds', e)
     
 \end{code}
 
@@ -925,7 +925,7 @@ exprType defTy ex =
      Unary uop e -> 
        case uop of
           Deref -> TyPointer (exprType defTy e)
-	  _     -> exprType defTy e
+          _     -> exprType defTy e
 
 litType :: Literal -> Type
 litType l = 
@@ -961,7 +961,7 @@ toCConvAttrib ls =
      _               -> id
  where
   isCConv CConv{} = True
-  isCConv _	  = False
+  isCConv _       = False
 
 mkGNUAttrib :: String -> [Expr] -> GNUAttrib
 mkGNUAttrib "packed" _ = Packed
@@ -979,58 +979,58 @@ handlePackPragma ('p':'a':'c':'k':xs) =
      '(':'p':'u':'s':'h':')':_ -> pushPack (Just Nothing)
      '(':'p':'o':'p':')':_     -> popPack Nothing
      '(':'p':'u':'s':'h':',':ys@(y:_) | isAlpha y -> 
-  	let
-	 (nm, rs) = break (\x -> x == ',' || x == ')') ys
-	in
-	case rs of
-	  ')':_ -> pushPack (Just (Just (nm, Nothing)))
-	  ',':rs2 -> 
-	     let
-	      (val, rs3) = break (== ')') rs2
-	     in
-	     case rs3 of
-	       ')':_ -> 
-  	         case reads val of
-	           ((v,_):_) -> pushPack (Just (Just (nm, Just v)))
-		   _ -> return ()
-	       _ -> return ()
+        let
+         (nm, rs) = break (\x -> x == ',' || x == ')') ys
+        in
+        case rs of
+          ')':_ -> pushPack (Just (Just (nm, Nothing)))
+          ',':rs2 -> 
+             let
+              (val, rs3) = break (== ')') rs2
+             in
+             case rs3 of
+               ')':_ -> 
+                 case reads val of
+                   ((v,_):_) -> pushPack (Just (Just (nm, Just v)))
+                   _ -> return ()
+               _ -> return ()
           _ -> return ()
      '(':'p':'u':'s':'h':',':ys@(y:_) | isDigit y -> 
-	let
-	 (val, rs) = break (== ')') ys
-	in
-	case rs of
-	  ')':_ -> do
-	     case reads val of
-	       ((v,_):_) -> pushPack (Just (Just ("", Just v)))
-	       _         -> return ()
+        let
+         (val, rs) = break (== ')') ys
+        in
+        case rs of
+          ')':_ -> do
+             case reads val of
+               ((v,_):_) -> pushPack (Just (Just ("", Just v)))
+               _         -> return ()
           _ -> return ()
      '(':'p':'o':'p':',':ys@(y:_) | isAlpha y -> 
-  	let
-	 (nm, rs) = break (\x -> x == ',' || x == ')') ys
-	in
-	case rs of
-	  ')':_   -> popPack (Just (nm, Nothing))
-	  ',':rs2 -> 
-	     let
-	      (val, rs3) = break (== ')') rs2
-	     in
-	     case rs3 of
-	       ')':_ -> 
-  	         case reads val of
-	           ((v,_):_) -> popPack (Just (nm, Just v))
-		   _ -> return ()
-	       _ -> return ()
+        let
+         (nm, rs) = break (\x -> x == ',' || x == ')') ys
+        in
+        case rs of
+          ')':_   -> popPack (Just (nm, Nothing))
+          ',':rs2 -> 
+             let
+              (val, rs3) = break (== ')') rs2
+             in
+             case rs3 of
+               ')':_ -> 
+                 case reads val of
+                   ((v,_):_) -> popPack (Just (nm, Just v))
+                   _ -> return ()
+               _ -> return ()
           _ -> return ()
      '(':'p':'o':'p':',':ys@(y:_) | isDigit y -> 
-	let
-	 (val, rs) = break (== ')') ys
-	in
-	case rs of
-	  ')':_ -> do
-	     case reads val of
-	       ((v,_):_) -> popPack (Just ("", Just v))
-	       _         -> return ()
+        let
+         (val, rs) = break (== ')') ys
+        in
+        case rs of
+          ')':_ -> do
+             case reads val of
+               ((v,_):_) -> popPack (Just ("", Just v))
+               _         -> return ()
           _ -> return ()
      _ -> return ()
 

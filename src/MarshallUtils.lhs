@@ -7,25 +7,25 @@
 
 \begin{code}
 module MarshallUtils 
-	(
-	  mkHVar
-	, adjustField
-	
-	, prefixHTy
-	, appHTy
-	
-	, infoHeader
-	
-	, helpStringComment
-	
-	, toHaskellIfaceTy
+        (
+          mkHVar
+        , adjustField
+        
+        , prefixHTy
+        , appHTy
+        
+        , infoHeader
+        
+        , helpStringComment
+        
+        , toHaskellIfaceTy
 
-	, findParamDependents
-	, findFieldDependents
-	, removeDependees
-	, removeDependents
-	, removeDependers
-	) where
+        , findParamDependents
+        , findFieldDependents
+        , removeDependees
+        , removeDependents
+        , removeDependers
+        ) where
 
 import BasicTypes
 import CoreUtils
@@ -33,9 +33,9 @@ import CoreIDL
 import Attribute
 import qualified AbstractH as Haskell
 import AbsHUtils   ( var, prefix, prefixApp, mkVarName, comment,
-		     andDecl, andDecls, emptyDecl, tyQCon, tyVar, mkTyCon,
-		     tyQConst, ctxtTyApp, ctxtClass
-		   )
+                     andDecl, andDecls, emptyDecl, tyQCon, tyVar, mkTyCon,
+                     tyQConst, ctxtTyApp, ctxtClass
+                   )
 import PpCore      ( ppDecl, showCore, setDebug )
 import PpAbstractH ( ppType, showAbstractH )
 
@@ -45,7 +45,7 @@ import Literal
 import Data.List  ( intersperse )
 import Utils ( notNull )
 import Opts  ( optShowIDLInComments, optIgnoreHelpstring,
-	       optCorba, optHaskellToC, optJNI, optSubtypedInterfacePointers )
+               optCorba, optHaskellToC, optJNI, optSubtypedInterfacePointers )
 
 \end{code}
 
@@ -111,52 +111,52 @@ infoHeader :: Decl -> Haskell.HDecl
 infoHeader d =
  case d of
   Interface i _ _ _ ->
-	 header "interface" (idOrigName i)  `andDecl`
-	 idlDecls			    `andDecl`
+         header "interface" (idOrigName i)  `andDecl`
+         idlDecls                           `andDecl`
          line
 
   CoClass i _ ->
-	 header "coclass" (idOrigName i)    `andDecl`
-	 coIdlDecls			    `andDecl`
+         header "coclass" (idOrigName i)    `andDecl`
+         coIdlDecls                         `andDecl`
          line
  
   DispInterface i _ _ _ ->
-	 header "dispinterface" (idOrigName i)  `andDecl`
-	 idlDecls                               `andDecl`
+         header "dispinterface" (idOrigName i)  `andDecl`
+         idlDecls                               `andDecl`
          line
 
   _ -> emptyDecl
  where
   header pre nm = 
     line                   `andDecl`
-    comment ""	           `andDecl`
+    comment ""             `andDecl`
     comment (pre++' ':nm)  `andDecl`
     comment ""
-	   
+           
   ifaces = 
     case d of
       CoClass _ ds -> map toStr ds
       _ -> error "MarshallUtils.infoHeader: Expected a coclass."
    
   toStr dcl = 
-	let
-	 i     = coClassId dcl
-	 attrs = idAttributes i
+        let
+         i     = coClassId dcl
+         attrs = idAttributes i
 
-	 if_source
-	  | attrs `hasAttributeWithName` "source" = ("[source]" ++)
-	  | otherwise = id
-	in
-	if_source (idOrigName i)
+         if_source
+          | attrs `hasAttributeWithName` "source" = ("[source]" ++)
+          | otherwise = id
+        in
+        if_source (idOrigName i)
 
   coIdlDecls
    | optShowIDLInComments = idlDecls
-   | otherwise		  =
+   | otherwise            =
         comment ("  implements: "  ++ unwords (intersperse "," ifaces))
 
   idlDecls
    | optShowIDLInComments = andDecls (map comment (lines (showCore (setDebug False $ ppDecl d))))
-   | otherwise		  = emptyDecl
+   | otherwise            = emptyDecl
 
   line = comment "--------------------------------------------------"
  
@@ -169,7 +169,7 @@ helpStringComment i
  | optIgnoreHelpstring = emptyDecl
  | otherwise           =
       case findAttribute "helpstring" (idAttributes i) of
-	Just (Attribute _ (ParamLit (StringLit hs):_)) -> comment hs
+        Just (Attribute _ (ParamLit (StringLit hs):_)) -> comment hs
         _ -> emptyDecl
 \end{code}
 
@@ -188,10 +188,10 @@ toHaskellIfaceTy (Iface nm mo _ attrs _ _)
        _ -> tyQConst mo (mkHaskellTyConName nm)
  | optJNI && attrs `hasAttributeWithName` "jni_iface_ty" =
         let i = tyVar "a" in
-	mkTyCon jObject
-		[ ctxtTyApp (ctxtClass (mkQualName mo nm) [mkTyCon jObject [i]]) i ]
+        mkTyCon jObject
+                [ ctxtTyApp (ctxtClass (mkQualName mo nm) [mkTyCon jObject [i]]) i ]
  | optSubtypedInterfacePointers = tyQCon mo (mkHaskellTyConName nm) [iface_ptr_ty_arg]
- | otherwise		        = tyQConst mo (mkHaskellTyConName nm)
+ | otherwise                    = tyQConst mo (mkHaskellTyConName nm)
  where
   iface_ptr_ty_arg = tyVar "a"
 toHaskellIfaceTy _ = error "toHaskellIfaceTy: not an interface type"
@@ -209,9 +209,9 @@ findParamDependents :: Bool -> [Param] -> ( [Param], DependInfo )
 findParamDependents isOut ps = (removeDependees deps ps, deps)
  where
   deps = filter (notNull.snd) $     -- 12/98: strengthened - deps list now 
-				    -- only contain the real dependent args.
+                                    -- only contain the real dependent args.
          (if isOut then (\ ls -> zipWith notVoidPtr ps ls) else id) $
-	 findDependents (map paramId ps)
+         findDependents (map paramId ps)
 
   notVoidPtr _ t@(_,[]) = t
   notVoidPtr p t@(x,_) 
@@ -222,9 +222,9 @@ findFieldDependents :: [Field] -> DependInfo
 findFieldDependents fs = deps
  where
   deps = filter (notNull.snd) $     -- 12/98: strengthened - deps list now 
-				    -- only contain the real dependent args.
+                                    -- only contain the real dependent args.
          (\ ls -> zipWith notVoidPtr fs ls) $
-	 findDependents (map fieldId fs)
+         findDependents (map fieldId fs)
 
   notVoidPtr _ t@(_,[]) = t
   notVoidPtr f t@(x,_) 
@@ -240,7 +240,7 @@ removeDependents ls ps = filter (not.(isHParamDep ls)) ps
 
 removeDependers :: DependInfo -> [Param] -> [Param]
 removeDependers ls ps = filter (\ x -> not (isDependee ls (paramId x)) &&
-				       not (isHParamDep ls x)) ps
+                                       not (isHParamDep ls x)) ps
 
 -- local utility fun, used by the two previous defs. only.
 isHParamDep :: DependInfo -> Param -> Bool

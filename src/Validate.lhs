@@ -6,9 +6,9 @@ Validating fragments of IDL.
 
 \begin{code}
 module Validate 
-	( 
-	  validateParam
-	) where
+        ( 
+          validateParam
+        ) where
 
 import CoreIDL
 import CoreUtils
@@ -35,17 +35,17 @@ validateParam msg p =
       case paramType p of
        Pointer pt isExp t | optCom && isIfaceTy t && not (isIfacePtr t) ->
                 warnWrongOutParam msg "out"
-				  "pointer to an interface pointer (as it needs to be.)"
-		      		  p{ paramType=(Pointer pt isExp (Pointer Ref True t))
-		       		   , paramOrigType=(Pointer pt isExp (Pointer Ref True t))
-		       		   }
-		   | otherwise -> p
+                                  "pointer to an interface pointer (as it needs to be.)"
+                                  p{ paramType=(Pointer pt isExp (Pointer Ref True t))
+                                   , paramOrigType=(Pointer pt isExp (Pointer Ref True t))
+                                   }
+                   | otherwise -> p
        t@Iface{} | optCom -> 
                 warnWrongOutParam msg "out"
-				  "pointer to an interface pointer (as it needs to be.)"
-		      		  p{ paramType=(Pointer Ref True (Pointer Ref True t))
-		       		   , paramOrigType=(Pointer Ref True (Pointer Ref True t))
-		       		   }
+                                  "pointer to an interface pointer (as it needs to be.)"
+                                  p{ paramType=(Pointer Ref True (Pointer Ref True t))
+                                   , paramOrigType=(Pointer Ref True (Pointer Ref True t))
+                                   }
        WString{}  -> p
        String{}   -> p
        Array{}    -> p
@@ -53,29 +53,29 @@ validateParam msg p =
        Name _ _ _ _ _ (Just ti)
                    | is_pointed ti -> p
        t ->
-   	warnWrongOutParam msg "out"
-			  "pointer to a type"
-      		          p{ paramType=Pointer Ref True t
-       		           , paramOrigType=Pointer Ref True (paramOrigType p)
-       		           }
+        warnWrongOutParam msg "out"
+                          "pointer to a type"
+                          p{ paramType=Pointer Ref True t
+                           , paramOrigType=Pointer Ref True (paramOrigType p)
+                           }
     In ->
       case paramType p of
        ty@Iface{} | optCom -> 
                 warnWrongOutParam msg "in"
-				  "*pointer* to an interface (as it needs to be.)"
-		      		  p{ paramType=(Pointer Ref True ty)
-		       		   , paramOrigType=(Pointer Ref True ty)
-		       		   }
+                                  "*pointer* to an interface (as it needs to be.)"
+                                  p{ paramType=(Pointer Ref True ty)
+                                   , paramOrigType=(Pointer Ref True ty)
+                                   }
        _ -> p
-    _ -> p	 		   
+    _ -> p                         
 \end{code}
 
 \begin{code}
 warnWrongOutParam :: String -> String -> String -> a -> a
 warnWrongOutParam prefix pkind kind cont =
    trace ("Warning: [" ++ pkind ++ "] parameter " ++ show prefix ++
-	  " is not a " ++ kind ++ "\n Correcting it for you.\n")
-	 cont
+          " is not a " ++ kind ++ "\n Correcting it for you.\n")
+         cont
 
 \end{code}
 

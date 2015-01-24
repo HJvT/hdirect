@@ -15,75 +15,75 @@ the abstract Haskell code that's being generated:
 
 \begin{code}
 module CgMonad 
-	(
-	  CgM
+        (
+          CgM
         , IfaceType(..)
-	, runCgM
+        , runCgM
 
-	, getDllName		-- :: CgM String
-	, setDllName		-- :: String -> CgM a -> CgM a
+        , getDllName            -- :: CgM String
+        , setDllName            -- :: String -> CgM a -> CgM a
 
-	   -- decl name is the name of the IDL unit (i.e.,
-	   -- module/interface etc.) being translated.
-	   --
-	, getDeclName		-- :: (String -> CgM a) -> CgM a
-	, withDeclName	        -- :: String -> CgM a -> CgM a
-	, withIfaceDeclName     -- :: String -> CgM a -> CgM a
-	
-	, needStubs		-- :: Bool -> CgM ()
-	, hasPrims		-- :: CgM ()
+           -- decl name is the name of the IDL unit (i.e.,
+           -- module/interface etc.) being translated.
+           --
+        , getDeclName           -- :: (String -> CgM a) -> CgM a
+        , withDeclName          -- :: String -> CgM a -> CgM a
+        , withIfaceDeclName     -- :: String -> CgM a -> CgM a
+        
+        , needStubs             -- :: Bool -> CgM ()
+        , hasPrims              -- :: CgM ()
 
-	, setInterfaceFlag      -- :: IfaceType -> CgM a -> CgM a
-	, getInterfaceFlag	-- :: CgM IfaceType
+        , setInterfaceFlag      -- :: IfaceType -> CgM a -> CgM a
+        , getInterfaceFlag      -- :: CgM IfaceType
 
-	, setSourceIfaceFlag    -- :: Bool -> CgM a -> CgM a
-	, getSourceIfaceFlag	-- :: CgM Bool
+        , setSourceIfaceFlag    -- :: Bool -> CgM a -> CgM a
+        , getSourceIfaceFlag    -- :: CgM Bool
 
-	, setClientFlag         -- :: Bool -> CgM a -> CgM a
-	, getClientFlag	        -- :: CgM Bool
+        , setClientFlag         -- :: Bool -> CgM a -> CgM a
+        , getClientFlag         -- :: CgM Bool
 
-	, getIfaceName		-- :: CgM String
-	, setIfaceName		-- :: String -> CgM a -> CgM a
-	
-	, inDispInterface       -- :: CgM a -> CgM a
-	, isInDispInterface     -- :: CgM Bool
-	
-	, setIfaceAttributes    -- :: [Attribute] -> CgM a -> CgM a
-	, getIfaceAttributes    -- :: CgM [Attribute]
-	
-	, getIfaceInherit	-- :: CgM [QualName]
-	, withIfaceInherit	-- :: [QualNam] -> CgM a -> CgM a
-	
+        , getIfaceName          -- :: CgM String
+        , setIfaceName          -- :: String -> CgM a -> CgM a
+        
+        , inDispInterface       -- :: CgM a -> CgM a
+        , isInDispInterface     -- :: CgM Bool
+        
+        , setIfaceAttributes    -- :: [Attribute] -> CgM a -> CgM a
+        , getIfaceAttributes    -- :: CgM [Attribute]
+        
+        , getIfaceInherit       -- :: CgM [QualName]
+        , withIfaceInherit      -- :: [QualNam] -> CgM a -> CgM a
+        
         , IsoEnv
-	, getIsoEnv		-- :: CgM IsoEnv
-	, setIsoEnv		-- :: IsoEnv -> CgM ()
-	
-	, getIEnumFlag		-- :: CgM Bool
-	, setIEnumFlag		-- :: Bool -> CgM a -> CgM a
-	
-	, addDynStub            -- :: String -> String -> CgM ()
-	, lookupDynStub 	-- :: String -> Maybe String
+        , getIsoEnv             -- :: CgM IsoEnv
+        , setIsoEnv             -- :: IsoEnv -> CgM ()
+        
+        , getIEnumFlag          -- :: CgM Bool
+        , setIEnumFlag          -- :: Bool -> CgM a -> CgM a
+        
+        , addDynStub            -- :: String -> String -> CgM ()
+        , lookupDynStub         -- :: String -> Maybe String
 
-	, addExport		-- :: HIEEntity -> CgM ()
-	, addVitalExport	-- :: HIEEntity -> CgM ()
-	, addExportWithComment  -- :: HIEEntity -> String -> CgM ()
-	, exportDecl		-- :: (String, HDecl) -> CgM HDecl
+        , addExport             -- :: HIEEntity -> CgM ()
+        , addVitalExport        -- :: HIEEntity -> CgM ()
+        , addExportWithComment  -- :: HIEEntity -> String -> CgM ()
+        , exportDecl            -- :: (String, HDecl) -> CgM HDecl
 
-	, addExplicitImports    -- :: [(Bool,String)] -> CgM ()
-	
-	, hoistInClass		-- :: String -> (String -> CgM a) -> CgM a
-	
-	, getMethodNumber	-- :: Maybe Int -> CgM Int
-	, setMethodNumber	-- :: Int -> CgM ()
-	, incMethodNumber	-- :: CgM ()
+        , addExplicitImports    -- :: [(Bool,String)] -> CgM ()
+        
+        , hoistInClass          -- :: String -> (String -> CgM a) -> CgM a
+        
+        , getMethodNumber       -- :: Maybe Int -> CgM Int
+        , setMethodNumber       -- :: Int -> CgM ()
+        , incMethodNumber       -- :: CgM ()
 
-	) where
+        ) where
 
 import Env
 import AbstractH
 import CoreIDL    ( Result, Param, Id, Attribute )
-import Opts	  ( optServer, optOneModulePerInterface )
-import Data.Maybe	  ( fromMaybe )
+import Opts       ( optServer, optOneModulePerInterface )
+import Data.Maybe         ( fromMaybe )
 import BasicTypes ( QualName )
 
 \end{code}
@@ -133,12 +133,12 @@ runCgM :: Env String [(Result, [Param])]
        -> ( a
           , [(HIEEntity, Bool, Maybe String)]
           , [(String, Bool, [HIEEntity])]
-	  , Bool
-	  , Bool
-	  )
+          , Bool
+          , Bool
+          )
 runCgM isoEnv ifaceEnv (CgM act) = 
   case (act (CgDown iface_flg is_client is_source is_ienum 
-  		    is_disp "" "" "" [] [] ifaceEnv)
+                    is_disp "" "" "" [] [] ifaceEnv)
             (CgState [] [] newEnv iso_env' 0 False False)) of
     (v,CgState expo imps _ _ _ flg1 flg2) -> (v, reverse expo, imps, flg1, flg2)
  where
@@ -233,9 +233,9 @@ hoistInClass :: String -> (Maybe Id -> CgM a) -> CgM a
 hoistInClass nm cont =  
   CgM (\ env st -> 
          let 
-	   (CgM a) = cont (fromMaybe Nothing (lookupEnv (iface_env env) nm))
-	 in
-	 a env st)
+           (CgM a) = cont (fromMaybe Nothing (lookupEnv (iface_env env) nm))
+         in
+         a env st)
 
 addExportWithComment :: HIEEntity -> String -> CgM ()
 addExportWithComment nm comm =
@@ -290,8 +290,8 @@ lookupDynStub sig = CgM $ \ _ st ->
 instance Monad CgM where
   (>>=) (CgM a) f = 
     CgM (\ env st -> 
-  	   case a env st of
-	     (v, st1) -> let CgM b = f v in b env st1)
+           case a env st of
+             (v, st1) -> let CgM b = f v in b env st1)
   return v = CgM (\ _ st -> (v, st))
 
 \end{code}

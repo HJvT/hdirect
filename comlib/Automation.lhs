@@ -147,14 +147,14 @@ import ComPrim  ( stringToBSTR )
 import ComException ( dISP_E_UNKNOWNNAME, dISP_E_EXCEPTION )
 import AutoPrim
 import SafeArray ( addrToSAFEARRAY, marshallSAFEARRAY, readSAFEARRAY
-		 , writeSAFEARRAY, unmarshallSAFEARRAY, SAFEARRAY
-		 )
+                 , writeSAFEARRAY, unmarshallSAFEARRAY, SAFEARRAY
+                 )
 import WideString
 import Pointer ( writeSeqAtDec, stackFrame, allocMemory, freeMemory )
 import ComException ( e_FAIL )
 import Foreign.Ptr
 import Foreign.ForeignPtr
-import IOExts	    ( unsafePerformIO )
+import IOExts       ( unsafePerformIO )
 import Bits
 
 \end{code}
@@ -264,7 +264,7 @@ getMemberID name obj = do
   handleErr hr err
     | hr == dISP_E_UNKNOWNNAME =
        coFail ("method '" ++ name ++ "' called but not supported by object")
-    | otherwise		      = errorMember name err
+    | otherwise               = errorMember name err
 
 \end{code}
 
@@ -452,9 +452,9 @@ instance (Variant a) => Variant (Maybe a) where
   resVariant     = resMaybe
   defaultVariant = defaultMaybe
   vtEltType mbx  = vtEltType (f mbx)
-		    where
-		      f :: Maybe a -> a
-		      f = undefined
+                    where
+                      f :: Maybe a -> a
+                      f = undefined
 
 instance Variant (Ptr a) where
   inVariant      = \ p y -> copyVARIANT y (castPtr p)
@@ -920,7 +920,7 @@ resCurrency           =
     readCur v = do
       (hi,lo) <- readVarCurrency v
       return (coerceI (fromIntegral hi) * (coerceI (maxBound :: Int) + 1) +
-	      coerceI (fromIntegral lo))
+              coerceI (fromIntegral lo))
    in
    readCur
 
@@ -1112,34 +1112,34 @@ For example: @confirm msg  = function1 "Confirm" [inString msg] outBool@.
 \begin{code}
 method0 :: Member
         -> [VarIn]
-	-> IDispatch i
-	-> IO ()
+        -> IDispatch i
+        -> IO ()
 method0 member args obj = do
    dispid <- obj # getMemberID member
    catchMethError member (methodID0 dispid args obj)
 
 method1 :: Member
         -> [VarIn]
-	-> ArgOut a1
-	-> IDispatch i
-	-> IO a1
+        -> ArgOut a1
+        -> IDispatch i
+        -> IO a1
 method1 member args argout obj = do
    dispid <- obj # getMemberID member
    catchMethError member (methodID1 dispid args argout obj)
 
 method2 :: Member
         -> [VarIn]
-	-> ArgOut a1
-	-> ArgOut a2
-	-> IDispatch i
-	-> IO (a1,a2)
+        -> ArgOut a1
+        -> ArgOut a2
+        -> IDispatch i
+        -> IO (a1,a2)
 method2 member args argout1 argout2 obj = do
    dispid <- obj # getMemberID member
    catchMethError member (methodID2 dispid args argout1 argout2 obj)
 
 method3 :: Member
         -> [VarIn]
-	-> ArgOut a1 -> ArgOut a2 -> ArgOut a3
+        -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
         -> IDispatch i -> IO (a1,a2,a3)
 method3 member args argout1 argout2 argout3 obj = do 
     dispid <- obj # getMemberID member
@@ -1147,8 +1147,8 @@ method3 member args argout1 argout2 argout3 obj = do
 
 method4 :: Member
         -> [VarIn]
-	-> ArgOut a1 -> ArgOut a2 
-	-> ArgOut a3 -> ArgOut a4
+        -> ArgOut a1 -> ArgOut a2 
+        -> ArgOut a3 -> ArgOut a4
         -> IDispatch i -> IO (a1,a2,a3,a4)
 method4 member args argout1 argout2 argout3 argout4 obj = do
     dispid <- obj # getMemberID member
@@ -1157,8 +1157,8 @@ method4 member args argout1 argout2 argout3 argout4 obj = do
 
 method5 :: Member 
         -> [VarIn]
-	-> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	-> ArgOut a4 -> ArgOut a5
+        -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
+        -> ArgOut a4 -> ArgOut a5
         -> IDispatch i -> IO (a1,a2,a3,a4,a5)
 method5 member args argout1 argout2 argout3 argout4 argout5 obj = do
     dispid <- obj # getMemberID member
@@ -1167,10 +1167,10 @@ method5 member args argout1 argout2 argout3 argout4 argout5 obj = do
 
 method6 :: Member 
         -> [VarIn]
-	-> ArgOut a1 -> ArgOut a2 -> ArgOut a3 
-	-> ArgOut a4 -> ArgOut a5 -> ArgOut a6
+        -> ArgOut a1 -> ArgOut a2 -> ArgOut a3 
+        -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
         -> IDispatch i
-	-> IO (a1,a2,a3,a4,a5,a6)
+        -> IO (a1,a2,a3,a4,a5,a6)
 method6 member args argout1 argout2 argout3 argout4 argout5 argout6 obj = do
     dispid <- obj # getMemberID member
     catchMethError member $
@@ -1179,30 +1179,30 @@ method6 member args argout1 argout2 argout3 argout4 argout5 argout6 obj = do
 
 method7 :: Member 
         -> [VarIn]
-	-> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	-> ArgOut a4 -> ArgOut a5 -> ArgOut a6 -> ArgOut a7
+        -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
+        -> ArgOut a4 -> ArgOut a5 -> ArgOut a6 -> ArgOut a7
         -> IDispatch i -> IO (a1, a2, a3, a4, a5, a6, a7)
 method7 member args argout1 argout2 argout3 argout4 argout5 argout6 argout7 obj = do
     dispid <- obj # getMemberID member
     catchMethError member $
           methodID7 dispid args argout1 argout2 argout3
-	                        argout4 argout5 argout6 argout7 obj
+                                argout4 argout5 argout6 argout7 obj
 
 method8 :: Member
         -> [VarIn]
-	-> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	-> ArgOut a4 -> ArgOut a5 -> ArgOut a6
-	-> ArgOut a7 -> ArgOut a8
+        -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
+        -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
+        -> ArgOut a7 -> ArgOut a8
         -> IDispatch i 
-	-> IO (a1, a2, a3, a4, a5, a6, a7, a8)
+        -> IO (a1, a2, a3, a4, a5, a6, a7, a8)
 method8 member args argout1 argout2 argout3 
                     argout4 argout5 argout6 
-		    argout7 argout8 obj = do
+                    argout7 argout8 obj = do
     dispid <- obj # getMemberID member
     catchMethError member $
       methodID8 dispid args argout1 argout2 argout3 
                             argout4 argout5 argout6 
-			    argout7 argout8 obj
+                            argout7 argout8 obj
 
 \end{code}
 
@@ -1211,17 +1211,17 @@ Methods invoked on DISPID.
 \begin{code}
 methodID0 :: DISPID
           -> [VarIn]
-	  -> IDispatch i
-	  -> IO ()
+          -> IDispatch i
+          -> IO ()
 methodID0 dispid args obj = do
    p <- obj # invokeMethod dispid args []
    unmarshallVariants0 p
 
 methodID1 :: DISPID
           -> [VarIn]
-	  -> ArgOut a1
-	  -> IDispatch i
-	  -> IO a1
+          -> ArgOut a1
+          -> IDispatch i
+          -> IO a1
 methodID1 dispid args (varin,argres) obj = do
    p <- obj # invokeMethod dispid args [varin]
    unmarshallVariants1 argres p
@@ -1229,8 +1229,8 @@ methodID1 dispid args (varin,argres) obj = do
 methodID2 :: DISPID
           -> [VarIn]
           -> ArgOut a1 -> ArgOut a2
-	  -> IDispatch i
-	  -> IO (a1,a2)
+          -> IDispatch i
+          -> IO (a1,a2)
 methodID2 dispid args (varin1,argres1) (varin2,argres2) obj = do
    p <- obj # invokeMethod dispid args [varin1,varin2]
    unmarshallVariants2 argres1 argres2 p
@@ -1238,8 +1238,8 @@ methodID2 dispid args (varin1,argres1) (varin2,argres2) obj = do
 methodID3 :: DISPID
           -> [VarIn]
           -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	  -> IDispatch i
-	  -> IO (a1,a2,a3)
+          -> IDispatch i
+          -> IO (a1,a2,a3)
 methodID3 dispid args (varin1,argres1) (varin2,argres2) (varin3,argres3) obj = do
    p <- obj # invokeMethod dispid args [varin1,varin2,varin3]
    unmarshallVariants3 argres1 argres2 argres3 p
@@ -1247,9 +1247,9 @@ methodID3 dispid args (varin1,argres1) (varin2,argres2) (varin3,argres3) obj = d
 methodID4 :: DISPID
           -> [VarIn]
           -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	  -> ArgOut a4
+          -> ArgOut a4
           -> IDispatch i
-	  -> IO (a1,a2,a3,a4)
+          -> IO (a1,a2,a3,a4)
 methodID4 dispid args (varin1,argres1) (varin2,argres2)
                       (varin3,argres3) (varin4,argres4) obj = do
    p <- obj # invokeMethod dispid args [varin1,varin2,varin3,varin4]
@@ -1258,12 +1258,12 @@ methodID4 dispid args (varin1,argres1) (varin2,argres2)
 methodID5 :: DISPID
           -> [VarIn]
           -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	  -> ArgOut a4 -> ArgOut a5
+          -> ArgOut a4 -> ArgOut a5
           -> IDispatch i 
-	  -> IO (a1,a2,a3,a4,a5)
+          -> IO (a1,a2,a3,a4,a5)
 methodID5 dispid args (varin1,argres1) (varin2,argres2)
                       (varin3,argres3) (varin4,argres4)
-		      (varin5,argres5) obj = do
+                      (varin5,argres5) obj = do
    p <- obj # invokeMethod dispid args [varin1,varin2,varin3,varin4,varin5]
    unmarshallVariants5 argres1 argres2 argres3 argres4 argres5 p
 
@@ -1271,40 +1271,40 @@ methodID5 dispid args (varin1,argres1) (varin2,argres2)
 methodID6 :: DISPID
           -> [VarIn]
           -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	  -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
+          -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
           -> IDispatch i
-	  -> IO (a1,a2,a3,a4,a5,a6)
+          -> IO (a1,a2,a3,a4,a5,a6)
 methodID6 dispid args (varin1,argres1) (varin2,argres2)
                       (varin3,argres3) (varin4,argres4)
-		      (varin5,argres5) (varin6,argres6) obj = do
+                      (varin5,argres5) (varin6,argres6) obj = do
    p <- obj # invokeMethod dispid args [varin1,varin2,varin3,varin4,varin5,varin6]
    unmarshallVariants6 argres1 argres2 argres3 argres4 argres5 argres6 p
 
 methodID7 :: DISPID
           -> [VarIn]
           -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	  -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
-	  -> ArgOut a7
+          -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
+          -> ArgOut a7
           -> IDispatch i 
-	  -> IO (a1,a2,a3,a4,a5,a6,a7)
+          -> IO (a1,a2,a3,a4,a5,a6,a7)
 methodID7 dispid args (varin1,argres1) (varin2,argres2)
                       (varin3,argres3) (varin4,argres4)
-		      (varin5,argres5) (varin6,argres6)
-		      (varin7,argres7) obj = do
+                      (varin5,argres5) (varin6,argres6)
+                      (varin7,argres7) obj = do
    p <- obj # invokeMethod dispid args [varin1,varin2,varin3,varin4,varin5,varin6,varin7]
    unmarshallVariants7 argres1 argres2 argres3 argres4 argres5 argres6 argres7 p
 
 methodID8 :: DISPID
           -> [VarIn]
           -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	  -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
-	  -> ArgOut a7 -> ArgOut a8
-	  -> IDispatch i
-	  -> IO (a1,a2,a3,a4,a5,a6,a7,a8)
+          -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
+          -> ArgOut a7 -> ArgOut a8
+          -> IDispatch i
+          -> IO (a1,a2,a3,a4,a5,a6,a7,a8)
 methodID8 dispid args (varin1,argres1) (varin2,argres2)
                       (varin3,argres3) (varin4,argres4)
-		      (varin5,argres5) (varin6,argres6)
-		      (varin7,argres7) (varin8,argres8) obj = do
+                      (varin5,argres5) (varin6,argres6)
+                      (varin7,argres7) (varin8,argres8) obj = do
    p <- obj # invokeMethod dispid args [varin1,varin2,varin3,varin4,varin5,varin6,varin7,varin8]
    unmarshallVariants8 argres1 argres2 argres3 argres4 argres5 argres6 argres7 argres8 p
 
@@ -1317,70 +1317,70 @@ a result (@retval@) instead of a real @out@ argument.
 \begin{code}
 function1 :: Member
           -> [VarIn]
-	  -> ArgOut a1
-	  -> IDispatch i
-	  -> IO a1
+          -> ArgOut a1
+          -> IDispatch i
+          -> IO a1
 function1 member args argout obj = do
    dispid <- obj # getMemberID member
    catchMethError member (functionID1 dispid args argout obj)
 
 function2 :: Member
           -> [VarIn]
-	  -> ArgOut a1 -> ArgOut a2
-	  -> IDispatch i
-	  -> IO (a1,a2)
+          -> ArgOut a1 -> ArgOut a2
+          -> IDispatch i
+          -> IO (a1,a2)
 function2 member args argout1 argout2 obj = do
    dispid <- obj # getMemberID member
    catchMethError member (functionID2 dispid args argout1 argout2 obj)
 
 function3 :: Member
           -> [VarIn]
-	  -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	  -> IDispatch i
-	  -> IO (a1,a2,a3)
+          -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
+          -> IDispatch i
+          -> IO (a1,a2,a3)
 function3 member args argout1 argout2 argout3 obj = do
    dispid <- obj # getMemberID member
    catchMethError member (functionID3 dispid args argout1 argout2 argout3 obj)
 
 function4 :: Member
           -> [VarIn]
-	  -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	  -> ArgOut a4
-	  -> IDispatch i
-	  -> IO (a1,a2,a3,a4)
+          -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
+          -> ArgOut a4
+          -> IDispatch i
+          -> IO (a1,a2,a3,a4)
 function4 member args argout1 argout2 argout3 argout4 obj = do
    dispid <- obj # getMemberID member
    catchMethError member (functionID4 dispid args argout1 argout2 argout3 argout4 obj)
 
 function5 :: Member
           -> [VarIn]
-	  -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	  -> ArgOut a4 -> ArgOut a5
-	  -> IDispatch i
-	  -> IO (a1,a2,a3,a4,a5)
+          -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
+          -> ArgOut a4 -> ArgOut a5
+          -> IDispatch i
+          -> IO (a1,a2,a3,a4,a5)
 function5 member args argout1 argout2 argout3 
-		      argout4 argout5 obj = do
+                      argout4 argout5 obj = do
    dispid <- obj # getMemberID member
    catchMethError member $
      functionID5 dispid args argout1 argout2 argout3 argout4 argout5 obj
 
 function6 :: Member
           -> [VarIn]
-	  -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	  -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
-	  -> IDispatch i
-	  -> IO (a1,a2,a3,a4,a5,a6)
+          -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
+          -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
+          -> IDispatch i
+          -> IO (a1,a2,a3,a4,a5,a6)
 function6 member args argout1 argout2 argout3 
-		      argout4 argout5 argout6 obj = do
+                      argout4 argout5 argout6 obj = do
    dispid <- obj # getMemberID member
    catchMethError member $
      functionID6 dispid args argout1 argout2 argout3 argout4 argout5 argout6 obj
 
 functionID1 :: DISPID
             -> [VarIn]
-	    -> ArgOut a1
-	    -> IDispatch i
-	    -> IO a1
+            -> ArgOut a1
+            -> IDispatch i
+            -> IO a1
 functionID1 dispid args (varin,argres) obj = do
    p <- obj # invokeFunction dispid args [varin]
    unmarshallVariants1 argres p
@@ -1388,8 +1388,8 @@ functionID1 dispid args (varin,argres) obj = do
 functionID2 :: DISPID
             -> [VarIn]
             -> ArgOut a1 -> ArgOut a2
-	    -> IDispatch i
-	    -> IO (a1,a2)
+            -> IDispatch i
+            -> IO (a1,a2)
 functionID2 dispid args (varin1,argres1) (varin2,argres2) obj = do
    p <- obj # invokeFunction dispid args [varin1,varin2]
    unmarshallVariants2 argres1 argres2 p
@@ -1397,8 +1397,8 @@ functionID2 dispid args (varin1,argres1) (varin2,argres2) obj = do
 functionID3 :: DISPID
             -> [VarIn]
             -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	    -> IDispatch i
-	    -> IO (a1,a2,a3)
+            -> IDispatch i
+            -> IO (a1,a2,a3)
 functionID3 dispid args (varin1,argres1) (varin2,argres2)
                         (varin3,argres3) obj = do
    p <- obj # invokeFunction dispid args [varin1,varin2,varin3]
@@ -1407,9 +1407,9 @@ functionID3 dispid args (varin1,argres1) (varin2,argres2)
 functionID4 :: DISPID
             -> [VarIn]
             -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	    -> ArgOut a4 
-	    -> IDispatch i
-	    -> IO (a1,a2,a3,a4)
+            -> ArgOut a4 
+            -> IDispatch i
+            -> IO (a1,a2,a3,a4)
 functionID4 dispid args (varin1,argres1) (varin2,argres2)
                         (varin3,argres3) (varin4,argres4) obj = do
    p <- obj # invokeFunction dispid args [varin1,varin2,varin3,varin4]
@@ -1418,24 +1418,24 @@ functionID4 dispid args (varin1,argres1) (varin2,argres2)
 functionID5 :: DISPID
             -> [VarIn]
             -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	    -> ArgOut a4 -> ArgOut a5
+            -> ArgOut a4 -> ArgOut a5
             -> IDispatch i
-	    -> IO (a1,a2,a3,a4,a5)
+            -> IO (a1,a2,a3,a4,a5)
 functionID5 dispid args (varin1,argres1) (varin2,argres2)
                         (varin3,argres3) (varin4,argres4)
-			(varin5,argres5) obj = do
+                        (varin5,argres5) obj = do
    p <- obj # invokeFunction dispid args [varin1,varin2,varin3,varin4,varin5]
    unmarshallVariants5 argres1 argres2 argres3 argres4 argres5 p
 
 functionID6 :: DISPID
             -> [VarIn]
             -> ArgOut a1 -> ArgOut a2 -> ArgOut a3
-	    -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
+            -> ArgOut a4 -> ArgOut a5 -> ArgOut a6
             -> IDispatch i
-	    -> IO (a1,a2,a3,a4,a5,a6)
+            -> IO (a1,a2,a3,a4,a5,a6)
 functionID6 dispid args (varin1,argres1) (varin2,argres2)
                         (varin3,argres3) (varin4,argres4)
-			(varin5,argres5) (varin6,argres6) obj = do
+                        (varin5,argres5) (varin6,argres6) obj = do
    p <- obj # invokeFunction dispid args [varin1,varin2,varin3,varin4,varin5,varin6]
    unmarshallVariants6 argres1 argres2 argres3 argres4 argres5 argres6 p
 
@@ -1524,13 +1524,13 @@ readVariants5 f g h i j p
            return (v,w,x,y,z)
 
 readVariants6 :: ArgRes a1 
-	      -> ArgRes a2
-	      -> ArgRes a3
-	      -> ArgRes a4
-	      -> ArgRes a5
-	      -> ArgRes a6
+              -> ArgRes a2
+              -> ArgRes a3
+              -> ArgRes a4
+              -> ArgRes a5
+              -> ArgRes a6
               -> VARIANT
-	      -> IO (a1,a2,a3,a4,a5,a6)
+              -> IO (a1,a2,a3,a4,a5,a6)
 readVariants6 f1 f2 f3 f4 f5 f6 p
       = do v6 <- f6 p
            v5 <- f5 (p `addNCastPtr` sizeofVARIANT)
@@ -1614,11 +1614,11 @@ The primitive invokation mechanism. Exceptions are directed to the normal
 
 \begin{code}
 primInvokeMethod :: DispAction 
-	         -> Bool
-		 -> DISPID
+                 -> Bool
+                 -> DISPID
                  -> [VarIn] -> [VarIn]
                  -> IDispatch d 
-		 -> IO (VARIANT)
+                 -> IO (VARIANT)
 primInvokeMethod action isfunction dispid argin argout iptr
       = let cargsout = fromIntegral (length argout)
             cargs    = cargsout + fromIntegral (length argin)
@@ -1634,7 +1634,7 @@ primInvokeMethod action isfunction dispid argin argout iptr
            (pinfo,hr) <- dispatchInvoke (castIface iptr)
                               dispid lcidNeutral isfunction
                               action (fromIntegral cargs) 
-			      cargsout
+                              cargsout
                               pargs pargout
 
            if (succeeded hr)
@@ -1642,8 +1642,8 @@ primInvokeMethod action isfunction dispid argin argout iptr
             else if hr == dISP_E_EXCEPTION
                   then do 
                           pstr <- getExcepInfoMessage pinfo
-			  str  <- unmarshallString (castPtr pstr)
-			  coFree pstr
+                          str  <- unmarshallString (castPtr pstr)
+                          coFree pstr
                           freeExcepInfo pinfo
                           freeMemory pinfo
                           freeMemVariants cargsout pargout
@@ -1658,16 +1658,16 @@ Some helper functions for @Variants@.
 
 \begin{code}
 readTempVar :: (VARIANT -> IO (Ptr (Ptr b), Ptr (VARIANT)))
-	    -> VARIANT
-	    -> (Ptr b -> IO d)
-	    -> IO d
+            -> VARIANT
+            -> (Ptr b -> IO d)
+            -> IO d
 readTempVar io p f
       = do (x,v) <- io p
            x <- readPtr x  -- we always get a ty* back, so dereference it before using.
            f x  `always` (freeVariants 1 (castPtr v) >> free v) 
-	       -- _don't_ use freeMemVariants, as it ends up
-	       -- calling freeMemory (==CoTaskMemFree()),
-	       -- which isn't right ('v' is allocated by malloc()).
+               -- _don't_ use freeMemVariants, as it ends up
+               -- calling freeMemory (==CoTaskMemFree()),
+               -- which isn't right ('v' is allocated by malloc()).
 
 freeMemVariants count p = do
       freeVariants count p
@@ -1683,13 +1683,13 @@ just had true foreign objects: @mkPointer xbstr freeBSTR@.)
 allocBSTR :: String -> IO (Ptr String)
 allocBSTR s             = stackString s $ \ _ pstr -> do
                             ptr <- stringToBSTR (castPtr pstr)
-			    readPtr ptr
+                            readPtr ptr
 
 nofreeAllocBSTR :: String -> IO (Ptr String)
 nofreeAllocBSTR s       = stackString s $ \ _ pstr -> do
                             ptr <- nofreeBstrFromString (castPtr pstr)
-			    return ptr
---			    makePointer finalFreeBSTR ptr
+                            return ptr
+--                          makePointer finalFreeBSTR ptr
 
 nofreeBstrFromString :: Ptr String -> IO (Ptr String)
 nofreeBstrFromString str = do
@@ -1972,14 +1972,14 @@ resSafeArray p       = resSafe' undefined p
 
 resSafe' :: Variant a => a -> ArgRes (SafeArray a)
 resSafe' vt p = do
-	    x <- readVarSAFEARRAY (castPtr p) (fromIntegral (fromEnum (vtEltType vt)))
-	    s <- doThenFree free (readSAFEARRAY True) (castPtr x)
-	    return (SA s)
+            x <- readVarSAFEARRAY (castPtr p) (fromIntegral (fromEnum (vtEltType vt)))
+            s <- doThenFree free (readSAFEARRAY True) (castPtr x)
+            return (SA s)
 
 resSAFEARRAY :: ArgRes SAFEARRAY
 resSAFEARRAY p       = do
-	    x <- readVarSAFEARRAY (castPtr p) (fromIntegral (fromEnum VT_VARIANT))
-	    doThenFree free (readSAFEARRAY True) (castPtr x)
+            x <- readVarSAFEARRAY (castPtr p) (fromIntegral (fromEnum VT_VARIANT))
+            doThenFree free (readSAFEARRAY True) (castPtr x)
 
 inoutSafeArray  :: (Variant a) => ArgInOut (SafeArray a) (SafeArray a)
 inoutSafeArray d          = (inSafeArray d,resSafeArray)

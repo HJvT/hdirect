@@ -118,14 +118,14 @@ wideToStr wide = do
 [pure]
 unsigned int wideStringLen([in,ptr]char* str);
 int wideToString ( [in,ptr]wchar_t* wstr
-		 , [out,ref]char** pstr
-		 );
+                 , [out,ref]char** pstr
+                 );
 int lenWideString ( [in,ptr]wchar_t* wstr );
 
 int primStringToWide( [in,ptr]char* str
-		    , [in]unsigned int len
-		    , [in,ptr]wchar_t* wstr
-		    , [in]unsigned int wlen
-		    );
+                    , [in]unsigned int len
+                    , [in,ptr]wchar_t* wstr
+                    , [in]unsigned int wlen
+                    );
 
 };

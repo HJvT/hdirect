@@ -17,8 +17,8 @@ BUILD_STATICALLY=YES
 
 HC_OPTS += -package-name hdirect
 # Since we are using FFI exts we have to compile through C.
-HC_OPTS	+= -fglasgow-exts -fvia-C -Wall -fno-warn-deprecations 
-HC_OPTS	+= -package lang
+HC_OPTS += -fglasgow-exts -fvia-C -Wall -fno-warn-deprecations 
+HC_OPTS += -package lang
 ifeq "$(BUILD_STATICALLY)" "YES"
 HC_OPTS += -static
 endif
@@ -66,7 +66,7 @@ CLEAN_FILES += $(patsubst %.idl,%.hs,$(wildcard *.idl))
 #
 # 'make install' setup:
 #
-INSTALL_DATAS	= hdirect.pkg $(HS_IFACES)
+INSTALL_DATAS   = hdirect.pkg $(HS_IFACES)
 INSTALL_LIBS    = libHShdirect$(_way).a $(HUGS_FILES)
 
 ifeq "$(BUILD_STATICALLY)" "NO"
@@ -81,10 +81,10 @@ endif
 # We put the generated output for Hugs98 in a separate directory, $(HUGSDIR), so that
 # GHC and Hugs builds can coexist.
 all :: 
-	@if [ -d $(HUGSDIR) ]; then : ; else mkdir $(HUGSDIR); fi;
+        @if [ -d $(HUGSDIR) ]; then : ; else mkdir $(HUGSDIR); fi;
 
-clean :: 	
-	if [ -d $(HUGSDIR) ]; then $(RM) -rf $(HUGSDIR)/ ; else : ; fi;
+clean ::        
+        if [ -d $(HUGSDIR) ]; then $(RM) -rf $(HUGSDIR)/ ; else : ; fi;
 
 HUGS_FILES = Pointer.lhs HDirect.lhs $(patsubst %.idl, $(HUGSDIR)/%.hs, $(HUGS_IDL_SRCS)) $(patsubst %.idl, $(HUGSDIR)/%.$(dllext), $(HUGS_IDL_SRCS))
 
@@ -95,45 +95,45 @@ all :: dlls
 C_STUBS = $(patsubst %.idl, $(HUGSDIR)/%.c, $(IDL_SRCS))
 
 $(HUGSDIR)/%.hs: %.idl
-	$(IHC) $(HUGS_IHC_OPTS) -c $< -o $@
+        $(IHC) $(HUGS_IHC_OPTS) -c $< -o $@
 
 $(HUGSDIR)/%.c: $(HUGSDIR)/%.hs
-	@:
+        @:
 
 $(HUGSDIR)/%.$(STUB_OBJ_SUFFIX) : %.c
-	@$(RM) $@
-	$(CC) $(CC_OPTS) -c $< -o $@
+        @$(RM) $@
+        $(CC) $(CC_OPTS) -c $< -o $@
 
 $(HUGSDIR)/%.$(STUB_OBJ_SUFFIX) : $(HUGSDIR)/%.c
-	@$(RM) $@
-	$(CC) $(CC_OPTS) -c $< -o $@
+        @$(RM) $@
+        $(CC) $(CC_OPTS) -c $< -o $@
 
 ifeq "$(USE_MSVC_TOOLS)" "YES"
 $(HUGSDIR)/%.obj : %.c
-	@$(RM) $@
-	$(CCDLL) $(CCDLL_OPTS) -c $< -Fo$@
+        @$(RM) $@
+        $(CCDLL) $(CCDLL_OPTS) -c $< -Fo$@
 $(HUGSDIR)/%.obj : $(HUGSDIR)/%.c
-	@$(RM) $@
-	$(CCDLL) $(CCDLL_OPTS) -c $< -Fo$@
+        @$(RM) $@
+        $(CCDLL) $(CCDLL_OPTS) -c $< -Fo$@
 endif
 
 .PRECIOUS: $(HUGSDIR)/%.$(STUB_OBJ_SUFFIX) $(HUGSDIR)/%.c $(HUGSDIR)/%.hs
 
 HugsMod.def :
-	@echo EXPORTS     > $@
-	@echo initModule >> $@
+        @echo EXPORTS     > $@
+        @echo initModule >> $@
 
 $(HUGSDIR)/%.$(dllext) : $(HUGSDIR)/%.$(STUB_OBJ_SUFFIX)
-	$(CCDLL) $(CCDLL_OPTS) -o $@ $^ $(CCDLL_LIBS)
+        $(CCDLL) $(CCDLL_OPTS) -o $@ $^ $(CCDLL_LIBS)
 
 dlls :: $(patsubst %.c, %.$(dllext), $(C_STUBS))
 
 all :: $(HUGSDIR)/HDirect.lhs $(HUGSDIR)/Pointer.lhs
 
 $(HUGSDIR)/HDirect.lhs : HDirect.lhs
-	$(CP) $^ $@
+        $(CP) $^ $@
 $(HUGSDIR)/Pointer.lhs : Pointer.lhs
-	$(CP) $^ $@
+        $(CP) $^ $@
 
 # Configuration of hugslibdir is for local testing only; remove before releasing.
 ifeq "$(hugslibdir)" ""
@@ -141,24 +141,24 @@ hugslibdir=c:/src/hugs98/lib
 endif
 
 install-hugs ::
-	mkdir -p $(hugslibdir)/hdirect
-	cp $(HUGSDIR)/*.$(dllext) $(hugslibdir)/hdirect
-	cp $(HUGSDIR)/*.hs $(hugslibdir)/hdirect
-	cp *.lhs $(hugslibdir)/hdirect
+        mkdir -p $(hugslibdir)/hdirect
+        cp $(HUGSDIR)/*.$(dllext) $(hugslibdir)/hdirect
+        cp $(HUGSDIR)/*.hs $(hugslibdir)/hdirect
+        cp *.lhs $(hugslibdir)/hdirect
 
 # End of Hugs specific bit
 
 ifeq "$(STANDALONE_DIST)" "YES"
 libHShdirect$(_way).a : $(OBJS)
-	$(AR) $(AR_OPTS) $@ $^
+        $(AR) $(AR_OPTS) $@ $^
 
 HShdirect.$(way_)o: $(OBJS)
-	$(LD) -r $(LD_X) -o $@ $(OBJS)
+        $(LD) -r $(LD_X) -o $@ $(OBJS)
 endif
 
 ifeq "$(BUILD_STATICALLY)" "NO"
 dll ::
-	$(HC) --mk-dll -o HShdirect.dll libHShdirect.a -fglasgow-exts -package lang -lwinmm -luser32
+        $(HC) --mk-dll -o HShdirect.dll libHShdirect.a -fglasgow-exts -package lang -lwinmm -luser32
 endif
 
 boot :: $(IDL_HS_SRCS)
@@ -180,7 +180,7 @@ GHC_PKG=ghc-pkg
 endif
 
 install-pkg: hdirect.pkg
-	@hd_libdir="$(HDIRECT_LIBDIR)" $(GHC_PKG) -u < hdirect.pkg || (echo "Unable to install 'hdirect' package for GHC - perhaps GHC isn't installed."; echo "Try running ghc-pkg utility \"ghc-pkg -u < $(datadir)/hdirect.pkg\""; echo "when GHC is installed.")
+        @hd_libdir="$(HDIRECT_LIBDIR)" $(GHC_PKG) -u < hdirect.pkg || (echo "Unable to install 'hdirect' package for GHC - perhaps GHC isn't installed."; echo "Try running ghc-pkg utility \"ghc-pkg -u < $(datadir)/hdirect.pkg\""; echo "when GHC is installed.")
 
 # extra dependencies for Hugs bits.
 $(HUGSDIR)/PointerPrim.c : $(HUGSDIR)/PointerPrim.hs

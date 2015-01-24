@@ -29,16 +29,16 @@ check2HR :: HRESULT -> IO ()
 check2HR hr
       | succeeded hr = return ()
       | otherwise    = do
-	  dw <- getLastError
-	  coFailHR (word32ToInt32 dw)
+          dw <- getLastError
+          coFailHR (word32ToInt32 dw)
 
 {- FALSE = 0, TRUE = -1 -}
 checkBool :: Int32 -> IO ()
 checkBool flg
       | flg /=0      = return ()
       | otherwise    = do
-	  dw <- getLastError
-	  coFailHR (word32ToInt32 dw)
+          dw <- getLastError
+          coFailHR (word32ToInt32 dw)
 
 returnHR :: IO () -> IO HRESULT
 returnHR act = (do
@@ -48,11 +48,11 @@ returnHR act = (do
     `Control.Exception.catch`
       (\ ex -> 
         case Control.Exception.ioErrors ex of
-	  Just i -> 
-	    case coGetErrorHR i of
-	      Just x  -> return x
-	      Nothing -> return failure
-	  Nothing -> return failure)
+          Just i -> 
+            case coGetErrorHR i of
+              Just x  -> return x
+              Nothing -> return failure
+          Nothing -> return failure)
    END_GHC_ONLY -}
 {- BEGIN_NOT_FOR_GHC -}
      -- once we can assume that IOError == Exception on the
@@ -60,8 +60,8 @@ returnHR act = (do
     `IO.catch`
     (\ ex -> 
         case coGetErrorHR ex of
-	  Just x  -> return x
-	  Nothing -> return failure)
+          Just x  -> return x
+          Nothing -> return failure)
 {- END_NOT_FOR_GHC -}
  where
    -- better return codes could easily be imagined..
@@ -82,7 +82,7 @@ coGetErrorHR (IOException (IOError _ (DynIOError d) _ _ _)) =
   case fromDynamic d of
     Just (ComError hr) -> Just hr
     Nothing            -> Nothing
-coGetErrorHR _	= Nothing
+coGetErrorHR _  = Nothing
 
 #if __GLASGOW_HASKELL__ >= 505
 coGetErrorString ioe@(IOError _ (DynIOError dyn) loc str _)
@@ -131,7 +131,7 @@ coOnFail io msg      = io
     (\ err -> 
        case Control.Exception.ioErrors err of
          Just i  -> coFail (msg ++ ": " ++ (coGetErrorString i))
-	 Nothing -> coFail msg)
+         Nothing -> coFail msg)
    END_GHC_ONLY -}
 {- BEGIN_NOT_FOR_GHC -}
     `IO.catch`

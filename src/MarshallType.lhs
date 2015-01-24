@@ -15,7 +15,7 @@ MarshallType provides the following:
 \begin{code}
 module MarshallType 
        (
-	 marshallType
+         marshallType
        , unmarshallType
        , refMarshallType
        , refUnmarshallType
@@ -28,7 +28,7 @@ module MarshallType
        , coreToHaskellExpr
 
        , coerceTy
-       , coerceToInt	      -- :: Expr -> Haskell.Expr
+       , coerceToInt          -- :: Expr -> Haskell.Expr
        
        ) where
 
@@ -52,9 +52,9 @@ import Data.Maybe ( fromMaybe, isJust, fromJust )
 import MarshallCore
 import MarshallMonad
 import Opts  ( optHaskellToC, optLongLongIsInteger,
-	       optCorba, optCom, optNoWideStrings,
-	       optNoDerefRefs
-	     )
+               optCorba, optCom, optNoWideStrings,
+               optNoDerefRefs
+             )
 import TypeInfo ( TypeInfo(..) )
 
 \end{code}
@@ -82,7 +82,7 @@ refMarshallType   :: MarshallInfo -> Type -> Haskell.Expr
 unmarshallType    :: MarshallInfo -> Type -> Haskell.Expr
 refUnmarshallType :: MarshallInfo -> Type -> Haskell.Expr
 
-szType	  :: MarshallInfo -> Type -> Haskell.Expr
+szType    :: MarshallInfo -> Type -> Haskell.Expr
  -- alloc storage to hold a (fixed size) value of a particular type,
  -- returning a pointer to it.
 allocPointerTo    :: Type -> Haskell.Expr
@@ -99,83 +99,83 @@ marshallType mInfo t =
        | forRef mInfo -> funApp w_bstring [ varName false, coreToHaskellExpr e ]
     Array at [e] 
        | forRef mInfo -> funApp w_blist [ szType at
-       				        , coreToHaskellExpr e
-					, refMarshallType mInfo{forRef=True} at
-					]
+                                        , coreToHaskellExpr e
+                                        , refMarshallType mInfo{forRef=True} at
+                                        ]
        | otherwise       -> funApp m_blist
                                    [ szType at
-    				   , coreToHaskellExpr e
-				   , refMarshallType mInfo{forRef=True} at
-				   ]
+                                   , coreToHaskellExpr e
+                                   , refMarshallType mInfo{forRef=True} at
+                                   ]
     Array at [mi,ma] -> 
       funApp m_blist [ szType at
                      , binOp Sub (coreToHaskellExpr ma)
-		     	         (coreToHaskellExpr mi)
-		     , refMarshallType mInfo{forRef=True} at
-		     ]
+                                 (coreToHaskellExpr mi)
+                     , refMarshallType mInfo{forRef=True} at
+                     ]
     Pointer _ _ ty | isVoidTy ty -> varName prelReturn
     Pointer Ptr _ ty
       | (isConstructedTy (nukeNames ty) && isReferenceTy ty) -> varName prelReturn
     Pointer pt isExp (Iface nm mod _ attrs _ inh)  ->
-   	case pt of
-	  Unique | optCom && isExp        -> funApp marshallMaybe [ varName m_iptr, varName nullFO ]
-	  	 | optHaskellToC && isExp -> funApp marshallMaybe 
-		 			    [ varName m_ip
-		 			    , varName $
-					       if attrs `hasAttributeWithName` "finaliser" then
-					         nullFO
-					       else
-					         nullPtr
-					    ]
+        case pt of
+          Unique | optCom && isExp        -> funApp marshallMaybe [ varName m_iptr, varName nullFO ]
+                 | optHaskellToC && isExp -> funApp marshallMaybe 
+                                            [ varName m_ip
+                                            , varName $
+                                               if attrs `hasAttributeWithName` "finaliser" then
+                                                 nullFO
+                                               else
+                                                 nullPtr
+                                            ]
 
-	  _ ->
-	   case inh of
-	     [] | optHaskellToC -> varName m_ip
-		| otherwise     -> varName m_iptr
-	     (x:_) 
-		   | optCorba   -> varName (prefix marshallPrefix (fst x))
-		   | optCom || 
-		     qName (fst x) == "IUnknown" -> varName m_iptr
-		   | otherwise		         -> varName (prefix marshallPrefix (fst x))
+          _ ->
+           case inh of
+             [] | optHaskellToC -> varName m_ip
+                | otherwise     -> varName m_iptr
+             (x:_) 
+                   | optCorba   -> varName (prefix marshallPrefix (fst x))
+                   | optCom || 
+                     qName (fst x) == "IUnknown" -> varName m_iptr
+                   | otherwise                   -> varName (prefix marshallPrefix (fst x))
       where
        m_ip = prefix marshallPrefix (mkQVarName mod nm)
           
     Pointer pt _ (Name _ _ _ _ _ (Just ti))
       | pt /= Ptr && is_pointed ti -> 
-	  let
-	   mshaller 
-	    | forInOut mInfo && finalised ti = varName (copy_marshaller ti)
-	    | otherwise                      = varName (marshaller ti)
+          let
+           mshaller 
+            | forInOut mInfo && finalised ti = varName (copy_marshaller ti)
+            | otherwise                      = varName (marshaller ti)
 
            null_elt
-	    | forInOut mInfo && finalised ti = varName nullPtr
-	    | finalised ti                   = varName nullFO
-	    | otherwise		             = varName nullPtr
-	  in
-	  case pt of
-	    Unique -> funApp marshallMaybe [ mshaller, null_elt ]
-	    _      -> mshaller
+            | forInOut mInfo && finalised ti = varName nullPtr
+            | finalised ti                   = varName nullFO
+            | otherwise                      = varName nullPtr
+          in
+          case pt of
+            Unique -> funApp marshallMaybe [ mshaller, null_elt ]
+            _      -> mshaller
 
     Pointer pt _ ty 
-	   | isFunTy ty && pt /= Ptr          -> marshallType mInfo ty
-	   | forInOut mInfo && forProxy mInfo -> refMarshallType mInfo t
-	   | otherwise ->
-	       case pt of
-	        Ptr     -> varName prelReturn
+           | isFunTy ty && pt /= Ptr          -> marshallType mInfo ty
+           | forInOut mInfo && forProxy mInfo -> refMarshallType mInfo t
+           | otherwise ->
+               case pt of
+                Ptr     -> varName prelReturn
                 Ref     -> funApp m_ref    [ allocPointerTo ty, refMarshallType mInfo{forRef=False} ty ]
-	        Unique  -> funApp m_unique [ allocPointerTo ty, refMarshallType mInfo{forRef=False} ty ]
+                Unique  -> funApp m_unique [ allocPointerTo ty, refMarshallType mInfo{forRef=False} ty ]
     Void         -> varName prelReturn  -- this shouldn't really happen.
     String _ isUnique _ 
       | isUnique  -> funApp marshallMaybe [varName m_string, varName nullPtr]
       | otherwise -> varName m_string
     Sequence ty mbSz mbTerm
                   -> funApp m_sequence [ refMarshallType mInfo{forRef=False} ty
-    				       , terminatorElt True mbTerm ty
-				       , szType ty
-				       , case mbSz of 
-				       	   Nothing -> nothing
-					   Just x  -> just (coreToHaskellExpr x)
-				       ]
+                                       , terminatorElt True mbTerm ty
+                                       , szType ty
+                                       , case mbSz of 
+                                           Nothing -> nothing
+                                           Just x  -> just (coreToHaskellExpr x)
+                                       ]
     SafeArray{}  -> varName m_safearray
     WString isUnique _
       | isUnique  -> funApp marshallMaybe [varName m_wstring, varName nullPtr]
@@ -186,7 +186,7 @@ marshallType mInfo t =
 
     Name _ _ _ _ _ (Just ti)   
        | forInOut mInfo && finalised ti  -> varName (copy_marshaller ti)
-       | otherwise    		         -> varName (marshaller ti)
+       | otherwise                       -> varName (marshaller ti)
     Name _ _ _ _ (Just ty@Enum{}) _ -> marshallType mInfo ty
     Name _ _ _ _ (Just ty@(Name{})) _ -> marshallType mInfo ty
     Name nm _ mod _ (Just (Struct i [f] _)) _ 
@@ -212,7 +212,7 @@ marshallType mInfo t =
       | optLongLongIsInteger -> varName (m_integer isSigned)
     Iface{} -> marshallType mInfo (Pointer Ref True t)
     _    -> let nm = mkMarshaller marshallPrefix t in
-	    varName nm
+            varName nm
 
   where
    m_bool    = libImport bool
@@ -250,22 +250,22 @@ marshallType mInfo t =
 terminatorElt :: Bool -> Maybe Expr -> Type -> Haskell.Expr
 terminatorElt forMarshalling mbTerm ty
  | forMarshalling = lam [patVar "x"] $
- 			funApp (prefix marshallRefPrefix termTyName)
-			       [ var "x"
-			       , termVal
-			       ] 
+                        funApp (prefix marshallRefPrefix termTyName)
+                               [ var "x"
+                               , termVal
+                               ] 
  | otherwise      = lam [patVar "ptr"] $
- 			bind (funApp (prefix unmarshallRefPrefix termTyName) [var "ptr"])
-			     (var "dx")
-			     (ret (infixOp (var "dx") eqName termVal))
+                        bind (funApp (prefix unmarshallRefPrefix termTyName) [var "ptr"])
+                             (var "dx")
+                             (ret (infixOp (var "dx") eqName termVal))
  where
   (termVal, termTyName) = 
     case ty of
      Char{}    -> (Haskell.Lit (CharLit '\0'), mkQVarName hdirectLib "Char")
      Integer sz signed ->
         case mbTerm of
-	  Just e -> (coreToHaskellExpr e, deTyCon $ mkIntTy sz signed)
-	  _      -> (coreToHaskellExpr (Lit (iLit (0::Int))), deTyCon $ mkIntTy sz signed)
+          Just e -> (coreToHaskellExpr e, deTyCon $ mkIntTy sz signed)
+          _      -> (coreToHaskellExpr (Lit (iLit (0::Int))), deTyCon $ mkIntTy sz signed)
      _         -> (varName nullPtr, mkQVarName hdirectLib "Ptr")
 \end{code}
 
@@ -275,155 +275,155 @@ unmarshallType :: MarshallInfo -> Type -> Haskell.Expr
 unmarshallType mInfo ty =
   case ty of
     Array (Char _) [] -> varName u_string
-	{-
-	  Handling open arrays when unmarshalling is tricky
-	  if you haven't got any information on the size of the
-	  thing. Nontheless, we represent open arrays as lists,
-	  since there's no trouble marshalling a list into an
-	  (open) array - it's this other way which is troublesome.
-	  So..we emit code which tries to marshall *one* element
-	  from the array here. Elsewhere we emit a warning message
-	  that the unmarshaller for a struct containing open arrays
-	  isn't 100% cool. The fix is either to use [size_is()] or
-	  manually tweak the gen'ed code.
-	  
-	  ToDo: add support for the notion of zero terminated vectors?
-	-}
+        {-
+          Handling open arrays when unmarshalling is tricky
+          if you haven't got any information on the size of the
+          thing. Nontheless, we represent open arrays as lists,
+          since there's no trouble marshalling a list into an
+          (open) array - it's this other way which is troublesome.
+          So..we emit code which tries to marshall *one* element
+          from the array here. Elsewhere we emit a warning message
+          that the unmarshaller for a struct containing open arrays
+          isn't 100% cool. The fix is either to use [size_is()] or
+          manually tweak the gen'ed code.
+          
+          ToDo: add support for the notion of zero terminated vectors?
+        -}
     Array t [] -> funApp u_single [ refUnmarshallType mInfo{forRef=True} t ]
     Array (Char _) [e] -> 
-    	  funApp u_bstring [ coreToHaskellExpr e ]
+          funApp u_bstring [ coreToHaskellExpr e ]
     Array t [e]
       | doFree mInfo -> 
           funApp doThenFree
              [ freeType ty
-	     , funApp u_list [ szType t
-	                     , var "0"
-	                     , coreToHaskellExpr e
+             , funApp u_list [ szType t
+                             , var "0"
+                             , coreToHaskellExpr e
                              , refUnmarshallType mInfo{forRef=True} t
-	                     ]
-	     ]      
+                             ]
+             ]      
       | otherwise ->
           funApp u_list [ szType t
-			, var "0"
-			, coreToHaskellExpr e
-			, refUnmarshallType mInfo{forRef=True} t
-			]
+                        , var "0"
+                        , coreToHaskellExpr e
+                        , refUnmarshallType mInfo{forRef=True} t
+                        ]
     Array t [mi,ma]
        | doFree mInfo ->
             funApp doThenFree
                    [ freeType ty
-	           , funApp u_list [ szType t
-	                           , coreToHaskellExpr mi
-	                           , coreToHaskellExpr ma
+                   , funApp u_list [ szType t
+                                   , coreToHaskellExpr mi
+                                   , coreToHaskellExpr ma
                                    , refUnmarshallType mInfo{forRef=True} t
-	                           ]
-	     ]
+                                   ]
+             ]
        | otherwise ->
-	     funApp u_list [ szType t
-	                   , coreToHaskellExpr mi
-	                   , coreToHaskellExpr ma
+             funApp u_list [ szType t
+                           , coreToHaskellExpr mi
+                           , coreToHaskellExpr ma
                            , refUnmarshallType mInfo{forRef=True} t
-	                   ]
+                           ]
     String _ isUnique _ 
         | doFree mInfo   -> funApp doThenFree [ freeType ty, uString ]
         | otherwise      -> uString
        where
          uString 
-	   | isUnique  = funApp readMaybe [ varName u_string ]
-	   | otherwise = varName u_string
+           | isUnique  = funApp readMaybe [ varName u_string ]
+           | otherwise = varName u_string
 
     Sequence t mbSz mbTerm -> 
-    		    funApp u_sequence [ refUnmarshallType mInfo{forRef=False} t
-    				      , terminatorElt False mbTerm t
-				      , szType t
-				      , case mbSz of 
-				       	   Nothing -> nothing
-					   Just x  -> just (coreToHaskellExpr x)
-				      ]
+                    funApp u_sequence [ refUnmarshallType mInfo{forRef=False} t
+                                      , terminatorElt False mbTerm t
+                                      , szType t
+                                      , case mbSz of 
+                                           Nothing -> nothing
+                                           Just x  -> just (coreToHaskellExpr x)
+                                      ]
 
     WString isUnique _ 
         | doFree mInfo   -> funApp doThenFree [ freeType ty, uString ]
         | otherwise      -> uString
        where
         uString 
-	  | isUnique  = funApp readMaybe [ varName u_wstring ]
-	  | otherwise = varName u_wstring
+          | isUnique  = funApp readMaybe [ varName u_wstring ]
+          | otherwise = varName u_wstring
 
     Pointer pt isExp t@(Iface nm mod _ attrs _ inh) ->
-	 case pt of   -- see marshallType comment re: raw interface ptrs.
-	   Ptr    | optCom -> u_ipointer
+         case pt of   -- see marshallType comment re: raw interface ptrs.
+           Ptr    | optCom -> u_ipointer
            Unique | (optCom || optHaskellToC) && isExp ->
-		if forRef mInfo then
-		   funApp u_unique [ refUnmarshallType mInfo{forRef=False} t ]
-		else
-		   funApp u_unique [ unmarshallType mInfo t ]
-	   _   -> 
- 	    case inh of
-	      [] | optCom        -> u_ipointer
-	         | optHaskellToC && attrs `hasAttributeWithName` "finaliser" ->
-		 		    funApp u_ip [ lit (BooleanLit (not (forProxy mInfo))) ]
-	         | otherwise -> varName u_ip
-	      (x:_) 
-		    | optCorba       -> varName (prefix unmarshallPrefix (fst x))
-		    | optCom || qName (fst x) == "IUnknown" -> 
-		        if forRef mInfo then
-			   refUnmarshallType mInfo{forRef=False} ty
-			else
-			   u_ipointer
-	            | optHaskellToC && attrs `hasAttributeWithName` "finaliser" ->
-		 		    funApply (varName (prefix unmarshallPrefix (fst x)))
-				    	     [ lit (BooleanLit (not (forProxy mInfo))) ]
-		    | otherwise		          -> varName (prefix unmarshallPrefix (fst x))
+                if forRef mInfo then
+                   funApp u_unique [ refUnmarshallType mInfo{forRef=False} t ]
+                else
+                   funApp u_unique [ unmarshallType mInfo t ]
+           _   -> 
+            case inh of
+              [] | optCom        -> u_ipointer
+                 | optHaskellToC && attrs `hasAttributeWithName` "finaliser" ->
+                                    funApp u_ip [ lit (BooleanLit (not (forProxy mInfo))) ]
+                 | otherwise -> varName u_ip
+              (x:_) 
+                    | optCorba       -> varName (prefix unmarshallPrefix (fst x))
+                    | optCom || qName (fst x) == "IUnknown" -> 
+                        if forRef mInfo then
+                           refUnmarshallType mInfo{forRef=False} ty
+                        else
+                           u_ipointer
+                    | optHaskellToC && attrs `hasAttributeWithName` "finaliser" ->
+                                    funApply (varName (prefix unmarshallPrefix (fst x)))
+                                             [ lit (BooleanLit (not (forProxy mInfo))) ]
+                    | otherwise                   -> varName (prefix unmarshallPrefix (fst x))
       where
        u_ip = prefix unmarshallPrefix (mkQVarName mod nm)
 
     Pointer _ _ (Name _ _ _ _ _ (Just ti))
       | is_pointed ti -> 
-		if finalised ti then
-		   funApply (varName (unmarshaller ti)) [lit (BooleanLit (not (forProxy mInfo))) ]
-		else
-		   varName (unmarshaller ti)
+                if finalised ti then
+                   funApply (varName (unmarshaller ti)) [lit (BooleanLit (not (forProxy mInfo))) ]
+                else
+                   varName (unmarshaller ti)
     Pointer _ _ Void -> varName prelReturn
     Pointer pt _ t -> 
       case pt of
-	Ptr
-	 | isIfacePtr t  -> 
-	     if forRef mInfo then
-	        refUnmarshallType mInfo{forRef=False} t
-	     else
-	        u_ipointer
+        Ptr
+         | isIfacePtr t  -> 
+             if forRef mInfo then
+                refUnmarshallType mInfo{forRef=False} t
+             else
+                u_ipointer
          | isPointerTy t && doFree mInfo -> funApp doThenFree 
-	                                           [ freeType ty
-	                                           , refUnmarshallType mInfo{forRef=False} t
-						   ]
+                                                   [ freeType ty
+                                                   , refUnmarshallType mInfo{forRef=False} t
+                                                   ]
          | isPointerTy t -> refUnmarshallType mInfo{forRef=False} t
-	 | otherwise     -> varName prelReturn
+         | otherwise     -> varName prelReturn
 
         Ref
           | doFree mInfo -> funApp doThenFree [ freeType ty
-					      , refUnmarshallType mInfo{forRef=False} t
-					      ]
-	  | otherwise    -> refUnmarshallType mInfo{forRef=False} t
-	Unique
-	  | isIfacePtr t -> 
-		if forRef mInfo then
-		   funApp u_unique [ refUnmarshallType mInfo{forRef=False} (getIfaceTy ty) ]
-		else
-		   funApp u_unique [ unmarshallType mInfo (getIfaceTy ty) ]
+                                              , refUnmarshallType mInfo{forRef=False} t
+                                              ]
+          | otherwise    -> refUnmarshallType mInfo{forRef=False} t
+        Unique
+          | isIfacePtr t -> 
+                if forRef mInfo then
+                   funApp u_unique [ refUnmarshallType mInfo{forRef=False} (getIfaceTy ty) ]
+                else
+                   funApp u_unique [ unmarshallType mInfo (getIfaceTy ty) ]
 
-	  | doFree mInfo -> funApp doThenFree [ freeType ty
-	                                      , funApp u_unique
-	                                               [ refUnmarshallType mInfo{forRef=False} t ]
-					      ]
-	  | otherwise    -> funApp u_unique [ refUnmarshallType mInfo{forRef=False} t ]
+          | doFree mInfo -> funApp doThenFree [ freeType ty
+                                              , funApp u_unique
+                                                       [ refUnmarshallType mInfo{forRef=False} t ]
+                                              ]
+          | otherwise    -> funApp u_unique [ refUnmarshallType mInfo{forRef=False} t ]
 
     Void -> varName prelReturn
     Bool -> varName u_bool
     Name _ _ _ _ _ (Just ti) {-  not (is_pointed ti) -} -> 
-		if finalised ti then
-		   funApply (varName (unmarshaller ti)) [lit (BooleanLit (not (forProxy mInfo))) ]
-		else
-		   varName (unmarshaller ti)
+                if finalised ti then
+                   funApply (varName (unmarshaller ti)) [lit (BooleanLit (not (forProxy mInfo))) ]
+                else
+                   varName (unmarshaller ti)
     Name _ _ _ _ (Just t@Enum{}) _ -> unmarshallType mInfo t
     Name _ _ _ _ (Just t@(Name{})) _ -> unmarshallType mInfo t
     Name nm _ mod _ (Just (Struct i [f] _)) _ 
@@ -447,7 +447,7 @@ unmarshallType mInfo ty =
     Integer LongLong isSigned
       | optLongLongIsInteger -> varName (u_integer isSigned)
     _       -> let nm = mkMarshaller unmarshallPrefix ty in
-	       varName nm
+               varName nm
   where
    u_bool    = libImport bool
    u_string  = libImport stringName
@@ -490,21 +490,21 @@ refMarshallType mInfo t =
     Array (Char _) [e] -> funApp w_bstring [ varName true,  coreToHaskellExpr e ]
     Array at [e] -> 
       funApp w_blist
-	     [ szType at
-	     , coreToHaskellExpr e
-	     , refMarshallType mInfo{forRef=False} at
-	     ]
+             [ szType at
+             , coreToHaskellExpr e
+             , refMarshallType mInfo{forRef=False} at
+             ]
     Array at [mi, ma] -> 
       funApp w_blist
-	     [ szType at
-	     , binOp Sub (coreToHaskellExpr ma)
-	     		 (coreToHaskellExpr mi)
-	     , refMarshallType mInfo{forRef=False} at
-	     ]
+             [ szType at
+             , binOp Sub (coreToHaskellExpr ma)
+                         (coreToHaskellExpr mi)
+             , refMarshallType mInfo{forRef=False} at
+             ]
     Array at [] -> funApp w_list [ varName false
-    				 , szType at
-				 , refMarshallType mInfo{forRef=False} at
-				 ]
+                                 , szType at
+                                 , refMarshallType mInfo{forRef=False} at
+                                 ]
 
     SafeArray{} -> varName w_safearray
     String _ isUnique _ 
@@ -515,14 +515,14 @@ refMarshallType mInfo t =
       | otherwise -> varName w_wstring
 
     Sequence ty mbSz mbTerm -> 
-    		     funApp w_sequence [ varName true
-    				       , refMarshallType mInfo{forRef=False} ty
-    				       , terminatorElt True mbTerm ty
-				       , szType ty
-				       , case mbSz of 
-				           Nothing -> nothing
-					   Just x  -> just (coreToHaskellExpr x)
-				       ]
+                     funApp w_sequence [ varName true
+                                       , refMarshallType mInfo{forRef=False} ty
+                                       , terminatorElt True mbTerm ty
+                                       , szType ty
+                                       , case mbSz of 
+                                           Nothing -> nothing
+                                           Just x  -> just (coreToHaskellExpr x)
+                                       ]
 
 {- Hmm..I'm not sure what is the right thing here - include the
    Maybe or not. If the Maybe type is used, then MarshallCore.toHaskellTy
@@ -530,61 +530,61 @@ refMarshallType mInfo t =
     Pointer Unique isExp ty
       | forRef mInfo              &&
         (optCom || optHaskellToC) &&
-	isExp                     &&
-	isIfaceTy ty    -> funApp writeMaybe [ w_ip ]
+        isExp                     &&
+        isIfaceTy ty    -> funApp writeMaybe [ w_ip ]
       where
        (Iface nm mod _ _ _ _) = getIfaceTy ty
        w_ip 
         | optHaskellToC = varName (prefix marshallRefPrefix (mkQVarName mod nm))
-	| otherwise     = funApp w_iptr [w_iptr_arg]
+        | otherwise     = funApp w_iptr [w_iptr_arg]
       
     Pointer _ _ (Iface nm mod _ _ _ inh) ->
        case inh of
          [] | not optHaskellToC -> funApp w_iptr [ w_iptr_arg ]
-	    | otherwise		-> varName w_ip
-	 (x:_) 
-	       | optCorba          -> varName (prefix marshallRefPrefix (fst x))
-	       | not optHaskellToC -> funApp w_iptr [ w_iptr_arg ]
-	       | otherwise	   -> varName (prefix marshallRefPrefix (fst x))
+            | otherwise         -> varName w_ip
+         (x:_) 
+               | optCorba          -> varName (prefix marshallRefPrefix (fst x))
+               | not optHaskellToC -> funApp w_iptr [ w_iptr_arg ]
+               | otherwise         -> varName (prefix marshallRefPrefix (fst x))
       where
        w_ip = prefix marshallRefPrefix (mkQVarName mod nm)
 
     Pointer pt _ (Name _ _ _ _ _ (Just ti))
       | pt /= Ptr && is_pointed ti -> 
-	  case pt of
-	    Unique -> 
-	    	if finalised ti then
-		   funApp writeMaybe [ varName (ref_marshaller ti) ]
-		else
-		   funApp writeMaybe [ varName (ref_marshaller ti) ]
-	    _ -> varName (ref_marshaller ti)
+          case pt of
+            Unique -> 
+                if finalised ti then
+                   funApp writeMaybe [ varName (ref_marshaller ti) ]
+                else
+                   funApp writeMaybe [ varName (ref_marshaller ti) ]
+            _ -> varName (ref_marshaller ti)
 
     Pointer Ptr _ (Name _ _ _ (Just as) _ _) 
      | as `hasAttributeWithName` "foreign" -> varName w_fptr
     Pointer _ _ ty | isVoidTy ty -> varName w_ptr
     Pointer pt _ ty
       | isIfaceTy ty -> refMarshallType mInfo{forRef=False}
-	       		                (Pointer Ref True (getIfaceTy ty))
+                                        (Pointer Ref True (getIfaceTy ty))
       | otherwise ->
         case pt of
-	  Ptr     -> varName w_ptr
+          Ptr     -> varName w_ptr
           Ref  
-	     | optNoDerefRefs -> funApp w_ref [ allocPointerTo ty, refMarshallType mInfo ty ]
-	     | otherwise      -> refMarshallType mInfo ty
-	  Unique  -> funApp w_unique   [ allocPointerTo ty, refMarshallType mInfo ty ]
+             | optNoDerefRefs -> funApp w_ref [ allocPointerTo ty, refMarshallType mInfo ty ]
+             | otherwise      -> refMarshallType mInfo ty
+          Unique  -> funApp w_unique   [ allocPointerTo ty, refMarshallType mInfo ty ]
     Void -> varName w_addr
     Bool -> varName w_bool
     CUnion i _ _ -> 
         let 
-	  nm  = mkMarshaller marshallRefPrefix t
-	  sw  = 
-	    case (getSwitchIsAttribute (idAttributes i)) of
-	      Just e | notNull fs -> 
-		 let v = head fs in var ("write_tag_" ++ v)
-		where
-		 fs = findFreeVars e
-	      _ -> var ("where_do_I_put_the_tag")
-	in
+          nm  = mkMarshaller marshallRefPrefix t
+          sw  = 
+            case (getSwitchIsAttribute (idAttributes i)) of
+              Just e | notNull fs -> 
+                 let v = head fs in var ("write_tag_" ++ v)
+                where
+                 fs = findFreeVars e
+              _ -> var ("where_do_I_put_the_tag")
+        in
         funApply (varName nm) [sw]
     Iface{} -> refMarshallType mInfo (Pointer Ref True t)
     Name _ _ _ _ _ (Just ti) | not (is_pointed ti) -> varName (ref_marshaller ti)
@@ -596,16 +596,16 @@ refMarshallType mInfo t =
        | not (forStruct mInfo) && isNonEncUnionTy (removeNames ty) -> funApply w_ty w_args
        | otherwise        -> 
            if isFinalisedType True ty then
-	      funApply w_ty [ w_iptr_arg ]
-	   else
-	      w_ty
+              funApply w_ty [ w_iptr_arg ]
+           else
+              w_ty
       where
        is_cons_type = isConstructedTy (nukeNames ty)
        w_ty = varName (prefix marshallRefPrefix (mkQVarName mod nm))
       
        w_args
-	 | isFinalisedType True ty = [ w_iptr_arg, write_tag ]
-	 | otherwise		   = [ write_tag ]
+         | isFinalisedType True ty = [ w_iptr_arg, write_tag ]
+         | otherwise               = [ write_tag ]
 
        write_tag = lam [wildPat] (ret unit)
 
@@ -661,20 +661,20 @@ refUnmarshallType mInfo t =
        --
        -- 3/99: Changed to instead do something a bit saner, but
        --       tell the user of the problem.
-    Array ty []	  
+    Array ty []   
        -> trace ("warning: unmarshalling incomplete array type decl, " ++ showCore (ppType t) ++ 
                  " , don't know how big.\n Assuming of length 1. " ) $
           funApp r_blist
-	     [ szType t
-	     , lit (iLit (1::Int))
-	     , refUnmarshallType mInfo{forRef=False} ty
-	     ]
+             [ szType t
+             , lit (iLit (1::Int))
+             , refUnmarshallType mInfo{forRef=False} ty
+             ]
     Array ty [e] -> 
       funApp r_blist
              [ szType ty
-	     , coreToHaskellExpr e
-	     , refUnmarshallType mInfo{forRef=False} ty
-	     ]
+             , coreToHaskellExpr e
+             , refUnmarshallType mInfo{forRef=False} ty
+             ]
 
     String _ isUnique _ 
       | isUnique  -> funApp readMaybe [ varName r_string ]
@@ -686,45 +686,45 @@ refUnmarshallType mInfo t =
     SafeArray _ -> r_safearray
 
     Sequence ty mbSz mbTerm -> 
-    		    funApp r_sequence [ refUnmarshallType mInfo{forRef=False} ty
-    				      , terminatorElt False mbTerm ty
-				      , szType ty
-				      , case mbSz of 
-				          Nothing -> nothing
-					  Just x  -> just (coreToHaskellExpr x)
-				      ]
+                    funApp r_sequence [ refUnmarshallType mInfo{forRef=False} ty
+                                      , terminatorElt False mbTerm ty
+                                      , szType ty
+                                      , case mbSz of 
+                                          Nothing -> nothing
+                                          Just x  -> just (coreToHaskellExpr x)
+                                      ]
 
     Pointer Unique isExp ty
       | forRef mInfo              && 
         (optCom || optHaskellToC) &&
-	isExp 			  &&
-	isIfaceTy ty    -> funApp r_unique [ u_ip ]
+        isExp                     &&
+        isIfaceTy ty    -> funApp r_unique [ u_ip ]
       where
        (Iface nm mod _ attrs _ _) = getIfaceTy ty
        u_ip 
         | optHaskellToC  =
-		funApp (prefix unmarshallRefPrefix (mkQVarName mod nm))
-		       (if attrs `hasAttributeWithName` "finaliser" then
-		       	   [ lit (BooleanLit (not (forProxy mInfo))) ]
-			else
-			   [{-empty-}]
-		       )
-	| otherwise      = funApp u_iptr [ final_arg ]
+                funApp (prefix unmarshallRefPrefix (mkQVarName mod nm))
+                       (if attrs `hasAttributeWithName` "finaliser" then
+                           [ lit (BooleanLit (not (forProxy mInfo))) ]
+                        else
+                           [{-empty-}]
+                       )
+        | otherwise      = funApp u_iptr [ final_arg ]
 
     Pointer _ _ (Iface nm mod _ attrs _ inh) ->
        case inh of
          [] | optCom     -> funApp r_iptr [ final_arg ]
-	    | optHaskellToC && attrs `hasAttributeWithName` "finaliser" ->
-		 		    funApply r_ip [ lit (BooleanLit (not (forProxy mInfo))) ]
+            | optHaskellToC && attrs `hasAttributeWithName` "finaliser" ->
+                                    funApply r_ip [ lit (BooleanLit (not (forProxy mInfo))) ]
 
-	    | otherwise	 -> r_ip
-	 (x:_) 
-	       | optCorba  -> varName (prefix unmarshallRefPrefix (fst x))
-	       | optCom    -> funApp r_iptr [ final_arg ]
-	       | optHaskellToC && attrs `hasAttributeWithName` "finaliser" ->
-		 		    funApply (varName (prefix unmarshallRefPrefix (fst x)))
-				    	     [ lit (BooleanLit (not (forProxy mInfo))) ]
-	       | otherwise -> varName (prefix unmarshallRefPrefix (fst x))
+            | otherwise  -> r_ip
+         (x:_) 
+               | optCorba  -> varName (prefix unmarshallRefPrefix (fst x))
+               | optCom    -> funApp r_iptr [ final_arg ]
+               | optHaskellToC && attrs `hasAttributeWithName` "finaliser" ->
+                                    funApply (varName (prefix unmarshallRefPrefix (fst x)))
+                                             [ lit (BooleanLit (not (forProxy mInfo))) ]
+               | otherwise -> varName (prefix unmarshallRefPrefix (fst x))
       where
        r_ip = varName (prefix unmarshallRefPrefix (mkQVarName mod nm))
 
@@ -732,27 +732,27 @@ refUnmarshallType mInfo t =
     Pointer Unique isExp ty
       | forRef mInfo && 
         optCom       &&
-	isIfaceTy ty    -> funApp r_unique [ funApp u_iptr [ final_arg ]]
+        isIfaceTy ty    -> funApp r_unique [ funApp u_iptr [ final_arg ]]
 -}
 
     Pointer pt _ (Name _ _ _ _ _ (Just ti))
       | pt /= Ptr && is_pointed ti -> 
-	  case pt of
-	    Unique -> funApp readMaybe [ e ]
-	    _      -> e
+          case pt of
+            Unique -> funApp readMaybe [ e ]
+            _      -> e
          where
-	  e 
+          e 
            | finalised ti = funApply (varName (ref_unmarshaller ti)) [ final_arg ]
-	   | otherwise    = varName (ref_unmarshaller ti)
+           | otherwise    = varName (ref_unmarshaller ti)
 
     Pointer Ref _ t1@(Name _ _ _ _ (Just ty) _)
       | isConstructedTy (nukeNames ty) -> 
-	      if isFinalisedType False ty then
-	         funApply r_ty [ final_arg ]
-	      else
-	         r_ty
+              if isFinalisedType False ty then
+                 funApply r_ty [ final_arg ]
+              else
+                 r_ty
           where
-	   r_ty = varName (mkMarshaller unmarshallRefPrefix t1)
+           r_ty = varName (mkMarshaller unmarshallRefPrefix t1)
 
     Pointer Ptr _ (Name _ _ _ (Just as) _ _)
       | as `hasAttributeWithName` "foreign" -> varName r_fptr
@@ -761,38 +761,38 @@ refUnmarshallType mInfo t =
       | isIfaceTy t -> refUnmarshallType mInfo (Pointer Ref True (getIfaceTy t))
       | otherwise   -> 
       case pt of
-	Ptr     -> varName r_ptr -- we stop unmarshalling once we encounter a [ptr] pointer.
+        Ptr     -> varName r_ptr -- we stop unmarshalling once we encounter a [ptr] pointer.
         Ref     -> 
-	    -- I don't understand the motivation for ignoring the [ref] here any longer!
-	    -- Conseq, -fopt-no-deref-refs can be used to turn off this 'feature' until
-	    -- the ramifications of doing it one way vs. the other can be more carefully
-	    -- assessed (same option applies to ref-marshalling of [ref]s.)
-	   if (forRef mInfo || not (isPointerTy ty)) && not optNoDerefRefs then 
-	      refUnmarshallType mInfo ty
-	   else
-	          funApp r_ref     [ refUnmarshallType mInfo{forRef=False} ty ]
-	Unique -> funApp r_unique  [ refUnmarshallType mInfo{forRef=False} ty ]
+            -- I don't understand the motivation for ignoring the [ref] here any longer!
+            -- Conseq, -fopt-no-deref-refs can be used to turn off this 'feature' until
+            -- the ramifications of doing it one way vs. the other can be more carefully
+            -- assessed (same option applies to ref-marshalling of [ref]s.)
+           if (forRef mInfo || not (isPointerTy ty)) && not optNoDerefRefs then 
+              refUnmarshallType mInfo ty
+           else
+                  funApp r_ref     [ refUnmarshallType mInfo{forRef=False} ty ]
+        Unique -> funApp r_unique  [ refUnmarshallType mInfo{forRef=False} ty ]
     Void  -> varName r_addr
     Bool  -> varName r_bool
     CUnion i _ _ -> 
         let 
-	  nm  = mkMarshaller unmarshallRefPrefix t
-	  sw  = 
-	    case (getSwitchIsAttribute (idAttributes i)) of
-	      Just e | notNull fs -> 
-	        let v = head fs in var ("read_tag_" ++ v)
-	       where
-	         fs = findFreeVars e
-		
-	      _            -> var ("where_do_I_get_the_tag_from")
-	in
+          nm  = mkMarshaller unmarshallRefPrefix t
+          sw  = 
+            case (getSwitchIsAttribute (idAttributes i)) of
+              Just e | notNull fs -> 
+                let v = head fs in var ("read_tag_" ++ v)
+               where
+                 fs = findFreeVars e
+                
+              _            -> var ("where_do_I_get_the_tag_from")
+        in
         funApply (varName nm) [sw]
     Iface{} -> refUnmarshallType mInfo (Pointer Ref True t)
     Name _ _ _ _ _ (Just ti) {-  not (is_pointed ti) -} -> 
-		if finalised ti then
-		  funApply (varName (ref_unmarshaller ti)) [ final_arg ]
-		else
-		   varName (ref_unmarshaller ti)
+                if finalised ti then
+                  funApply (varName (ref_unmarshaller ti)) [ final_arg ]
+                else
+                   varName (ref_unmarshaller ti)
     Name _ _ _ _ (Just ty@Enum{}) _ -> refUnmarshallType mInfo ty
     Name _ _ _ _ (Just ty@(Name{})) _ -> refUnmarshallType mInfo ty
     Enum{} -> varName r_enum32
@@ -801,26 +801,26 @@ refUnmarshallType mInfo t =
     Name nm _ mod mb_attrs (Just ty) _
       | not (forRef mInfo) && isNonEncUnionTy (removeNames ty) ->
          funApply (varName (mkMarshaller unmarshallRefPrefix t))
-		  r_args
+                  r_args
       | not is_cons_type -> refUnmarshallType mInfo ty
       | is_cons_type     -> 
            if isFinalisedType False ty then
-	      funApply r_ty [ final_arg ]
-	   else
-	      r_ty
+              funApply r_ty [ final_arg ]
+           else
+              r_ty
        where
           
 
           r_ty = varName (prefix unmarshallRefPrefix (mkQVarName mod nm))
 
           is_cons_type = isConstructedTy (nukeNames ty)
-	  attrs    = 
-		fromMaybe [] mb_attrs ++
-		idAttributes (getTyTag (getNonEncUnionTy ty))
+          attrs    = 
+                fromMaybe [] mb_attrs ++
+                idAttributes (getTyTag (getNonEncUnionTy ty))
 
-	  r_args
-	   | isFinalisedType False ty = [ final_arg, read_tag ]
-	   | otherwise		      = [ read_tag ]
+          r_args
+           | isFinalisedType False ty = [ final_arg, read_tag ]
+           | otherwise                = [ read_tag ]
 
           read_tag = 
                case getSwitchIsAttribute attrs of
@@ -842,7 +842,7 @@ refUnmarshallType mInfo t =
    r_safearray 
      | forStruct mInfo = funApply (varName (prefix unmarshallRefPrefix sAFEARRAY))  [ lit (BooleanLit False) ]
      | otherwise       = funApply (varName (prefix unmarshallRefPrefix (mkQVarName autoLib safearray)))
-     				  [ lit (BooleanLit (not (forProxy mInfo))) ]
+                                  [ lit (BooleanLit (not (forProxy mInfo))) ]
 
    r_integer isSigned
      | isSigned  = libImport integer
@@ -872,12 +872,12 @@ coreToHaskellExpr :: Expr -> Haskell.Expr
 coreToHaskellExpr e =
  case e of
    Binary bop e1 e2 -> binOp bop (coreToHaskellExpr e1) 
-   				 (coreToHaskellExpr e2)
+                                 (coreToHaskellExpr e2)
    Cond e1 e2 e3 ->
      hCase (coreToHaskellExpr e1) 
-	[ alt (conPat (mkQConName prelude "True") [])  (coreToHaskellExpr e2)
-	, alt (conPat (mkQConName prelude "False") []) (coreToHaskellExpr e3)
-	]
+        [ alt (conPat (mkQConName prelude "True") [])  (coreToHaskellExpr e2)
+        , alt (conPat (mkQConName prelude "False") []) (coreToHaskellExpr e3)
+        ]
    Unary  uop e1 -> unaryOp uop (coreToHaskellExpr e1)
    Var nm        -> var (mkHaskellVarName nm)
    Lit l         -> lit l
@@ -898,7 +898,7 @@ coerceTy from_ty to_ty e
  | otherwise = Haskell.WithTy
                    (funApp (mkQualName prelude (mkHaskellVarName "fromIntegral"))
                           [ e ])
-	           (toHaskellBaseTy False to_ty)
+                   (toHaskellBaseTy False to_ty)
 \end{code}
 
 Allocation and a couple of other functions in the support library
@@ -936,7 +936,7 @@ szType t
 
   checkIfEnum Enum{} = Just (mkQVarName hdirectLib "sizeofInt32")
   checkIfEnum (Name _ _ _ _ (Just ty) _) = checkIfEnum ty
-  checkIfEnum _	                         = Nothing
+  checkIfEnum _                          = Nothing
 
 \end{code}
 
@@ -950,9 +950,9 @@ allocPointerTo ty  =
  where
   ty' = 
     case ty of
-      Void	       -> Pointer Ptr True Void
+      Void             -> Pointer Ptr True Void
       Pointer _ _ Void -> ty
-      _		       -> removePtr ty
+      _                -> removePtr ty
 \end{code}
 
 Generating a *call* to free a marshalled representation
@@ -975,14 +975,14 @@ mbFreeType ty =
     | (idAttributes tg) `hasAttributeWithName` "free" ->
       case findAttribute "free" attrs of
         Just (Attribute _ [ParamLit (StringLit freeR)]) -> Just (var freeR)
-	_						-> mbFreeType' True ty
+        _                                               -> mbFreeType' True ty
     | attrs `hasAttributeWithName` "free_method" ->
- 	-- what an ad-hac hock!
+        -- what an ad-hac hock!
       case findAttribute "free_method" attrs of
         Just (Attribute _ [ParamLit (StringLit freeR)]) -> 
-				Just (lam [varPat (var "x")] $
-				          funApply (var freeR) [var "x", var "iptr"])
-	_ -> mbFreeType' True ty
+                                Just (lam [varPat (var "x")] $
+                                          funApply (var freeR) [var "x", var "iptr"])
+        _ -> mbFreeType' True ty
      where
       attrs = idAttributes tg
 
@@ -992,7 +992,7 @@ mbFreeType' :: Bool -> Type -> Maybe Haskell.Expr
 mbFreeType' isTop ty = 
  case ty of
   Pointer _ _ (Name _ _ _ _ _ (Just ti)) | is_pointed ti &&
-  				         finalised ti -> Nothing
+                                         finalised ti -> Nothing
   Pointer _ _ Void    -> Nothing
   Pointer _ _ Iface{} -> Nothing
    {- The Haskell representation of a unique pointer is as a
@@ -1003,30 +1003,30 @@ mbFreeType' isTop ty =
    -}
   Pointer Unique _ t
      | isIfaceTy t       -> Nothing
-     | otherwise	 ->
+     | otherwise         ->
        case mbFreeType' False t of
-	  Just v  -> Just (funApp (prefix freePrefix (mkQVarName hdirectLib unique)) [ v ])
+          Just v  -> Just (funApp (prefix freePrefix (mkQVarName hdirectLib unique)) [ v ])
           Nothing | isTop     -> Just (varName free)
-	  	  | otherwise -> Nothing
+                  | otherwise -> Nothing
 
    -- no marshalling was done on this in the first place, so nothing to free.
   Pointer Ptr _ _ -> Nothing
    -- the type embedded within the reference may have to be freed ...
   Pointer Ref _ t ->
-  	case (mbFreeType' False t) of
-	  Just v  -> Just (funApp (prefix freePrefix (mkQVarName hdirectLib ref)) [v])
+        case (mbFreeType' False t) of
+          Just v  -> Just (funApp (prefix freePrefix (mkQVarName hdirectLib ref)) [v])
           Nothing | isTop     -> Just (varName free) -- just free the toplevel pointer.
-	          | otherwise -> Nothing
+                  | otherwise -> Nothing
 
    -- the array may consist of elements that may need to be freed
    -- individually, so we better check by looking at the element type..
    -- [in many cases element-wise freeing isn't right, since the
    --  array was block allocated initially, so let's not do this for
    --  now -- assume block allocation.]
-  Array aty _		
+  Array aty _           
    | needsFreeing aty -> Just (varName free)
-   | isTop	      -> Just (varName free)
-   | otherwise	      -> Nothing
+   | isTop            -> Just (varName free)
+   | otherwise        -> Nothing
 
    -- the String/sequence type contains a null-terminated sequence of unpointed objects,
    -- so no need to do per-elt release/free.
@@ -1046,8 +1046,8 @@ mbFreeType' isTop ty =
    -- to do the inlining instead.)
    -- 
   Struct tg fields _ 
-	  | any (needsFreeing.fieldType) fields -> Just (varName (prefix freePrefix (mkVarName (idName tg))))
-	  | otherwise -> Nothing
+          | any (needsFreeing.fieldType) fields -> Just (varName (prefix freePrefix (mkVarName (idName tg))))
+          | otherwise -> Nothing
 
    -- See above comment for structs.
    -- The tag type isn't pointed (I hope!), so we only need to worry about
@@ -1073,17 +1073,17 @@ mbFreeType' isTop ty =
      case mb_ty of
        Nothing -> Nothing -- Hmm..
        Just t 
-	     -- want the name of the constructed type rather than its tag...if it needs to be released.
+             -- want the name of the constructed type rather than its tag...if it needs to be released.
          | isConstructedTy (nukeNames t) -> 
-		case mbFreeType' False t of
-		  Just _ | isTop -> Just (funApply (varName (prefix freePrefix (mkQConName mod (mkHaskellTyConName nm))))
-					           args)
-		  _ -> Nothing
+                case mbFreeType' False t of
+                  Just _ | isTop -> Just (funApply (varName (prefix freePrefix (mkQConName mod (mkHaskellTyConName nm))))
+                                                   args)
+                  _ -> Nothing
          | otherwise ->
            case mbFreeType' False t of
-	     Just aty | not (don'tFree mb_attrs) -> Just aty
-	     	      | otherwise		 -> Nothing
-	     Nothing -> Nothing
+             Just aty | not (don'tFree mb_attrs) -> Just aty
+                      | otherwise                -> Nothing
+             Nothing -> Nothing
             where
              args
               | isNonEncUnionTy t = [read_tag]
@@ -1128,7 +1128,7 @@ needsFreeing t = go True t
     _ -> False -- basic numeric/char types + void & enum.
 
   sw_go (SwitchEmpty _) = False
-  sw_go s	        = go False (switchType s)
+  sw_go s               = go False (switchType s)
 
 swNeedsFreeing :: [Switch] -> Bool
 swNeedsFreeing [] = False

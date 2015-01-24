@@ -40,17 +40,17 @@ import RnMonad
 import CoreIDL
 import BasicTypes
 import CoreUtils ( mkHaskellTyConName, isMethod, mkIfaceTypeName, getTypeAttributes,
-		   localiseTypes )
+                   localiseTypes )
 import Attribute ( isConstantAttribute, hasAttributeWithName, hasAttributeWithNames,
-		   sourceAttribute, filterAttributes, filterOutAttributes,
-		   findAttribute, findStringAttributes
-		 )
+                   sourceAttribute, filterAttributes, filterOutAttributes,
+                   findAttribute, findStringAttributes
+                 )
 import Utils     ( dropSuffix, mapMbM, splitLast )
 import DsMonad   ( TypeEnv, SourceEnv, TagEnv, IfaceEnv )
 import Opts      ( optOneModulePerInterface, optCoalesceIsomorphicMethods,
-		   optPrefixIfaceName, optAppendIfaceName, optInlineTypes,
-		   optCharPtrIsString, optUseStdDispatch
-		 )
+                   optPrefixIfaceName, optAppendIfaceName, optInlineTypes,
+                   optCharPtrIsString, optUseStdDispatch
+                 )
 
 import Data.Maybe    ( isJust, fromMaybe )
 import Data.List     ( isPrefixOf )
@@ -76,11 +76,11 @@ of @foo@ (or one that is just not as strongly typed.)
 
 \begin{code}
 renameDecls :: TypeEnv
-	    -> TagEnv
-	    -> SourceEnv
-	    -> IfaceEnv
-	    -> [Decl]
-	    -> ([Decl], IsoEnv, IfaceNukeEnv)
+            -> TagEnv
+            -> SourceEnv
+            -> IfaceEnv
+            -> [Decl]
+            -> ([Decl], IsoEnv, IfaceNukeEnv)
 renameDecls tenv tgenv senv ienv ds =
    runRnM tenv tgenv senv ienv $ mapM renameDecl (localiseTypes ds)
 
@@ -114,20 +114,20 @@ renameDecl (Interface i is_ref inh ds) = do
 
    startOffset
     | nm == "IUnknown" = Just 0
-    | otherwise	       = Just (sum (map snd inh))
+    | otherwise        = Just (sum (map snd inh))
 
    rnDecl d
     | isMethod d = do
         d' <- renameDecl d
-	incMethOffset
-	return d'
+        incMethOffset
+        return d'
     | otherwise  = renameDecl d
 
    deps = map remove $
           filterAttributes (idAttributes i) ["depender"]
      where
       remove (Attribute _ [ParamLit (LitLit s)]) = mkHaskellTyConName (snd (splitLast "." s))
-      remove _					 = ""
+      remove _                                   = ""
 
   ds' <- 
     setMethOffset startOffset $
@@ -179,16 +179,16 @@ renameDecl (DispInterface i ii ps ms) = do
   (ps',ms') <- 
      setIfaceName nm (
      withNew nm ( do
-		   ps' <- mapM reDecl ps
-	           ms' <- mapM reDecl ms
-		   return (ps', ms')))
+                   ps' <- mapM reDecl ps
+                   ms' <- mapM reDecl ms
+                   return (ps', ms')))
 
   ii' <- 
     case ii of
       Nothing -> return Nothing
       Just d  -> do
          d' <- relabelDecl d
-	 return (Just d')
+         return (Just d')
   let d = DispInterface i'' ii' ps' ms'
   addIface (idName i'') d
   return d
@@ -237,12 +237,12 @@ renameDecl (Method i cc res ps offs) =
     if_mangle
      | optPrefixIfaceName = \ x -> h_if_name ++ "_" ++ x
      | optAppendIfaceName = \ x -> x ++ shorten_if h_if_name
-     | otherwise	  = id
+     | otherwise          = id
 
     mangled_i 
      | optAppendIfaceName && not optOneModulePerInterface
-			  = real_i{idName=if_mangle (idName i')}
-     | otherwise	  = real_i
+                          = real_i{idName=if_mangle (idName i')}
+     | otherwise          = real_i
 
 
     -- IFooBar => FB
@@ -251,7 +251,7 @@ renameDecl (Method i cc res ps offs) =
     shorten_if ls = 
       case ls of
         'I':x:xs | isUpper x -> shorten (x:xs)
-	xs     -> shorten xs
+        xs     -> shorten xs
 
     shorten [] = []
     shorten (x:xs) = toUpper x : filter (isUpper) xs
@@ -266,11 +266,11 @@ renameDecl (Method i cc res ps offs) =
     -- see relabelDecl.Method comment as to why [ignore]s
     -- are filtered out here.
   let ty_attrs = filterOutAttributes (getTypeAttributes (resultOrigType res))
-  				     ["ignore"]
+                                     ["ignore"]
   res'  <- renameResult res
   ps'   <- withNewVarIdEnv $ do
-	    ps' <- mapM renameParam ps
-	    mapM renameParamAttr ps'
+            ps' <- mapM renameParam ps
+            mapM renameParamAttr ps'
   off   <- getMethOffset
   when optCoalesceIsomorphicMethods (checkIsomorphicMeth real_i off res' ps')
   return (Method the_i{idAttributes=idAttributes the_i ++ ty_attrs} cc res' ps' offs)
@@ -319,7 +319,7 @@ relabelDecl (Method i cc res ps offs) = do
     -- [ignore] attributes attached to the result type are *not* 
     -- propagated to the method Id.
   let ty_attrs = filterOutAttributes (getTypeAttributes (resultOrigType res))
-  				     ["ignore"]
+                                     ["ignore"]
   res' <- relabelResult res
   return (Method i'{idAttributes=idAttributes i' ++ ty_attrs} cc res' ps' offs)
 
@@ -407,7 +407,7 @@ checkIsomorphicMeth i mem_off res params = do
 
     Just alts 
       | any checkOne alts ->  -- name & params matched, store it.
-	    addIsoMethod (idOrigName i) (res, params)
+            addIsoMethod (idOrigName i) (res, params)
       | otherwise ->
             addMethod (idOrigName i) (mem_off, res,params)
 
@@ -416,8 +416,8 @@ checkIsomorphicMeth i mem_off res params = do
     off == mem_off &&
     resultType r == resultType res && 
     all (\ (p1,p2) -> paramMode p1 == paramMode p2 &&
-		      paramType p1 == paramType p2)  -- ToDo: check attributes too.
-	(zip ps params)
+                      paramType p1 == paramType p2)  -- ToDo: check attributes too.
+        (zip ps params)
 
 \end{code}
 
@@ -429,10 +429,10 @@ renameType ty =
        r  <- lookupTag (idName i)
        case r of
          Just (mod,nm) -> do
-	    mb_r <- lookupTypeId nm
-	    let r' = fmap (snd) mb_r
-	    return (Name nm nm mod Nothing r' Nothing)
-	 Nothing -> do
+            mb_r <- lookupTypeId nm
+            let r' = fmap (snd) mb_r
+            return (Name nm nm mod Nothing r' Nothing)
+         Nothing -> do
                --i' <- renameTagId i
                return (Struct i [] mbsz)
    Struct i fields mbsz -> do
@@ -451,17 +451,17 @@ renameType ty =
      i_r   <- renameTyConId i
      i'    <- normaliseModName i_r
      i''   <- 
-	 {- Make sure we've got the right module. -} 
+         {- Make sure we've got the right module. -} 
        case idModule i' of
          Nothing -> do
-	    r <- lookupTag (idName i)
-	    case r of
-	      Just (Just mod, _) -> setModuleName mod (normaliseModName i')
-		    -- drop the module qualifier if it's the same as the name of the
-		    -- containing module [this prunage is only done in the one-mod-per-iface
-		    -- setting at the moment.]
-	      _     -> return i'
-	 Just _ -> return i'
+            r <- lookupTag (idName i)
+            case r of
+              Just (Just mod, _) -> setModuleName mod (normaliseModName i')
+                    -- drop the module qualifier if it's the same as the name of the
+                    -- containing module [this prunage is only done in the one-mod-per-iface
+                    -- setting at the moment.]
+              _     -> return i'
+         Just _ -> return i'
 
      vals' <- mapM renameEnumTag vals
      return (Enum i'' flg vals')
@@ -481,7 +481,7 @@ renameType ty =
      fields''   <- mapM renameField fields'
      return (CUnion i' fields'' mbsz)
    FunTy cc res ps -> do
-     res'	<- renameResult res
+     res'       <- renameResult res
      ps'        <- mapM renameParam ps
      return (FunTy cc res' ps')
 
@@ -489,13 +489,13 @@ renameType ty =
      | optCharPtrIsString -> return (String x False Nothing)
 
    Pointer pt isExp t -> do
-     t'		<- renameType t
+     t'         <- renameType t
      return (Pointer pt isExp t')
    Array t es   -> do
-     t'		<- renameType t
+     t'         <- renameType t
      return (Array t' es)
    SafeArray t  -> do
-     t'		<- renameType t
+     t'         <- renameType t
      return (SafeArray t')
 
    Sequence t mb_sz mb_term -> do
@@ -514,25 +514,25 @@ renameType ty =
       ren_ty <- 
          case mb_ty of
            Nothing   -> do
-	      r <- lookupTypeId (adjustHsName (fromMaybe [] mb_attrs) nm)
-	      case r of
-	        Nothing -> return (Name nm' orig_nm mod mb_attrs' (fmap snd r) mb_ti)
-		  -- avoid 'obvious' loops.
-		Just (_, t) -> do
-		   t' <- relabelType True t
-		   return (Name nm' orig_nm mod mb_attrs' (Just t') mb_ti)
+              r <- lookupTypeId (adjustHsName (fromMaybe [] mb_attrs) nm)
+              case r of
+                Nothing -> return (Name nm' orig_nm mod mb_attrs' (fmap snd r) mb_ti)
+                  -- avoid 'obvious' loops.
+                Just (_, t) -> do
+                   t' <- relabelType True t
+                   return (Name nm' orig_nm mod mb_attrs' (Just t') mb_ti)
 
-	   Just ty1   -> do
+           Just ty1   -> do
              ty' <- relabelType True ty1
-	       -- optionally shortening out imported synonyms
-	       -- can sometimes reduce external dependencies.
-	     
-	     if (optInlineTypes && isJust mod && nm /= "HRESULT") ||
-	        ((getTypeAttributes ty1 ++ fromMaybe [] mb_attrs) `hasAttributeWithName`
-			"ignore") then
-	        return ty'
+               -- optionally shortening out imported synonyms
+               -- can sometimes reduce external dependencies.
+             
+             if (optInlineTypes && isJust mod && nm /= "HRESULT") ||
+                ((getTypeAttributes ty1 ++ fromMaybe [] mb_attrs) `hasAttributeWithName`
+                        "ignore") then
+                return ty'
               else
-	        return (Name nm' orig_nm mod mb_attrs' (Just ty') mb_ti)
+                return (Name nm' orig_nm mod mb_attrs' (Just ty') mb_ti)
       normaliseTy mod_nm deps ren_ty
 
    Iface{} ->
@@ -552,46 +552,46 @@ normaliseTy mod_nm ls t =
                inh1 <- getBestInheritInfo nm inh
                inh' <- normaliseInh mod_nm ls inh1
                return (Iface (mkHaskellTyConName nm) Nothing
-	       		     onm attrs is_idis inh')
+                             onm attrs is_idis inh')
     Iface nm mod onm attrs is_idis inh -> do
                inh1 <- getBestInheritInfo nm inh
                inh' <- normaliseInh mod_nm ls inh1
                return (Iface (mkHaskellTyConName nm) mod'
-	       		     onm attrs is_idis inh')
+                             onm attrs is_idis inh')
       where
-	mod' = 
-	 case mod of
-	   Nothing -> mod
-	   Just x  -> 
-	     let h_mod = mkHaskellTyConName x in
-	     if (optOneModulePerInterface && h_mod `elem` ls) then
-		Just (h_mod ++ "Ty")
-	     else
-	        Just h_mod
+        mod' = 
+         case mod of
+           Nothing -> mod
+           Just x  -> 
+             let h_mod = mkHaskellTyConName x in
+             if (optOneModulePerInterface && h_mod `elem` ls) then
+                Just (h_mod ++ "Ty")
+             else
+                Just h_mod
 
     Name nm orig_nm mb_mod mb_attrs mb_ty mb_ti -> do
        mb_ty' <- mapMbM (normaliseTy mod_nm ls) mb_ty
        let
-	mb_mod' =
-	 case mb_mod of
-	   Just x  | mkHaskellTyConName x == mod_nm -> Nothing
-	           | otherwise			    -> Just (mkHaskellTyConName (dropSuffix x))
+        mb_mod' =
+         case mb_mod of
+           Just x  | mkHaskellTyConName x == mod_nm -> Nothing
+                   | otherwise                      -> Just (mkHaskellTyConName (dropSuffix x))
            _ -> Nothing
 
        return (Name (mkHaskellTyConName nm) orig_nm mb_mod'
- 		    mb_attrs mb_ty' mb_ti)
+                    mb_attrs mb_ty' mb_ti)
     Pointer x isExp ty   -> do
         ty' <- normaliseTy mod_nm ls ty
         return (Pointer x isExp ty')
     SafeArray ty   -> do
         ty' <- normaliseTy mod_nm ls ty
-	return (SafeArray ty')
+        return (SafeArray ty')
     Sequence ty mb_sz mb_term -> do
         ty' <- normaliseTy mod_nm ls ty
-	return (Sequence ty' mb_sz mb_term)
+        return (Sequence ty' mb_sz mb_term)
     Array ty e     -> do
         ty' <- normaliseTy mod_nm ls ty
-	return (Array ty e)
+        return (Array ty e)
     _ -> return t
 
 normaliseInh :: String -> [String] -> InterfaceInherit -> RnM InterfaceInherit
@@ -610,25 +610,25 @@ normaliseInh mod_nm ls inh = do
    adjustName isModule q nm =
     case nm of
       Nothing
-	| isModule && (qName q) `elem` ls
-	  -> return (Just ((qName q) ++ "Ty"))
-	| otherwise -> return nm
+        | isModule && (qName q) `elem` ls
+          -> return (Just ((qName q) ++ "Ty"))
+        | otherwise -> return nm
       Just h_mod ->
         lookupTyConEnv h_mod $ \ _ -> 
-		-- 11/00:
+                -- 11/00:
                 -- suspicious lack of use of the result, but i'm leaving it
                 -- as is, for fear of perturbing anything right now.
-	if (isModule && h_mod `elem` ls) then
-	   return (Just (h_mod ++ "Ty"))
-	 else
-	   return (Just (mkHaskellTyConName h_mod))
+        if (isModule && h_mod `elem` ls) then
+           return (Just (h_mod ++ "Ty"))
+         else
+           return (Just (mkHaskellTyConName h_mod))
 
 {-
   In the following setting:
 
-	 interface IB;
+         interface IB;
          interface IA : IB { ... };
-	 interface IB { ... };
+         interface IB { ... };
 
   we need to know how many methods there are in IB when generating
   the stubs for the IA methods. 'updateMethodCount' updates this info
@@ -646,28 +646,28 @@ updateMethodCount is = mapM updateMethod is
  where
   updateMethod (i,n)
     | n /= 0    = return (i,n) -- non-zero method count means
-    			       -- that it is up-to-date.
+                               -- that it is up-to-date.
     | otherwise = do
         res <- lookupIface (qName i) 
-	case res of
-	  Just DispInterface{} -> return (i, 7)
-	  Just iface@Interface{declInherit=inhs,declDecls=ds} -> do
-	        -- make sure the parent info is up-to-date.
-	      is' <- updateMethodCount inhs
-	      let inh_meths = sum (map snd is')
-	      	  no_meths  = length (filter isMethod ds)
-		-- update info in env for the benefit of others.
-	      addIface (qName i) (iface{declInherit=is'})
-	        -- ToDo: attribute Interface decls with vtbl sizes.
-	      return (i, no_meths + inh_meths)
-	  _  -> return (i,n)
+        case res of
+          Just DispInterface{} -> return (i, 7)
+          Just iface@Interface{declInherit=inhs,declDecls=ds} -> do
+                -- make sure the parent info is up-to-date.
+              is' <- updateMethodCount inhs
+              let inh_meths = sum (map snd is')
+                  no_meths  = length (filter isMethod ds)
+                -- update info in env for the benefit of others.
+              addIface (qName i) (iface{declInherit=is'})
+                -- ToDo: attribute Interface decls with vtbl sizes.
+              return (i, no_meths + inh_meths)
+          _  -> return (i,n)
 {-
    In case we were processing something like:
     
       interface A;
       interface B { ... f(...A* x...); }
       interface A : X { ... };
-		       
+                       
    The inheritance info 'X' for A isn't known when processing
    interface B. Rectify that here.
 -}
@@ -676,7 +676,7 @@ getBestInheritInfo nm inh = do
    res  <- lookupTypeId nm
    case res of
      Just (_, Iface _ _ _ _ _ inh2) | not (null inh2) -> return inh2
-     _		          -> return inh
+     _                    -> return inh
 
 \end{code}
 
@@ -688,12 +688,12 @@ relabelType derefTy ty =
        r  <- lookupTag (idName i)
        case r of
          Just (mod,nm) -> do
-	    r1 <- lookupTypeId nm
-	    case r1 of
-	     Just (_,t)  -> return (Name nm nm mod Nothing (Just t) Nothing)
-	     Nothing -> do
-	       return (Name nm nm mod Nothing Nothing Nothing)
-	 Nothing -> do
+            r1 <- lookupTypeId nm
+            case r1 of
+             Just (_,t)  -> return (Name nm nm mod Nothing (Just t) Nothing)
+             Nothing -> do
+               return (Name nm nm mod Nothing Nothing Nothing)
+         Nothing -> do
             --i' <- relabelTyConId i
             return (Struct i [] mbsz)
 
@@ -723,19 +723,19 @@ relabelType derefTy ty =
    Pointer _ _ x@(Char _) 
      | optCharPtrIsString -> return (String x False Nothing)
    Pointer pt isExp t -> do
-     t'		<- relabelType derefTy t
+     t'         <- relabelType derefTy t
      return (Pointer pt isExp t')
    Array t es   -> do
-     t'		<- relabelType derefTy t
+     t'         <- relabelType derefTy t
      return (Array t' es)
    SafeArray t  -> do
-     t'		<- relabelType derefTy t
+     t'         <- relabelType derefTy t
      return (SafeArray t')
    Sequence t mb_sz mb_term -> do
-     t'		<- relabelType derefTy t
+     t'         <- relabelType derefTy t
      return (Sequence t' mb_sz mb_term)
    FunTy cc res ps -> do
-     res'	<- relabelResult res
+     res'       <- relabelResult res
      ps'        <- mapM relabelParam ps
      return (FunTy cc res' ps')
    
@@ -751,28 +751,28 @@ relabelType derefTy ty =
      ren_ty <-
        case mb_ty of
           Nothing   -> do
-	    r <- lookupTypeId (adjustHsName (fromMaybe [] mb_attrs) nm)
-	    case r of
-		-- avoid chains of type names..
-		-- iff there's no TypeInfo attached to the outermost, since
-		-- it takes precedence later on as it completely describes the ty.
-	      Just (_, t) | derefTy -> do
-		   t' <- relabelType False t
-		   return (Name nm' orig_nm mod mb_attrs' (Just t') mb_ti)
-	      Just (_,(Name _ _ _ a o_t mb_ti2)) 
-	          | isJust mb_ti      -> return (Name nm' orig_nm mod a o_t mb_ti2)
-	      _			      -> return (Name nm' orig_nm mod mb_attrs' (fmap snd r) mb_ti)
+            r <- lookupTypeId (adjustHsName (fromMaybe [] mb_attrs) nm)
+            case r of
+                -- avoid chains of type names..
+                -- iff there's no TypeInfo attached to the outermost, since
+                -- it takes precedence later on as it completely describes the ty.
+              Just (_, t) | derefTy -> do
+                   t' <- relabelType False t
+                   return (Name nm' orig_nm mod mb_attrs' (Just t') mb_ti)
+              Just (_,(Name _ _ _ a o_t mb_ti2)) 
+                  | isJust mb_ti      -> return (Name nm' orig_nm mod a o_t mb_ti2)
+              _                       -> return (Name nm' orig_nm mod mb_attrs' (fmap snd r) mb_ti)
 
-	  Just ty1
-	       | optInlineTypes && isJust mod && nm /= "HRESULT" -> return ty1
-	       | (fromMaybe [] mb_attrs ++ getTypeAttributes ty1) 
-	               `hasAttributeWithName` "ignore"  -> return ty1
-	       | otherwise -> do
-		   ty' <- if False && derefTy then
-		   	     relabelType False ty1
-			   else
-			     return ty1     
-		   return (Name nm' orig_nm mod mb_attrs' (Just ty') mb_ti)
+          Just ty1
+               | optInlineTypes && isJust mod && nm /= "HRESULT" -> return ty1
+               | (fromMaybe [] mb_attrs ++ getTypeAttributes ty1) 
+                       `hasAttributeWithName` "ignore"  -> return ty1
+               | otherwise -> do
+                   ty' <- if False && derefTy then
+                             relabelType False ty1
+                           else
+                             return ty1     
+                   return (Name nm' orig_nm mod mb_attrs' (Just ty') mb_ti)
      normaliseTy mod_nm deps ren_ty
 
    Iface{} ->
@@ -787,42 +787,42 @@ relabelType derefTy ty =
 \begin{code}
 renameParam :: Param -> RnM Param
 renameParam (Param i m ty orig_ty has_dep) = do
-  i'	    <- renameVarId i
-  ty'	    <- renameType ty
+  i'        <- renameVarId i
+  ty'       <- renameType ty
   orig_ty'  <- relabelType True orig_ty
   return (Param i' m ty' orig_ty' has_dep)
   
 relabelParam :: Param -> RnM Param
 relabelParam (Param i m ty orig_ty has_dep) = do
-  i'	    <- relabelVarId i
-  ty'	    <- relabelType False ty
+  i'        <- relabelVarId i
+  ty'       <- relabelType False ty
   orig_ty'  <- relabelType False orig_ty
   return (Param i' m ty' orig_ty' has_dep)
   
 relabelField :: Field -> RnM Field
 relabelField (Field i ty orig_ty mb_sz mb_off) = do
-  i'	    <- relabelVarId i
-  ty'	    <- relabelType False ty
+  i'        <- relabelVarId i
+  ty'       <- relabelType False ty
   orig_ty'  <- relabelType False orig_ty
   return (Field i' ty' orig_ty' mb_sz mb_off)
 
 relabelResult :: Result -> RnM Result
 relabelResult (Result ty orig_ty) = do
-  ty'	    <- relabelType False ty
+  ty'       <- relabelType False ty
   orig_ty'  <- relabelType False orig_ty
   return (Result ty' orig_ty')
 
 relabelSwitch :: Switch -> RnM Switch
 relabelSwitch (Switch i labs ty orig_ty) = do
-  i'	    <- relabelVarId i
-  ty'	    <- relabelType False ty
+  i'        <- relabelVarId i
+  ty'       <- relabelType False ty
   orig_ty'  <- relabelType False orig_ty
   return (Switch i' labs ty' orig_ty')
 relabelSwitch s = return s
 
 renameFieldId :: Field -> RnM Field
 renameFieldId f = do
-  i'	    <- renameVarId (fieldId f)
+  i'        <- renameVarId (fieldId f)
   return (f{fieldId=i'})
 
 renameField :: Field -> RnM Field
@@ -845,7 +845,7 @@ relabelFieldAttr f@Field{fieldId=i} = do
 
 renameResult :: Result -> RnM Result
 renameResult (Result ty orig_ty) = do
-  ty'	    <- renameType ty
+  ty'       <- renameType ty
   orig_ty'  <- relabelType True orig_ty
   return (Result ty' orig_ty')
 
@@ -860,8 +860,8 @@ renameAttrs = mapM renameAttribute
 renameAttribute :: Attribute -> RnM Attribute
 renameAttribute at 
  | isConstantAttribute at = return at  -- NB: not just an optimisation, 
-				       -- atParams will fail when given a (moded) constant attributes!
- | otherwise		  = do
+                                       -- atParams will fail when given a (moded) constant attributes!
+ | otherwise              = do
     params <- mapM renameAttrParam (atParams at)
     return (at{atParams=params})
 
@@ -884,8 +884,8 @@ renameAttrParam p =
 relabelAttribute :: Attribute -> RnM Attribute
 relabelAttribute at 
  | isConstantAttribute at = return at  -- NB: not just an optimisation, 
-				       -- atParams will fail when given a (moded) constant attributes!
- | otherwise		  = do
+                                       -- atParams will fail when given a (moded) constant attributes!
+ | otherwise              = do
     params <- mapM relabelAttrParam (atParams at)
     return (at{atParams=params})
 
@@ -907,8 +907,8 @@ relabelAttrParam p =
 
 renameSwitch :: Switch -> RnM Switch
 renameSwitch (Switch i labs ty orig_ty) = do
-  i'	    <- renameVarId i
-  ty'	    <- renameType ty
+  i'        <- renameVarId i
+  ty'       <- renameType ty
   orig_ty'  <- relabelType True orig_ty
   return (Switch i' labs ty' orig_ty')
 renameSwitch s = return s

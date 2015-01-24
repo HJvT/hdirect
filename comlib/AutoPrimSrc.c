@@ -132,7 +132,7 @@ HRESULT dispatchInvoke( IDispatch* obj, DISPID dispid, LCID lcid,
    if (!isfunction && flags == DISPATCH_METHOD &&
        (hr == DISP_E_BADPARAMCOUNT || 
         hr == DISP_E_TYPEMISMATCH  ||
-	res->vt != VT_EMPTY) ) {
+        res->vt != VT_EMPTY) ) {
        isfunction = TRUE;
        dp.cArgs--;
        dp.rgvarg++;
@@ -200,7 +200,7 @@ char* getExcepInfoMessage( EXCEPINFO* info )
 
       if (info->wCode)
       {
-	 sprintf( wcode, "(%d)", info->wCode );
+         sprintf( wcode, "(%d)", info->wCode );
       }
       
       if (info->bstrDescription)
@@ -381,7 +381,7 @@ readVarSAFEARRAY( VARIANT* v, SAFEARRAY** sa, VARTYPE ovt)
         if (SUCCEEDED(hr)) {
            *sa = w.parray;
         } else  {
-	   *sa = NULL;
+           *sa = NULL;
         }
         return hr;
   }
@@ -487,9 +487,9 @@ HRESULT readVarWord64( VARIANT* v, unsigned int* hi, unsigned int* lo )
    if (v->vt == VT_DECIMAL)
    {
         r   = v->decVal.Lo64;
-	*lo = (unsigned long)r;
-	r   <<= 32;
-	*hi = (unsigned long)r;
+        *lo = (unsigned long)r;
+        r   <<= 32;
+        *hi = (unsigned long)r;
         return S_OK;
    }
    else
@@ -501,10 +501,10 @@ HRESULT readVarWord64( VARIANT* v, unsigned int* hi, unsigned int* lo )
         hr = VariantChangeType( &w, v, 0, VT_DECIMAL);
         if (SUCCEEDED(hr))
         {
-	        r   = v->decVal.Lo64;
-	        *lo = (unsigned long)r;
-	        r   <<= 32;
-	        *hi = (unsigned long)r;
+                r   = v->decVal.Lo64;
+                *lo = (unsigned long)r;
+                r   <<= 32;
+                *hi = (unsigned long)r;
         }
         else
         {
@@ -540,7 +540,7 @@ HRESULT readVarVariant( VARIANT* v, VARIANT* x )
 HRESULT
 primCopyVARIANT ( VARIANT* p1
                 , VARIANT* p2
-		)
+                )
 {
   VariantInit(p1);
   return (VariantCopy(p1,p2));

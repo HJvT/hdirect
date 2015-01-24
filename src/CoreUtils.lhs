@@ -9,201 +9,201 @@ A hodgepodge of helper functions over the CoreIDL data types.
 
 \begin{code}
 module CoreUtils 
-	(
-	  mkId
-	, setIdModule
-	, mkParam
-	
-	, flattenDecls
-	, reallyFlattenDecls
-	, inSeparateHaskellModule
-	, findFieldTy
-	, findFieldOrigTy
-	, findParam
-	, findParamTy
-	
-	, localiseTypes
-	
-	, getTypeAttributes        -- :: Type -> [Attribute]
-	, getHsImports             -- :: Id   -> [QualName]
+        (
+          mkId
+        , setIdModule
+        , mkParam
+        
+        , flattenDecls
+        , reallyFlattenDecls
+        , inSeparateHaskellModule
+        , findFieldTy
+        , findFieldOrigTy
+        , findParam
+        , findParamTy
+        
+        , localiseTypes
+        
+        , getTypeAttributes        -- :: Type -> [Attribute]
+        , getHsImports             -- :: Id   -> [QualName]
 
-	, keepValueAsPointer
+        , keepValueAsPointer
 
-	, isStructTy
-	, isEnumTy
-	, isPointerTy
-	, isVoidPointerTy
-	, isArrayTy
-	, isSafeArrayTy
-	, isOpenArrayTy
-	, isFunTy
-	, isBoolTy
-	, isVoidTy
-	, isPointerOrArrayTy
-	, isPtrPointerTy
-	, isRefPointerTy
-	, isUniquePointerTy
-	, isStringTy
-	, isSeqTy
-	, isAnyTy
-	, isObjectTy
-	, isConstructedTy
-	, isCompleteTy
-	, isReferenceTy
-	, isSimpleTy
-	, isIntegerTy
-	, isSynTy
-	, isAbstractTy
-	, isAbstractFinalTy
-	, isNonEncUnionTy
-	, getNonEncUnionTy
-	, isUnionTy
-	, isIfaceTy
-	, isIUnknownTy
-	, isIfacePtr
-	, isVariantTy
-	, getIfaceTy
+        , isStructTy
+        , isEnumTy
+        , isPointerTy
+        , isVoidPointerTy
+        , isArrayTy
+        , isSafeArrayTy
+        , isOpenArrayTy
+        , isFunTy
+        , isBoolTy
+        , isVoidTy
+        , isPointerOrArrayTy
+        , isPtrPointerTy
+        , isRefPointerTy
+        , isUniquePointerTy
+        , isStringTy
+        , isSeqTy
+        , isAnyTy
+        , isObjectTy
+        , isConstructedTy
+        , isCompleteTy
+        , isReferenceTy
+        , isSimpleTy
+        , isIntegerTy
+        , isSynTy
+        , isAbstractTy
+        , isAbstractFinalTy
+        , isNonEncUnionTy
+        , getNonEncUnionTy
+        , isUnionTy
+        , isIfaceTy
+        , isIUnknownTy
+        , isIfacePtr
+        , isVariantTy
+        , getIfaceTy
 
-	, tyFun
-	, stringTy
-	, wStringTy
-	, bstrTy
-	, intTy
-	, addrTy
-	, boolTy
-	, variantBoolTy
-	, variantTy
-	, charTy
-	, wCharTy
-	, int32Ty
-	, int64Ty
-	, word64Ty
-	, shortTy
-	, floatTy
-	, doubleTy
-	, byteTy
-	, word32Ty
-	, int16Ty
-	, word16Ty
-	, voidTy
-	, currencyTy
-	, dateTy
-	, fileTimeTy
-	, safeArrayTy
-	
-	, iUnknownTy
-	, iDispatchTy
-	, hresultTy
-	, guidTy
-	, isHRESULTTy   -- :: Type   -> Bool
-	, isHRESULT     -- :: Result -> Bool
+        , tyFun
+        , stringTy
+        , wStringTy
+        , bstrTy
+        , intTy
+        , addrTy
+        , boolTy
+        , variantBoolTy
+        , variantTy
+        , charTy
+        , wCharTy
+        , int32Ty
+        , int64Ty
+        , word64Ty
+        , shortTy
+        , floatTy
+        , doubleTy
+        , byteTy
+        , word32Ty
+        , int16Ty
+        , word16Ty
+        , voidTy
+        , currencyTy
+        , dateTy
+        , fileTimeTy
+        , safeArrayTy
+        
+        , iUnknownTy
+        , iDispatchTy
+        , hresultTy
+        , guidTy
+        , isHRESULTTy   -- :: Type   -> Bool
+        , isHRESULT     -- :: Result -> Bool
 
-	, mkPtrPointer
-	, removePtr
-	, removePtrAndArray
-	, removePtrAll
-	, removePtrs
-	, removeNames
-	, nukeNames
-	, pushPointerType
-	, hasIgnoreAttribute
-	, findPtrType
-	, mkRefPointer
-	, rawPointerToIP
+        , mkPtrPointer
+        , removePtr
+        , removePtrAndArray
+        , removePtrAll
+        , removePtrs
+        , removeNames
+        , nukeNames
+        , pushPointerType
+        , hasIgnoreAttribute
+        , findPtrType
+        , mkRefPointer
+        , rawPointerToIP
         , notAggregatableAttribute
-	, childAttributes
-	
-	, getTyTag
-	, findFreeVars
-	, solve
-	, complementOp
-	, isCommutative
-	, contains
-	, evalExpr
-	, simplifyExpr
-	, simpRedExpr
+        , childAttributes
+        
+        , getTyTag
+        , findFreeVars
+        , solve
+        , complementOp
+        , isCommutative
+        , contains
+        , evalExpr
+        , simplifyExpr
+        , simpRedExpr
 
-	, plusOne
-	, minusOne
-	, add
-	
-	, sizeofType
-	, sizeAndAlignModulus
-	, computeStructSizeOffsets
-	, align
+        , plusOne
+        , minusOne
+        , add
+        
+        , sizeofType
+        , sizeAndAlignModulus
+        , computeStructSizeOffsets
+        , align
 
-	, Dependent(..)
-	, DepVal(..)
-	, DependInfo
-	, findDependents
-	, attrToDependent
-	, computeArrayConstraints
+        , Dependent(..)
+        , DepVal(..)
+        , DependInfo
+        , findDependents
+        , attrToDependent
+        , computeArrayConstraints
 
-	, isLengthIs
-	, isSizeIs
-	, isMaxIs
-	, isMinIs
-	, isFirstIs
-	, isLastIs
-	, sizeOrLength
-	, minOrFirst
-	, maxOrLast
-	, isSwitchIs
-	, lookupDepender
-	, isDepender
-	, isDependee
-	, isSwitchDependee
-	, isSwitchDepender
-	, isNotSwitchDependee
-	, hasNonConstantExprs
+        , isLengthIs
+        , isSizeIs
+        , isMaxIs
+        , isMinIs
+        , isFirstIs
+        , isLastIs
+        , sizeOrLength
+        , minOrFirst
+        , maxOrLast
+        , isSwitchIs
+        , lookupDepender
+        , isDepender
+        , isDependee
+        , isSwitchDependee
+        , isSwitchDepender
+        , isNotSwitchDependee
+        , hasNonConstantExprs
 
-	, mkHaskellVarName
-	, mkHaskellTyConName
+        , mkHaskellVarName
+        , mkHaskellTyConName
 
-	, toCType
-	
-	, mkIfaceTypeName
-	, getInterfaceIds      -- :: Decl -> [Id]
-	
-	, idHaskellModule
-	
-	, isMethod
-	, isConst
-	, isMethodOrProp
-	, isProperty
-	, isCoClass
-	
-	, dummyMethod
-	
-	, unionToStruct
-	
-	, binParams
-	, objParam
-	, resultParam
-	, iPointerParam
-	
-	, derivesFromIDispatch
-	, toDispInterfaceMethod
+        , toCType
+        
+        , mkIfaceTypeName
+        , getInterfaceIds      -- :: Decl -> [Id]
+        
+        , idHaskellModule
+        
+        , isMethod
+        , isConst
+        , isMethodOrProp
+        , isProperty
+        , isCoClass
+        
+        , dummyMethod
+        
+        , unionToStruct
+        
+        , binParams
+        , objParam
+        , resultParam
+        , iPointerParam
+        
+        , derivesFromIDispatch
+        , toDispInterfaceMethod
 
-	, sortDecls
-	
-	, isFinalisedType
-	
-	) where
+        , sortDecls
+        
+        , isFinalisedType
+        
+        ) where
 
 import CoreIDL
 import BasicTypes ( Name, Size(..), BinaryOp(..), ShiftDir(..)
-		  , PointerType(..), UnaryOp(..), ParamDir(..)
-		  , CallConv, qName, qDefModule, qModule, QualName
-		  , toQualName, qOrigName
-		  )
+                  , PointerType(..), UnaryOp(..), ParamDir(..)
+                  , CallConv, qName, qDefModule, qModule, QualName
+                  , toQualName, qOrigName
+                  )
 import Attribute
 import Literal
 import LibUtils
 import Opts   ( optOneModulePerInterface, optNoDependentArgs,
-	        optDeepMarshall, optHaskellToC, optClassicNameMangling,
-		optLongLongIsInteger, optPointerDefault
-	      )
+                optDeepMarshall, optHaskellToC, optClassicNameMangling,
+                optLongLongIsInteger, optPointerDefault
+              )
 import PpCore ( ppType, showCore, ppExpr )
 import Digraph
 import Utils
@@ -220,7 +220,7 @@ import Data.Bits
 {- BEGIN_GHC_ONLY
 import GlaExts
    END_GHC_ONLY -}
-	
+        
 \end{code}
 
 \begin{code}
@@ -249,9 +249,9 @@ flattenDecls :: [Decl] -> [Decl]
 flattenDecls ls = flatDecls True inSeparateHaskellModule ls
 
 flatDecls :: Bool
-	  -> (Decl -> Bool)
-	  -> [Decl]
-	  -> [Decl]
+          -> (Decl -> Bool)
+          -> [Decl]
+          -> [Decl]
 flatDecls _ _ [] = []
 flatDecls isTopLev predic (Module i ds : rs) = 
    ( lift ++ (Module i don't_lift : flatDecls isTopLev predic rs) )
@@ -263,7 +263,7 @@ flatDecls isTopLev predic (Library i ds : rs)
      (lift, don't_lift) = partition (\ x -> predic x && not (isLibrary x)) ds 
 
      isLibrary (Library _ _) = True
-     isLibrary _	     = False
+     isLibrary _             = False
 flatDecls isTopLev predic (d:ds) = d : flatDecls isTopLev predic ds
 
 reallyFlattenDecls :: [Decl] -> [Decl]
@@ -277,7 +277,7 @@ inSeparateHaskellModule Library{}       = True
 inSeparateHaskellModule DispInterface{} = optOneModulePerInterface
 inSeparateHaskellModule Interface{}     = optOneModulePerInterface
 inSeparateHaskellModule CoClass{}       = optOneModulePerInterface
-inSeparateHaskellModule _	        = False
+inSeparateHaskellModule _               = False
 
 {-
  If we're splitting up the input into multiple Haskell
@@ -296,22 +296,22 @@ localiseTypes ds
       | otherwise = Just d
     moveTypes (Module i ds1)  = 
         let ds' = mapMaybe moveTypes ds1 in
-	case lookupEnv moveEnv (idName i) of
-	   Just ts -> Just (Module i (map (adjustMod (idName i) ts) (ts ++ ds')))
+        case lookupEnv moveEnv (idName i) of
+           Just ts -> Just (Module i (map (adjustMod (idName i) ts) (ts ++ ds')))
            _ -> Just (Module i ds')
     moveTypes (Library i ds1) = 
         let ds' = mapMaybe moveTypes ds1 in
-	case lookupEnv moveEnv (idName i) of
-	   Just ts -> Just (Library i (map (adjustMod (idName i) ts) (ts ++ ds')))
+        case lookupEnv moveEnv (idName i) of
+           Just ts -> Just (Library i (map (adjustMod (idName i) ts) (ts ++ ds')))
            _ -> Just (Library i ds')
     moveTypes d@(Interface{declId=i}) =
        case lookupEnv moveEnv (idName i) of
           Just ts -> Just d{declDecls=map (adjustMod (idName i) ts) (ts ++ declDecls d)}
-	  _ -> Just d
+          _ -> Just d
     moveTypes d@(DispInterface{declId=i}) =
        case lookupEnv moveEnv (idName i) of
           Just ts -> Just d{declDecls=map (adjustMod (idName i) ts) (ts ++ declDecls d)}
-	  Nothing -> Just d
+          Nothing -> Just d
     moveTypes d = Just d
     
     adjustMod nm ls d = foldl adj d ls
@@ -319,15 +319,15 @@ localiseTypes ds
         adj acc Typedef{declId=i} = adjustModName (idName i) nm acc
 
     moveEnv :: Env String{-type name-}
-    		   [Decl] {- _declarations_ to be added-}
+                   [Decl] {- _declarations_ to be added-}
     moveEnv = addListToEnv_C (++)
-    			     newEnv
-    		             (mapMaybe findDecl (envToList uniqueEnv))
+                             newEnv
+                             (mapMaybe findDecl (envToList uniqueEnv))
      where
        findDecl (nm,use) = 
          case find (withName nm) typesMoving of
-	   Just d  -> Just (use,[d])
-	   Nothing -> Nothing
+           Just d  -> Just (use,[d])
+           Nothing -> Nothing
 
        withName nm (Typedef{declId=i}) = idName i == nm || idOrigName i == nm
        withName _ _ = False
@@ -343,25 +343,25 @@ localiseTypes ds
      where
        allTypedefs d = 
           case d of
-	   Typedef{}     -> [d]
+           Typedef{}     -> [d]
            Module _ ds1  -> concatMap allTypedefs ds1
-	   Library _ ds1 -> concatMap allTypedefs ds1
-	   Interface{declDecls=ds1}     -> concatMap allTypedefs ds1
-	   DispInterface{declDecls=ds1} -> concatMap allTypedefs ds1
-	   _            -> []
+           Library _ ds1 -> concatMap allTypedefs ds1
+           Interface{declDecls=ds1}     -> concatMap allTypedefs ds1
+           DispInterface{declDecls=ds1} -> concatMap allTypedefs ds1
+           _            -> []
 
 
      -- environment mapping type names to the name of the _only_ 
      -- declaration that uses it.
     uniqueEnv :: Env String{-used type name-}
-    		     String{-where it is used-}
+                     String{-where it is used-}
     uniqueEnv = mapMaybeEnv isOfInterest useEnv
       where
        isOfInterest _ ls  =
           case nub ls of
-	     [x] | x `notElem` allTD_Names -> Just x -- only interested if it was used at a
-	     					     -- a non typedef-site (=> in an interface).
-	     _ -> Nothing
+             [x] | x `notElem` allTD_Names -> Just x -- only interested if it was used at a
+                                                     -- a non typedef-site (=> in an interface).
+             _ -> Nothing
        isOfInterest _ _   = Nothing
 
     useEnv :: Env String   {- used type name -}
@@ -369,15 +369,15 @@ localiseTypes ds
     useEnv = foldl addIt newEnv use_info
       where
         addIt env (_decl,d,us) = foldl (addUse d) env us
-	addUse nm env use     = addToEnv_C (++) env use [nm]
-	   
+        addUse nm env use     = addToEnv_C (++) env use [nm]
+           
     use_info = concatMap mkDeps ds
      where
        mkDeps d = 
          case d of 
-	   Module  _ ds1 -> concatMap mkDeps ds1
-	   Library _ ds1 -> concatMap mkDeps ds1
-	   _             -> [mkDeclDep d]
+           Module  _ ds1 -> concatMap mkDeps ds1
+           Library _ ds1 -> concatMap mkDeps ds1
+           _             -> [mkDeclDep d]
 
 
 adjustModName :: String -> String -> Decl -> Decl
@@ -386,10 +386,10 @@ adjustModName nm newMod d =
     Typedef i ty oty  -> Typedef i (adjustType ty) (adjustType oty)
     Constant i ty oty e -> Constant i (adjustType ty) (adjustType oty) e
     Interface i flg inh ds -> Interface i flg (map adjustInherit inh) 
-    					      (map (adjustModName nm newMod) ds)
+                                              (map (adjustModName nm newMod) ds)
     DispInterface i expF ps ds -> DispInterface i (fmap (adjustModName nm newMod) expF)
-    						  (map  (adjustModName nm newMod) ps)
-    						  (map  (adjustModName nm newMod) ds)
+                                                  (map  (adjustModName nm newMod) ps)
+                                                  (map  (adjustModName nm newMod) ds)
     Module i ds  -> Module i (map (adjustModName nm newMod) ds)
     Library i ds -> Module i (map (adjustModName nm newMod) ds)
     Method i cc res ps off -> Method i cc (adjustResult res) (map adjustParam ps) off
@@ -398,7 +398,7 @@ adjustModName nm newMod d =
  where
    adjustResult (Result ty oty) = Result (adjustType ty) (adjustType oty)
    adjustParam p@Param{paramType=ty,paramOrigType=oty} =
-   	p{paramType=adjustType ty,paramOrigType=adjustType oty}
+        p{paramType=adjustType ty,paramOrigType=adjustType oty}
 
    adjustInherit (qnm,i) = (adjustQName qnm, i)
    
@@ -410,53 +410,53 @@ adjustModName nm newMod d =
    adjustType ty = 
       case ty of
         Integer{} -> ty
-	StablePtr{} -> ty
+        StablePtr{} -> ty
         FunTy cc res ps -> FunTy cc (adjustResult res) (map adjustParam ps)
-	Float{} -> ty
-	Char{}  -> ty
-	WChar{} -> ty
-	Bool{}  -> ty
-	Octet{}  -> ty
-	Any{}  -> ty
-	Object{}  -> ty
-	String t flg mb -> String (adjustType t) flg mb
-	WString{} -> ty
-	Fixed{}   -> ty
-	Name n onm mbMod attrs mbTy mbTi 
-	  | n == nm   -> Name n onm (Just newMod) attrs (fmap adjustType mbTy) mbTi
-	  | otherwise -> Name n onm mbMod attrs (fmap adjustType mbTy) mbTi
+        Float{} -> ty
+        Char{}  -> ty
+        WChar{} -> ty
+        Bool{}  -> ty
+        Octet{}  -> ty
+        Any{}  -> ty
+        Object{}  -> ty
+        String t flg mb -> String (adjustType t) flg mb
+        WString{} -> ty
+        Fixed{}   -> ty
+        Name n onm mbMod attrs mbTy mbTi 
+          | n == nm   -> Name n onm (Just newMod) attrs (fmap adjustType mbTy) mbTi
+          | otherwise -> Name n onm mbMod attrs (fmap adjustType mbTy) mbTi
         Struct i fs p -> Struct i (map adjustField fs) p
-	Enum{}        -> ty
-	Union i ty1 a b sws -> Union i (adjustType ty1) a b (map adjustSwitch sws)
-	UnionNon i sws -> UnionNon i (map adjustSwitch sws)
-	CUnion i fs p -> CUnion i (map adjustField fs) p
-	Pointer p flg t -> Pointer p flg (adjustType t)
-	Array t e     -> Array (adjustType t) e
-	Void{}        -> ty
-	Iface n md onm attrs flg ih 
-	  | n == nm || onm == nm -> Iface n (Just newMod) onm attrs flg (map adjustInherit ih)
-	  | otherwise -> Iface n md onm attrs flg (map adjustInherit ih)
+        Enum{}        -> ty
+        Union i ty1 a b sws -> Union i (adjustType ty1) a b (map adjustSwitch sws)
+        UnionNon i sws -> UnionNon i (map adjustSwitch sws)
+        CUnion i fs p -> CUnion i (map adjustField fs) p
+        Pointer p flg t -> Pointer p flg (adjustType t)
+        Array t e     -> Array (adjustType t) e
+        Void{}        -> ty
+        Iface n md onm attrs flg ih 
+          | n == nm || onm == nm -> Iface n (Just newMod) onm attrs flg (map adjustInherit ih)
+          | otherwise -> Iface n md onm attrs flg (map adjustInherit ih)
         SafeArray t   -> SafeArray (adjustType t)
 
    adjustField f@Field{fieldType=ty,fieldOrigType=oty} = f{fieldType=adjustType ty,
-   							   fieldOrigType=adjustType oty
-							   }
+                                                           fieldOrigType=adjustType oty
+                                                           }
    adjustSwitch s@SwitchEmpty{} = s
    adjustSwitch s@Switch{switchType=ty,switchOrigType=oty} = s{switchType=adjustType ty,
-   							       switchOrigType=adjustType oty}
+                                                               switchOrigType=adjustType oty}
 
 isMethod :: Decl -> Bool
 isMethod Method{} = True
-isMethod _	  = False
+isMethod _        = False
 
 isConst :: Decl -> Bool
 isConst Constant{} = True
-isConst _	   = False
+isConst _          = False
 
 isMethodOrProp :: Decl -> Bool
 isMethodOrProp Method{}   = True
 isMethodOrProp Property{} = True
-isMethodOrProp _	  = False
+isMethodOrProp _          = False
 
 isProperty :: Decl -> Bool
 isProperty Property{}       = True
@@ -469,17 +469,17 @@ isProperty _ = False
 
 isCoClass :: Decl -> Bool
 isCoClass CoClass{} = True
-isCoClass _	    = False
+isCoClass _         = False
 
 \end{code}
 
 \begin{code}
 dummyMethod :: Decl
 dummyMethod = Method (mkId "dummy" "dummy" Nothing [])
-		     defaultCConv
-		     (Result hresultTy hresultTy)
-		     [{-no params-}]
-		     Nothing
+                     defaultCConv
+                     (Result hresultTy hresultTy)
+                     [{-no params-}]
+                     Nothing
 \end{code}
 
 \begin{code}
@@ -488,11 +488,11 @@ getInterfaceIds decl = reverse (go [] decl)
  where
    go acc d = 
      case d of
-	Interface{} -> foldl go ((declId d):acc) (declDecls d)
-	Module _ ds -> foldl go acc ds
-	DispInterface{} -> foldl go ((declId d):acc) (declDecls d)
-	Library _ ds    -> foldl go acc ds
-	_ -> acc
+        Interface{} -> foldl go ((declId d):acc) (declDecls d)
+        Module _ ds -> foldl go acc ds
+        DispInterface{} -> foldl go ((declId d):acc) (declDecls d)
+        Library _ ds    -> foldl go acc ds
+        _ -> acc
 
 \end{code}
 
@@ -510,10 +510,10 @@ findFieldOrigTy (f : xs) nm
  | otherwise                = findFieldOrigTy xs nm
 
 findParam :: [Param] -> Name -> Param
-findParam []	   nm	    = error ("findParam: " ++ nm) -- not supposed to happen.
+findParam []       nm       = error ("findParam: " ++ nm) -- not supposed to happen.
 findParam (p : xs) nm
  | nm == idName (paramId p) = p
- | otherwise		    = findParam xs nm
+ | otherwise                = findParam xs nm
 
 findParamTy :: [Param] -> Name -> Type
 findParamTy ps nm = paramType (findParam ps nm)
@@ -527,7 +527,7 @@ getTypeAttributes :: Type -> [Attribute]
 getTypeAttributes ty = 
   case ty of 
     Name _ _ _ mb_as mb_ty _  -> fromMaybe [] mb_as ++
-    			         fromMaybe [] (fmap getTypeAttributes mb_ty)
+                                 fromMaybe [] (fmap getTypeAttributes mb_ty)
     Struct i _ _ -> idAttributes i
     Enum i _ _   -> idAttributes i
     Union i _ _ _ _ -> idAttributes i
@@ -558,8 +558,8 @@ getHsImports i = imp_attrs
       Attribute _ [ParamLit (StringLit s)] ->
          let qNm = toQualName s in
          case qModule qNm of 
-	   Nothing -> Nothing
-	   Just _  -> Just (qNm{qDefModule=qModule qNm})
+           Nothing -> Nothing
+           Just _  -> Just (qNm{qDefModule=qModule qNm})
       _ -> Nothing
 
 \end{code}
@@ -568,7 +568,7 @@ getHsImports i = imp_attrs
 isStructTy :: Type -> Bool
 isStructTy Struct{} = True
 isStructTy (Name _ _ _ _ (Just t) _) = isStructTy t
-isStructTy _	    = False
+isStructTy _        = False
 
 isEnumTy   :: Type -> Bool
 isEnumTy Enum{} = True
@@ -577,12 +577,12 @@ isEnumTy _      = False
 
 isPointerTy :: Type -> Bool
 isPointerTy Pointer{} = True
-isPointerTy _	      = False
+isPointerTy _         = False
 
 isVoidPointerTy :: Type -> Bool
 isVoidPointerTy (Pointer _ _ Void) = True
 isVoidPointerTy (Name _ _ _ _ (Just t) _) = isVoidPointerTy t
-isVoidPointerTy _	         = False
+isVoidPointerTy _                = False
 
 {-
  keepValueAsPointer is used to determine whether
@@ -600,13 +600,13 @@ keepValueAsPointer ty
   | optDeepMarshall = False
   | otherwise       =
      case ty of
-	Pointer _ _ (Name _ _ _ _ Nothing  _) -> True
-	Pointer _ _ (Name _ _ _ _ (Just t) _) -> keepValueAsPointer t
-	Pointer _ _ Struct{}       -> True
-	Pointer _ _ Union{}        -> True
-	Pointer _ _ UnionNon{}     -> True
-	Pointer _ _ CUnion{}       -> True
-	_                          -> False
+        Pointer _ _ (Name _ _ _ _ Nothing  _) -> True
+        Pointer _ _ (Name _ _ _ _ (Just t) _) -> keepValueAsPointer t
+        Pointer _ _ Struct{}       -> True
+        Pointer _ _ Union{}        -> True
+        Pointer _ _ UnionNon{}     -> True
+        Pointer _ _ CUnion{}       -> True
+        _                          -> False
 
 isArrayTy :: Type -> Bool
 isArrayTy Array{}     = True
@@ -620,7 +620,7 @@ isSafeArrayTy _           = False
 
 isOpenArrayTy :: Type -> Bool 
 isOpenArrayTy (Array _ []) = True
-isOpenArrayTy _		   = False
+isOpenArrayTy _            = False
 
 isBoolTy :: Type -> Bool
 isBoolTy Bool  = True
@@ -642,11 +642,11 @@ isPointerOrArrayTy ty = isPointerTy ty || isArrayTy ty
 
 isPtrPointerTy  :: Type -> Bool
 isPtrPointerTy (Pointer Ptr _ _) = True
-isPtrPointerTy _	         = False
+isPtrPointerTy _                 = False
 
 isRefPointerTy :: Type -> Bool
 isRefPointerTy (Pointer Ref _ _) = True
-isRefPointerTy _	         = False
+isRefPointerTy _                 = False
 
 mkRefPointer :: Type -> Type
 mkRefPointer (Pointer _ expl t) = Pointer Ref expl t
@@ -670,7 +670,7 @@ isStringTy :: Type -> Bool
 isStringTy String{}  = True
 isStringTy WString{} = True
 isStringTy (Name _ _ _ _ _ (Just ti)) = qName (haskell_type ti) == stringName
-isStringTy _	     = False
+isStringTy _         = False
 
 isSeqTy :: Type -> Bool
 isSeqTy Sequence{} = True
@@ -682,9 +682,9 @@ isAnyTy Any = True
 isAnyTy _   = False
 
 isObjectTy :: Type -> Bool
-isObjectTy Object		   = True
+isObjectTy Object                  = True
 isObjectTy (Name _ _ _ _ (Just t) _) = isObjectTy t
-isObjectTy _			   = False
+isObjectTy _                       = False
 
 intTy :: Type
 intTy = Integer Natural True{-Signed-}
@@ -773,7 +773,7 @@ hresultTy = Name "HRESULT" "HRESULT" comLib Nothing (Just int32Ty) Nothing
 
 isHRESULTTy :: Type -> Bool
 isHRESULTTy (Name "HRESULT" _ _ _ _ _) = True
-isHRESULTTy _			       = False
+isHRESULTTy _                          = False
 
 guidTy :: Type
 guidTy = Name "GUID" "GUID" comLib Nothing Nothing Nothing
@@ -788,7 +788,7 @@ tyFun = FunTy
 mkPtrPointer :: Type -> Type
 mkPtrPointer (Pointer _ _ t) = Pointer Ptr True t
 mkPtrPointer (Array t [])    = Pointer Ptr True t
-mkPtrPointer t		     = t
+mkPtrPointer t               = t
 
 removePtr :: Type -> Type
 removePtr t@(Pointer _ _ Void) = t
@@ -825,7 +825,7 @@ nukeNames t = t
 
 pushPointerType :: PointerType -> Type -> Type
 pushPointerType pt (Pointer _ expl ty) = Pointer pt expl ty
-pushPointerType _  ty	     = ty
+pushPointerType _  ty        = ty
 
 \end{code}
 
@@ -894,7 +894,7 @@ isCompleteTy (UnionNon _ ls )   = notNull ls
 isCompleteTy (CUnion _ ls _)    = notNull ls
 isCompleteTy (Name _ _ _ _ (Just t) _) = isCompleteTy t
 isCompleteTy FunTy{}            = True
-isCompleteTy _			= False
+isCompleteTy _                  = False
 
 isReferenceTy :: Type -> Bool
 isReferenceTy = not.isCompleteTy
@@ -922,8 +922,8 @@ isSimpleTy ty =
    Pointer{}         -> False
    String {}         -> False
    WString{}         -> False
-   Bool		     -> False
-   FunTy{}	     -> False
+   Bool              -> False
+   FunTy{}           -> False
    Name _ _ _ _ _ (Just _) -> False -- bit of a sweeping statement.
    Name _ _ _ _ Nothing  _ -> False
    Name _ _ _ _ (Just t) _ -> isSimpleTy t
@@ -933,7 +933,7 @@ isSimpleTy ty =
 
 isIntegerTy :: Type -> Bool
 isIntegerTy (Integer LongLong _) = optLongLongIsInteger
-isIntegerTy _			 = False
+isIntegerTy _                    = False
 
 isSynTy :: Type -> Bool
 isSynTy Name{} = True
@@ -942,7 +942,7 @@ isSynTy _      = False
 isAbstractTy :: Type -> Bool
 isAbstractTy Iface{} = optHaskellToC 
 isAbstractTy (Pointer _ _ Iface{}) = optHaskellToC
-isAbstractTy _		 = False
+isAbstractTy _           = False
 
 isAbstractFinalTy :: Type -> Bool
 isAbstractFinalTy (Iface _ _ _ attrs _ _)
@@ -960,7 +960,7 @@ isNonEncUnionTy t = have_a_look t
        UnionNon{}      -> True
        CUnion{}        -> True
        Name _ _ _ _ (Just tt) _ -> have_a_look tt
-       _	              -> False
+       _                      -> False
 
 {-
  Invariant: always called on a ty for which 'isNonEncUnionTy'
@@ -974,7 +974,7 @@ getNonEncUnionTy t = look_around t
        UnionNon{}      -> ty
        CUnion{}        -> ty
        Name _ _ _ _ (Just tt) _ -> look_around tt
-       _	              ->
+       _                      ->
           error "getNonEncUnionTy: you've reached unreachable code (..oops!)"
 
 isUnionTy :: Type -> Bool
@@ -986,22 +986,22 @@ isUnionTy t = have_a_look t
        UnionNon{}   -> True
        CUnion{}     -> True
        Name _ _ _ _ (Just tt) _ -> have_a_look tt
-       _	              -> False
+       _                      -> False
 
 
 -- peer through names and pointers to see if there's an interface hiding here somewhere.
 isIfaceTy :: Type -> Bool
 isIfaceTy (Name _ _ _ _ (Just t) _) = isIfaceTy t
 isIfaceTy (Pointer _ _ t)         = isIfaceTy t
-isIfaceTy Iface{}		  = True
-isIfaceTy _		          = False
+isIfaceTy Iface{}                 = True
+isIfaceTy _                       = False
 
 isIUnknownTy :: Type -> Bool
 isIUnknownTy (Name _ _ _ _ (Just t) _) = isIUnknownTy t
 isIUnknownTy (Pointer _ _ t)         = isIUnknownTy t
 isIUnknownTy (Iface "IUnknown" _ _ _ _ _) = True
 isIUnknownTy (Iface _ _ _ _ flg _) = not flg
-isIUnknownTy _			   = False
+isIUnknownTy _                     = False
 
 isIfacePtr :: Type -> Bool
 isIfacePtr (Name _ _ _ _ (Just t) _) = isIfacePtr t
@@ -1010,14 +1010,14 @@ isIfacePtr (Pointer _ _ t) =
   case (removeNames t) of
     Iface{} -> True
     _       -> False
-isIfacePtr _			   = False
+isIfacePtr _                       = False
 
 
 getIfaceTy :: Type -> Type
 getIfaceTy (Name _ _ _ _ (Just t) _) = getIfaceTy t
-getIfaceTy (Pointer _ _ t)	   = getIfaceTy t
-getIfaceTy t@Iface{}		   = t
-getIfaceTy _			   = error "getIfaceTy: should never happen"
+getIfaceTy (Pointer _ _ t)         = getIfaceTy t
+getIfaceTy t@Iface{}               = t
+getIfaceTy _                       = error "getIfaceTy: should never happen"
 
 isVariantTy :: Type -> Bool
 isVariantTy (Name "VARIANT" _ _ _ _ _) = True
@@ -1125,20 +1125,20 @@ evalExpr e =
         Div -> i1 `div` i2
         Mod -> i1 `mod` i2
         Mul -> i1 * i2
-	Xor -> toInteger (fromInteger i1 `xor` ((fromInteger i2)::Int32)) -- an Bits instance for Integers, anyone?
-	Or  -> toInteger (fromInteger i1 .|.   ((fromInteger i2)::Int32))
-	And -> toInteger (fromInteger i1 .&.   ((fromInteger i2)::Int32))
-	Shift L -> toInteger (shiftL ((fromInteger i1)::Int32) (fromIntegral i2))
-	Shift R -> toInteger (shiftR ((fromInteger i1)::Int32) (fromIntegral i2))
-	LogAnd  -> if i1 /= 0 && i2 /=0 then 1 else 0
-	LogOr   -> if i1 /= 0 || i2 /=0 then 1 else 0
-	Gt  -> if i1 > i2 then 1 else 0
-	Ge  -> if i1 >= i2 then 1 else 0
-	Eq  -> if i1 == i2 then 1 else 0
-	Le  -> if i1 <= i2 then 1 else 0
-	Lt  -> if i1 <  i2 then 1 else 0
-	Ne  -> if i1 /= i2 then 1 else 0
-	
+        Xor -> toInteger (fromInteger i1 `xor` ((fromInteger i2)::Int32)) -- an Bits instance for Integers, anyone?
+        Or  -> toInteger (fromInteger i1 .|.   ((fromInteger i2)::Int32))
+        And -> toInteger (fromInteger i1 .&.   ((fromInteger i2)::Int32))
+        Shift L -> toInteger (shiftL ((fromInteger i1)::Int32) (fromIntegral i2))
+        Shift R -> toInteger (shiftR ((fromInteger i1)::Int32) (fromIntegral i2))
+        LogAnd  -> if i1 /= 0 && i2 /=0 then 1 else 0
+        LogOr   -> if i1 /= 0 || i2 /=0 then 1 else 0
+        Gt  -> if i1 > i2 then 1 else 0
+        Ge  -> if i1 >= i2 then 1 else 0
+        Eq  -> if i1 == i2 then 1 else 0
+        Le  -> if i1 <= i2 then 1 else 0
+        Lt  -> if i1 <  i2 then 1 else 0
+        Ne  -> if i1 /= i2 then 1 else 0
+        
    Cond e1 e2 e3 ->
       let
        i1 = evalExpr e1
@@ -1155,10 +1155,10 @@ evalExpr e =
       in
       case uop of
         Minus  -> -i1
-	Plus   -> i1
-	Not    -> if i1==0 then 1 else 0
-	Negate -> toInteger ((complement (fromInteger i1)) :: Int32)
-	Deref  -> i1
+        Plus   -> i1
+        Not    -> if i1==0 then 1 else 0
+        Negate -> toInteger ((complement (fromInteger i1)) :: Int32)
+        Deref  -> i1
    Var nm       -> error ("evalExpr: cannot handle free variable " ++ show nm)
    Lit (IntegerLit (ILit _ i))  -> i
    Cast _ e1     -> evalExpr e1
@@ -1172,33 +1172,33 @@ Expand out occurrences of @(Var x)@ and @(Sizeof t)@:
 \begin{code}
 
 simpRedExpr  :: Env String (Either Int32 Expr)
-	     -> Type
-	     -> Expr
-	     -> Expr
+             -> Type
+             -> Expr
+             -> Expr
 simpRedExpr env ty ex = 
    case (simplifyExpr env ex) of
      e@(Lit _) -> e
      e         -> 
-	 case ty of
-	   Integer _ _ -> Lit (iLit (evalExpr e))  -- reduce 'int'y things.
-	   _	       -> e
+         case ty of
+           Integer _ _ -> Lit (iLit (evalExpr e))  -- reduce 'int'y things.
+           _           -> e
 
 simplifyExpr :: Env String (Either Int32 Expr)
-	     -> Expr
-	     -> Expr
+             -> Expr
+             -> Expr
 simplifyExpr val_env ex = 
   case ex of
     Binary bop e1 e2 -> Binary bop (simplifyExpr val_env e1)
-    				   (simplifyExpr val_env e2)
+                                   (simplifyExpr val_env e2)
     Cond e1 e2 e3 -> Cond (simplifyExpr val_env e1)
-    			  (simplifyExpr val_env e2)
-			  (simplifyExpr val_env e3)
+                          (simplifyExpr val_env e2)
+                          (simplifyExpr val_env e3)
     Unary op e -> Unary op (simplifyExpr val_env e)
     Var nm     -> 
       case lookupEnv val_env nm of
         Nothing        -> Var nm -- good luck!
-	Just (Left x)  -> Lit (iLit (toInteger x))
-	Just (Right e) -> e
+        Just (Left x)  -> Lit (iLit (toInteger x))
+        Just (Right e) -> e
     Lit l      -> Lit l
       -- notice that casting would have been trickier
       -- to deal with if the expression language permitted
@@ -1235,8 +1235,8 @@ type DependInfo = [(Id,[Dependent])]
 data DepVal 
  = DepNone  -- empty/unspecified (for this dimension.)
  | DepVal (Maybe Name) -- a dependent value might contain at most one
-		       -- free variable which refers to another field/param.
-	  Expr	       -- 
+                       -- free variable which refers to another field/param.
+          Expr         -- 
 -- for debugging purps. only
    deriving (Show)
 
@@ -1254,10 +1254,10 @@ instance Show Expr where
 findDependents :: [Id] -> DependInfo
 findDependents ls
   | optNoDependentArgs = []
-  | otherwise	       = map (\ i -> (i, findDep i)) ls
+  | otherwise          = map (\ i -> (i, findDep i)) ls
   where
    findDep i = mapMaybe ((mapMb attrToDependent).isDependentAttribute)
-			(idAttributes i)
+                        (idAttributes i)
 
 attrToDependent :: Attribute -> Dependent
 attrToDependent (AttrDependent reason args) = Dep reason (map toDepVal args)
@@ -1265,17 +1265,17 @@ attrToDependent (AttrDependent reason args) = Dep reason (map toDepVal args)
    toDepVal (ParamLit  l@(IntegerLit _)) = DepVal Nothing (Lit l)  -- the only legal lit
    toDepVal (ParamVar v)                 = DepVal (Just v) (Var v)
    toDepVal (ParamExpr (Var v))          = DepVal (Just v) (Var v)
-   toDepVal ParamVoid			 = DepNone
-   toDepVal (ParamExpr e)		 =
-	-- Assume the expression has been checked
-	-- as having at most one free variable.
-	case (findFreeVars e) of
-	 []    -> DepVal Nothing  e
-	 (f:_) -> DepVal (Just f) e
-   toDepVal (ParamPtr p)		 =
+   toDepVal ParamVoid                    = DepNone
+   toDepVal (ParamExpr e)                =
+        -- Assume the expression has been checked
+        -- as having at most one free variable.
+        case (findFreeVars e) of
+         []    -> DepVal Nothing  e
+         (f:_) -> DepVal (Just f) e
+   toDepVal (ParamPtr p)                 =
        case (toDepVal p) of
          DepVal fv e  -> DepVal fv (Unary Deref e)
-	 d            -> d
+         d            -> d
    toDepVal _ = DepNone
 
 attrToDependent _ = error "attrToDependent"
@@ -1283,8 +1283,8 @@ attrToDependent _ = error "attrToDependent"
 
 \begin{code}
 computeArrayConstraints :: Bool
-			-> [Dependent]
-			-> ([DepVal], [DepVal], [DepVal])
+                        -> [Dependent]
+                        -> ([DepVal], [DepVal], [DepVal])
 computeArrayConstraints unmarshalling deps 
  | unmarshalling = (trans_start_posns, trans_end_posns, trans_lengths)
  | otherwise     = (trans_start_posns, trans_end_posns, alloc_sizes)
@@ -1326,7 +1326,7 @@ computeArrayConstraints unmarshalling deps
    -}
    genEnd DepNone  (DepVal fv l) (DepVal _ f)
      = DepVal fv (minusOne (add l f))  -- BUG: we're dropping a free variable here!
-   genEnd d	   _             _ = d
+   genEnd d        _             _ = d
 
    {- The upper allocation boundary is determined by looking at either the max_is()
       or size_is(). max_is 
@@ -1347,7 +1347,7 @@ computeArrayConstraints unmarshalling deps
      where
       go 0 _      = []
       go n (x:xs) = x:go (n-1) xs
-      go n []	  = DepNone:go (n-1) []
+      go n []     = DepNone:go (n-1) []
 
 \end{code}
 
@@ -1357,21 +1357,21 @@ Predicates over dependency items and lists.
 \begin{code}
 isLengthIs, isSizeIs :: Dependent -> Bool
 isSizeIs   (Dep SizeIs   _) = True
-isSizeIs   _		    = False
+isSizeIs   _                = False
 isLengthIs (Dep LengthIs _) = True
-isLengthIs _		    = False
+isLengthIs _                = False
 
 isMaxIs, isMinIs :: Dependent -> Bool
 isMinIs    (Dep MinIs _)    = True
-isMinIs    _		    = False
+isMinIs    _                = False
 isMaxIs    (Dep MaxIs _)    = True
-isMaxIs    _		    = False
+isMaxIs    _                = False
 
 isFirstIs, isLastIs :: Dependent -> Bool
 isFirstIs  (Dep FirstIs _)  = True
-isFirstIs  _		    = False
+isFirstIs  _                = False
 isLastIs   (Dep LastIs  _)  = True
-isLastIs   _		    = False
+isLastIs   _                = False
 
 sizeOrLength :: Dependent -> Bool
 sizeOrLength d = isSizeIs d || isLengthIs d
@@ -1384,13 +1384,13 @@ maxOrLast d = isMaxIs d || isLastIs d
 
 isSwitchIs :: Dependent -> Bool
 isSwitchIs (Dep SwitchIs _) = True
-isSwitchIs _		    = False
+isSwitchIs _                = False
 
 lookupDepender :: DependInfo -> Id -> Maybe [Dependent]
 lookupDepender ls i = 
  case (filter (\ (i1, _) -> idName i1 == nm) ls) of
    ((_,ls2):_) -> Just ls2
-   _	       -> Nothing
+   _           -> Nothing
  where
   nm = idName i
 
@@ -1400,7 +1400,7 @@ isDepender ls i = any isDependerElem ls
    nm = idName i
  
    isDependerElem (x,deps) = idName x == nm  && 
-			     notNull deps
+                             notNull deps
 
 isSwitchDepender :: DependInfo -> Id -> Bool
 isSwitchDepender ls i = any isElem ls
@@ -1418,7 +1418,7 @@ isDependee ls i = any (isDependeeElem nm) dvals
   nm  = idName i
 
 isDependeeElem :: String -> DepVal -> Bool
-isDependeeElem _  DepNone	     = False
+isDependeeElem _  DepNone            = False
 isDependeeElem _  (DepVal Nothing  _) = False
 isDependeeElem nm (DepVal (Just x) _) = x == nm
 
@@ -1430,7 +1430,7 @@ isSwitchDependee lss i = any isSwitchDependeeElem ls
   nm  = idName i
 
   isSwitchDependeeElem (Dep SwitchIs ls1) = any (isDependeeElem nm) ls1
-  isSwitchDependeeElem _		  = False
+  isSwitchDependeeElem _                  = False
 
 isNotSwitchDependee :: DependInfo -> Id -> Bool
 isNotSwitchDependee lss i = any isNotSwitchDependeeElem ls
@@ -1440,13 +1440,13 @@ isNotSwitchDependee lss i = any isNotSwitchDependeeElem ls
   nm  = idName i
 
   isNotSwitchDependeeElem (Dep r ls1) | r /= SwitchIs = any (isDependeeElem nm) ls1
-  isNotSwitchDependeeElem _			      = False
+  isNotSwitchDependeeElem _                           = False
 
 hasNonConstantExprs :: Dependent -> Bool
 hasNonConstantExprs (Dep _ ls) = any isNon ls
   where
    isNon (DepVal (Just _) _) = True
-   isNon _		     = False
+   isNon _                   = False
 \end{code}
 
 Translating an IDL type name into a valid Haskell variable name.
@@ -1455,7 +1455,7 @@ Translating an IDL type name into a valid Haskell variable name.
 mkHaskellVarName :: Name -> Name
 mkHaskellVarName nm 
   | optClassicNameMangling = toHask (casifyName nm)
-  | otherwise		   = toHask nm
+  | otherwise              = toHask nm
  where
   toHask [] = "anon" -- shouldn't happen!
 --  toHask ('_':xs) = toHask xs -- drop leading underscores.
@@ -1465,7 +1465,7 @@ mkHaskellVarName nm
       | otherwise = map (subst '$' '_') ls
 
   subst x y ch | x == ch   = y
-	       | otherwise = ch
+               | otherwise = ch
 
 \end{code}
 
@@ -1480,14 +1480,14 @@ mkHaskellTyConName nm
  where
   toHask [] = "Anon" -- shouldn't happen!
   toHask (x:xs) | not (isAlpha x) = toHask xs  -- it's a non-starter with anything 
-					       -- non-alphabetic at the front (i.e.,
-					       -- don't want '_' there).
+                                               -- non-alphabetic at the front (i.e.,
+                                               -- don't want '_' there).
   toHask ls@(x:xs) 
         | isLower x = toUpper x : map (subst '$' '_') xs
         | otherwise = map (subst '$' '_') ls
 
   subst x y ch | x == ch   = y
-	       | otherwise = ch
+               | otherwise = ch
 
 -- From: THIS_IS_A_SILLY_ID, ThisIs_ANOTHER_Silly_ID
 -- to: ThisIsASillyId, ThisIsAnotherSillyId
@@ -1510,7 +1510,7 @@ emit _casm_s that performs the actual invocation of COM methods.
 
 \begin{code}
 toCType :: Type -> Either String -- (primitive / FFI supported) C type
-			  String -- other; need C impedance matching code.
+                          String -- other; need C impedance matching code.
 toCType ty = 
  case ty of
    Char signed
@@ -1546,37 +1546,37 @@ toCType ty =
    CUnion i _ _    -> Right ("union " ++ idName i)
 
    Name _ onm _ _ _  (Just ti) | not (is_pointed ti) -> Left (c_type ti)
-   			       | otherwise -> Right onm
+                               | otherwise -> Right onm
    Name _ onm _ _ Nothing  _   -> Right onm
    Name _ onm _ _ (Just t) _  
      | isConstructedTy t   -> if isEnumTy ty || isFunTy ty then toCType t else Right onm
      | otherwise           -> toCType t
    Pointer _ _ (Name _ _ _ (Just as) _ _)   -> 
        case findAttribute "ctype" as of
-	 Just (Attribute _ [ParamLit (StringLit t)]) -> Left t
+         Just (Attribute _ [ParamLit (StringLit t)]) -> Left t
          _ -> Left "void*"
    Pointer _ _ (t@Iface{})   ->
          case toCType t of
-	     Left l 
-	         -- confusingly, IA and IA* are the same thing when in 'C mode',
-		 -- so qualify the addition of an indirection accordingly.
-		 -- Ditto on the 'COM' side - if we end up with just 'IA' (which
-		 -- we shouldn't), treat this as IA*.
-		 -- 
-	             -> Left l
-	     Right x -> Right x
+             Left l 
+                 -- confusingly, IA and IA* are the same thing when in 'C mode',
+                 -- so qualify the addition of an indirection accordingly.
+                 -- Ditto on the 'COM' side - if we end up with just 'IA' (which
+                 -- we shouldn't), treat this as IA*.
+                 -- 
+                     -> Left l
+             Right x -> Right x
    Pointer{}    -> Left "void*"
    Array{}      -> Left "void*"
    Void         -> Left "void"
    SafeArray{}  -> Left "void*"
    Iface _ _ _ as _ _ ->
        case findAttribute "ctype" as of
-	 Just (Attribute _ [ParamLit (StringLit t)]) -> Left t
+         Just (Attribute _ [ParamLit (StringLit t)]) -> Left t
          _ -> Left "void*"
    FunTy{}      -> Left "void*"
-   Object	-> Left "void*"
-   Any		-> Left "void*"
-   _		-> error ("toCType: unhandled " ++ showCore (ppType ty))
+   Object       -> Left "void*"
+   Any          -> Left "void*"
+   _            -> error ("toCType: unhandled " ++ showCore (ppType ty))
  where
    sizeToString Short    = "short"
    sizeToString Long     = "long"
@@ -1591,7 +1591,7 @@ mkIfaceTypeName ('_':nm) = mkIfaceTypeName nm
 mkIfaceTypeName nm       = map (subst '$' '_') nm
  where
    subst x y ch | x == ch   = y
-		| otherwise = ch
+                | otherwise = ch
 
 \end{code}
 
@@ -1609,11 +1609,11 @@ findPtrType isTop ls =
      | isTop     -> Pointer Ref False
      | otherwise -> 
          case (filter isPtrDefault ptr_ls) of
-	    ((Attribute _ [ParamVar v]):_) -> Pointer (stringToPointerType v) False
-	    [] -> 
-		case optPointerDefault of
-		  Nothing -> Pointer Unique False
-		  Just x  -> Pointer (stringToPointerType x) False
+            ((Attribute _ [ParamVar v]):_) -> Pointer (stringToPointerType v) False
+            [] -> 
+                case optPointerDefault of
+                  Nothing -> Pointer Unique False
+                  Just x  -> Pointer (stringToPointerType x) False
   where
    ptr_ls = filter isPtrAttrib ls
    
@@ -1626,7 +1626,7 @@ findPtrType isTop ls =
    isPtrAttr (Attribute "ref" [])    = True
    isPtrAttr (Attribute "unique" []) = True
    isPtrAttr (Attribute "any" [])    = True
-   isPtrAttr _			     = False
+   isPtrAttr _                       = False
 
 stringToPointerType :: String -> PointerType
 stringToPointerType "ref"     = Ref
@@ -1666,9 +1666,9 @@ binParams ps = foldr binParam ([],[],[],[],[]) ps
   binParam p (params, ins, outs, inouts, results) =
       case (paramMode p) of
         InOut ->
-	  case (paramType p) of
-	    Pointer Ptr _ _ -> (p:params, p:ins,outs, inouts, results)
-	    _		    -> (p:params, ins, outs, p:inouts, p:results)
+          case (paramType p) of
+            Pointer Ptr _ _ -> (p:params, p:ins,outs, inouts, results)
+            _               -> (p:params, ins, outs, p:inouts, p:results)
         In    -> (p:params, p:ins,outs, inouts, results)
         Out   -> (params, ins, p:outs, inouts, p:results)
 \end{code}
@@ -1695,22 +1695,22 @@ Reduce fancy unions down to C-style unions and structs.
 unionToStruct :: Type -> (Maybe (Id, Type), Type)
 unionToStruct t =
   case t of
-    UnionNon un_tag sws			  -> (Nothing, CUnion un_tag fields Nothing)
-	 where
-	  fields = map switchToField sws
+    UnionNon un_tag sws                   -> (Nothing, CUnion un_tag fields Nothing)
+         where
+          fields = map switchToField sws
     Union enc_struct_tag tag_ty tg un_tag sws -> 
-	( Just (un_tag{idName=un_ty_nm, idOrigName=un_ty_nm}, c_union)
-	, Struct enc_struct_tag
-	       [ Field un_tag nm_ty nm_ty Nothing Nothing
-	       , Field tg     tag_ty  tag_ty  Nothing Nothing
-	       ]
- 	       Nothing
-	)
+        ( Just (un_tag{idName=un_ty_nm, idOrigName=un_ty_nm}, c_union)
+        , Struct enc_struct_tag
+               [ Field un_tag nm_ty nm_ty Nothing Nothing
+               , Field tg     tag_ty  tag_ty  Nothing Nothing
+               ]
+               Nothing
+        )
         where
-	  un_ty_nm  = "__IHC__" ++ idOrigName un_tag
-	  nm_ty     = Name un_ty_nm un_ty_nm Nothing Nothing (Just c_union) Nothing
-	  c_union = CUnion un_tag fields Nothing
-	  fields  = map switchToField sws
+          un_ty_nm  = "__IHC__" ++ idOrigName un_tag
+          nm_ty     = Name un_ty_nm un_ty_nm Nothing Nothing (Just c_union) Nothing
+          c_union = CUnion un_tag fields Nothing
+          fields  = map switchToField sws
     _ -> (Nothing, t)
  where
   switchToField (Switch i _ ty o_ty) = Field i ty o_ty Nothing Nothing
@@ -1728,9 +1728,9 @@ derivesFromIDispatch (CoClassInterface _ mb_decl) =
     Just d  -> 
       case d of
         Interface{declId=i,declInherit=inherits} ->
-	   idOrigName i == "IDispatch" || 
-	   any (\ (x,_) -> qName x == "IDispatch") inherits
-	DispInterface{} -> True
+           idOrigName i == "IDispatch" || 
+           any (\ (x,_) -> qName x == "IDispatch") inherits
+        DispInterface{} -> True
 derivesFromIDispatch _  = True
 \end{code}
 
@@ -1739,10 +1739,10 @@ toDispInterfaceMethod :: Decl -> Decl
 toDispInterfaceMethod (Method i cc _ ps off) =
      case break ((\ x -> hasAttributeWithName x "retval").idAttributes.paramId) ps of
        (bef,p:aft) -> 
-	  let
-	   ty   = removePtr (paramType p)
-	   o_ty = removePtr (paramOrigType p)
-	  in
+          let
+           ty   = removePtr (paramType p)
+           o_ty = removePtr (paramOrigType p)
+          in
           Method i cc (Result ty o_ty) (bef++aft) off
        _ -> Method i cc (Result voidTy voidTy) ps off
    
@@ -1786,21 +1786,21 @@ getDeclUses d = (def, uses)
       Library i _           -> idName i
       Method i _ _ _ _      -> idName i
       Property i _ _ _ _    -> idName i
-      _			    -> ""
+      _                     -> ""
 
 getUses :: Decl -> [String]
 getUses d = 
   case d of 
-    Typedef _ ty _	    -> getTyUses ty
+    Typedef _ ty _          -> getTyUses ty
     Constant _ ty _ _       -> getTyUses ty
-    Interface _ _ is ds	    -> map (qName.fst) is ++ concatMap getUses ds
-    Module _ ds	            -> concatMap getUses ds
+    Interface _ _ is ds     -> map (qName.fst) is ++ concatMap getUses ds
+    Module _ ds             -> concatMap getUses ds
     DispInterface _ _ ps ds -> concatMap getUses ps ++ concatMap getUses ds
-    CoClass _ cs	    -> map (idName.coClassId) cs
-    Library _ ds	    -> concatMap getUses ds
+    CoClass _ cs            -> map (idName.coClassId) cs
+    Library _ ds            -> concatMap getUses ds
     Method _ _ r ps _       -> getTyUses (resultType r) ++ concatMap (getTyUses.paramType) ps
     Property _ t _ _ _      -> getTyUses t
-    _			    -> []
+    _                       -> []
 
 -- Since the types were constructed from type libraries, we can make
 -- a number of simplifying assumptions.
@@ -1819,7 +1819,7 @@ getTyUses ty =
     Array t _       -> getTyUses t
     Iface n _ _ _ _ _ -> [n]
     SafeArray t       -> getTyUses t
-    _		      -> []
+    _                 -> []
 
 expandGroup :: SCC a -> [a]
 expandGroup (AcyclicSCC d) = [d]
@@ -1840,95 +1840,95 @@ sizeAndAlignModulus mb_pack ty =
     Float sz ->
        case sz of
          Short    -> (fLOAT_SIZE,  fLOAT_ALIGN_MODULUS)
-	 Long     -> (dOUBLE_SIZE, dOUBLE_ALIGN_MODULUS)
-	 LongLong -> (dOUBLE_SIZE, dOUBLE_ALIGN_MODULUS) -- no support for (long double)/quads yet (TODO)
-	 Natural  -> (dOUBLE_SIZE, dOUBLE_ALIGN_MODULUS)
+         Long     -> (dOUBLE_SIZE, dOUBLE_ALIGN_MODULUS)
+         LongLong -> (dOUBLE_SIZE, dOUBLE_ALIGN_MODULUS) -- no support for (long double)/quads yet (TODO)
+         Natural  -> (dOUBLE_SIZE, dOUBLE_ALIGN_MODULUS)
     Integer sz signed
        | signed -> 
          case sz of
            Short     -> (sHORT_SIZE,    sHORT_ALIGN_MODULUS)
            Long      -> (lONG_SIZE,     lONG_ALIGN_MODULUS)
            Natural   -> (lONG_SIZE,     lONG_ALIGN_MODULUS)
-	   LongLong  -> (lONGLONG_SIZE, lONGLONG_ALIGN_MODULUS)
+           LongLong  -> (lONGLONG_SIZE, lONGLONG_ALIGN_MODULUS)
        | otherwise ->
          case sz of
            Short     -> (uSHORT_SIZE,    uSHORT_ALIGN_MODULUS)
            Long      -> (uLONG_SIZE,     uLONG_ALIGN_MODULUS)
            Natural   -> (uLONG_SIZE,     uLONG_ALIGN_MODULUS)
-	   LongLong  -> (uLONGLONG_SIZE, uLONGLONG_ALIGN_MODULUS)
+           LongLong  -> (uLONGLONG_SIZE, uLONGLONG_ALIGN_MODULUS)
     Char signed
-       | signed	      -> (sCHAR_SIZE, sCHAR_ALIGN_MODULUS)
+       | signed       -> (sCHAR_SIZE, sCHAR_ALIGN_MODULUS)
        | otherwise    -> (uCHAR_SIZE, uCHAR_ALIGN_MODULUS)
-    WChar	      -> (uCHAR_SIZE, uCHAR_ALIGN_MODULUS)
-    Bool	      -> (uLONG_SIZE, uLONG_ALIGN_MODULUS)
-    Octet	      -> (uCHAR_SIZE, uCHAR_ALIGN_MODULUS)
-    String{}	      -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
-    WString{}	      -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
+    WChar             -> (uCHAR_SIZE, uCHAR_ALIGN_MODULUS)
+    Bool              -> (uLONG_SIZE, uLONG_ALIGN_MODULUS)
+    Octet             -> (uCHAR_SIZE, uCHAR_ALIGN_MODULUS)
+    String{}          -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
+    WString{}         -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
     Struct _ fields mb_pack2 -> (real_sz, real_ale)
           where
-	    mb_pack_to_use = combinePackLevels mb_pack mb_pack2
+            mb_pack_to_use = combinePackLevels mb_pack mb_pack2
             (sz, al) = fst (computeStructSizeOffsets mb_pack_to_use fields)
             real_ale = realModulus mb_pack_to_use al
             real_sz  = align sz real_ale
 
-    Enum{}	       -> (lONG_SIZE, lONG_ALIGN_MODULUS) -- TODO: this is [v1_enum]
+    Enum{}             -> (lONG_SIZE, lONG_ALIGN_MODULUS) -- TODO: this is [v1_enum]
     Union _ tty _ _ sw -> (align (uni_off + uni_sz) uni_align, uni_align)
-	    where
-	     sw_no_empties	       = filter (not.isEmptySwitch) sw
-	     
-	     isEmptySwitch (SwitchEmpty _) = True
-	     isEmptySwitch _		   = False
+            where
+             sw_no_empties             = filter (not.isEmptySwitch) sw
+             
+             isEmptySwitch (SwitchEmpty _) = True
+             isEmptySwitch _               = False
 
-	     (sw_sizes, sw_aligns)     = unzip (map ((sizeAndAlignModulus mb_pack).switchType) sw_no_empties)
-	     (tag_sz, {-tag_align-} _) = sizeAndAlignModulus mb_pack tty
-	     uni_sz     = maximum sw_sizes
-	     uni_align  = realModulus mb_pack (maximum sw_aligns)
+             (sw_sizes, sw_aligns)     = unzip (map ((sizeAndAlignModulus mb_pack).switchType) sw_no_empties)
+             (tag_sz, {-tag_align-} _) = sizeAndAlignModulus mb_pack tty
+             uni_sz     = maximum sw_sizes
+             uni_align  = realModulus mb_pack (maximum sw_aligns)
 
-	      -- compute the offset of union (=> size of tag + pad.)
+              -- compute the offset of union (=> size of tag + pad.)
              uni_off    = align tag_sz uni_align
 
     UnionNon _ sw    -> (uni_sz, uni_align) 
-	    where
-	     sw_no_empties	   = filter (not.isEmptySwitch) sw
+            where
+             sw_no_empties         = filter (not.isEmptySwitch) sw
 
-	     isEmptySwitch (SwitchEmpty _) = True
-	     isEmptySwitch _		   = False
+             isEmptySwitch (SwitchEmpty _) = True
+             isEmptySwitch _               = False
 
-	     (sw_sizes, sw_aligns) = unzip (map ((sizeAndAlignModulus mb_pack).switchType) sw_no_empties)
-	     uni_sz     = maximum sw_sizes
-	     uni_align  = realModulus mb_pack (maximum sw_aligns)
+             (sw_sizes, sw_aligns) = unzip (map ((sizeAndAlignModulus mb_pack).switchType) sw_no_empties)
+             uni_sz     = maximum sw_sizes
+             uni_align  = realModulus mb_pack (maximum sw_aligns)
 
     CUnion _ fields mb_pack2 -> (uni_sz, uni_align)
-	    where
-   	     mb_pack_to_use = combinePackLevels mb_pack mb_pack2
+            where
+             mb_pack_to_use = combinePackLevels mb_pack mb_pack2
 
-	     (sw_sizes, sw_aligns) = 
-	     	unzip (map ((sizeAndAlignModulus mb_pack_to_use).fieldType) fields)
-	     uni_sz     = maximum sw_sizes
-	     uni_align  = realModulus mb_pack_to_use (maximum sw_aligns)
+             (sw_sizes, sw_aligns) = 
+                unzip (map ((sizeAndAlignModulus mb_pack_to_use).fieldType) fields)
+             uni_sz     = maximum sw_sizes
+             uni_align  = realModulus mb_pack_to_use (maximum sw_aligns)
 
-    Pointer{}	     -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
-    Object	     -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
-    Any		     -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
+    Pointer{}        -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
+    Object           -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
+    Any              -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
     FunTy{}          -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
     Array aty [e]    -> let (el_sz, al) = sizeAndAlignModulus mb_pack aty in
-			(el_sz * fromIntegral (evalExpr e), al)
+                        (el_sz * fromIntegral (evalExpr e), al)
      -- catch the case of conformant/open arrays.
     Array aty []     -> let (el_sz, al) = sizeAndAlignModulus mb_pack aty in
-			(el_sz, al)
-    Array _ _	     -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
-    Void	     -> (0, dATA_PTR_ALIGN_MODULUS)
-    SafeArray{}	     -> (sAFEARRAY_SIZE, sAFEARRAY_ALIGN_MODULUS)
+                        (el_sz, al)
+    Array _ _        -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
+    Void             -> (0, dATA_PTR_ALIGN_MODULUS)
+    SafeArray{}      -> (sAFEARRAY_SIZE, sAFEARRAY_ALIGN_MODULUS)
     Name _ _ _ _ _ (Just ti) -> (prim_sizeof ti, prim_align ti)
      -- need next one for when we're not doing magic overloading of variants.
     Name "VARIANT" _ _ _ _ _ -> (16, 8) -- Vanilla fudge.
 --    Name "GUID" _ _ _ _ _    -> (16, 4) -- Vanilla fudge.
     Name _ _ _ _ (Just t) _  -> sizeAndAlignModulus mb_pack t
     Name nm _ _ _ Nothing _  -> let msg = error ("sizeAndAlignModulus: "++nm) in (msg, msg)
-    Fixed{}	      -> (undefined, undefined)
+    Fixed{}           -> (undefined, undefined)
     Sequence{}        -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
-    Any		      -> (undefined, undefined)
-    Object	      -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
+    Any               -> (undefined, undefined)
+    Object            -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
     Iface{}           -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
     StablePtr{}       -> (dATA_PTR_SIZE, dATA_PTR_ALIGN_MODULUS)
 
@@ -1948,20 +1948,20 @@ computeStructSizeOffsets mb_pack fields =
 
 place :: Maybe Int
       -> ( Int       -- tentative offset for field 
-	 , Int       -- current alignment modulus for struct
-	 )  
+         , Int       -- current alignment modulus for struct
+         )  
       -> Field
       -> ( (Int,Int) -- updated state
-	 , Int       -- offset at which to store/access field.
-	 )
+         , Int       -- offset at which to store/access field.
+         )
 place mb_pack (off,struct_align) f =
  case sizeAndAlignModulus mb_pack (fieldType f) of
    (sz, al) -> 
         let 
-	 real_ale  = realModulus mb_pack al
+         real_ale  = realModulus mb_pack al
          field_off = align off real_ale
-	in
-	((field_off+sz, max real_ale struct_align), field_off)
+        in
+        ((field_off+sz, max real_ale struct_align), field_off)
 
 realModulus :: Maybe Int -> Int -> Int
 realModulus Nothing  n = n
@@ -1971,7 +1971,7 @@ realModulus (Just v) n = min v n
 align :: Int -> Int -> Int
 align off al 
  | off `mod` al == 0 = off -- perfect, no padding.
- | otherwise	     = off + (al - off `mod` al)
+ | otherwise         = off + (al - off `mod` al)
 
 combinePackLevels :: Maybe Int -> Maybe Int -> Maybe Int
 combinePackLevels Nothing x = x
@@ -2016,9 +2016,9 @@ isFinalisedType ifaceOnly t =
     Union _ _ _ _ ss -> any (isFinalisedType ifaceOnly) (map switchType (filter isNonDef ss))
     Name _ _ _ _ _ (Just ti) -> not ifaceOnly && finalised ti
     Name _ _ _ _ (Just ty) _ -> isFinalisedType ifaceOnly ty
-    Name{}	-> False
+    Name{}      -> False
  where
   isNonDef Switch{} = True
-  isNonDef _	    = False
+  isNonDef _        = False
 
 \end{code}

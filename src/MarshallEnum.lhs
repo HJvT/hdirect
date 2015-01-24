@@ -10,9 +10,9 @@ their Haskell equivalent.
 
 \begin{code}
 module MarshallEnum 
-	   ( marshallEnum
-	   , genDerivedEnumInstanceFor
-	   ) where
+           ( marshallEnum
+           , genDerivedEnumInstanceFor
+           ) where
 
 import MarshallType
 
@@ -31,9 +31,9 @@ import CoreUtils  ( mkHaskellTyConName )
 import Attribute  ( hasAttributeWithName, filterAttributes )
 import Literal    ( Literal(..) )
 import Opts ( optSmartEnums, optNoVariantInstance, 
-	      optVariantInstance, optEnumsAsFlags,
-	      optGenBitsInstance, optGenNumInstance
-	    )
+              optVariantInstance, optEnumsAsFlags,
+              optGenBitsInstance, optGenNumInstance
+            )
 import PpCore ( ppEnumValue, showCore )
 
 \end{code}
@@ -45,7 +45,7 @@ marshallEnum tdef_id kind noEnumInstance enums
  | noEnumInstance && genVariantInstance = return variantInst
  | noEnumInstance     = return emptyDecl
  | genVariantInstance = return (enumInst `andDecl` variantInst)
- | otherwise	      = return enumInst
+ | otherwise          = return enumInst
  where   
   genVariantInstance = optVariantInstance && not optNoVariantInstance
 
@@ -72,28 +72,28 @@ marshallEnum tdef_id kind noEnumInstance enums
   enumInst = 
     addBitsInstance $     
     hInstance Nothing enumClass t_ty 
-	[ methodDef fromEnumName [varPat v] m_rhs 
-	, methodDef toEnumName   [varPat v] u_rhs 
-	]
+        [ methodDef fromEnumName [varPat v] m_rhs 
+        , methodDef toEnumName   [varPat v] u_rhs 
+        ]
 
   variantInst = 
     hInstance Nothing variantClass t_ty 
-	[ methodDef inVariantName      [] inv_rhs 
-	, methodDef resVariantName     [] resv_rhs 
-	, methodDef defaultVariantName [] def_rhs 
-	, methodDef vtEltTypeName      [] vt_elt_rhs
-	]
+        [ methodDef inVariantName      [] inv_rhs 
+        , methodDef resVariantName     [] resv_rhs 
+        , methodDef defaultVariantName [] def_rhs 
+        , methodDef vtEltTypeName      [] vt_elt_rhs
+        ]
 
   addBitsInstance d 
    | withListCon = 
-   	if optGenBitsInstance || optGenNumInstance then
-	   (if optGenNumInstance then
-	       numInstance
-	    else
-	       numInstance `andDecl` bitsInstance) 
+        if optGenBitsInstance || optGenNumInstance then
+           (if optGenNumInstance then
+               numInstance
+            else
+               numInstance `andDecl` bitsInstance) 
           `andDecl` d
-	else
-	   flagsInstance `andDecl` d
+        else
+           flagsInstance `andDecl` d
    | otherwise   = d
 
   withListCon = 
@@ -106,24 +106,24 @@ marshallEnum tdef_id kind noEnumInstance enums
   numInstance  =
     hInstance Nothing numClass t_ty
         [ methodDef (mkQVarName prelude "+") [varPat x1, varPat x2] or_rhs
-	]
+        ]
 
   bitsInstance =
     hInstance Nothing bitsClass t_ty
-	[ methodDef andName [varPat x1, varPat x2] and_rhs 
-	, methodDef orName  [varPat x1, varPat x2] or_rhs 
-	, methodDef xorName   []     xor_rhs
-	, methodDef complementName[] comp_rhs
-	, methodDef shiftName []     shift_rhs
-	, methodDef rotateName []    rot_rhs
-	, methodDef bitSizeName []   bit_rhs
-	, methodDef isSignedName []  isS_rhs
-	]
+        [ methodDef andName [varPat x1, varPat x2] and_rhs 
+        , methodDef orName  [varPat x1, varPat x2] or_rhs 
+        , methodDef xorName   []     xor_rhs
+        , methodDef complementName[] comp_rhs
+        , methodDef shiftName []     shift_rhs
+        , methodDef rotateName []    rot_rhs
+        , methodDef bitSizeName []   bit_rhs
+        , methodDef isSignedName []  isS_rhs
+        ]
 
   flagsInstance =
     hInstance Nothing flagsClass t_ty
-	[ methodDef orFlagName  [varPat x1, varPat x2] or_rhs 
-	]
+        [ methodDef orFlagName  [varPat x1, varPat x2] or_rhs 
+        ]
 
   inv_rhs    = qvar autoLib "inEnum"
   resv_rhs   = qvar autoLib "resEnum"
@@ -131,47 +131,47 @@ marshallEnum tdef_id kind noEnumInstance enums
   vt_elt_rhs = qvar autoLib "vtTypeEnum"
   
   or_rhs    = funApp toEnumName [ binOp Add (funApp fromEnumName [x1])
-  					     (funApp fromEnumName [x2])]
+                                             (funApp fromEnumName [x2])]
 
   and_rhs     = 
     hLet (var "flatten")
          (lam [patVar "x"] 
-    	      (hCase (var "x")
-	       	     [ alt (conPat (mkConName (tdef_name ++ "List__")) [patVar "xs"])
-		     	   (funApp concatMapName [var "flatten", var "xs"])
-		     , defaultAlt (Just (mkVarName "x")) (hList [var "x"])
-		     ]))
+              (hCase (var "x")
+                     [ alt (conPat (mkConName (tdef_name ++ "List__")) [patVar "xs"])
+                           (funApp concatMapName [var "flatten", var "xs"])
+                     , defaultAlt (Just (mkVarName "x")) (hList [var "x"])
+                     ]))
          (dataCon (mkConName (tdef_name ++ "List__"))
-	          [funApp intersectName [ funApp (mkVarName "flatten") [x1]
-		  			, funApp (mkVarName "flatten") [x2]
-					]])
+                  [funApp intersectName [ funApp (mkVarName "flatten") [x1]
+                                        , funApp (mkVarName "flatten") [x2]
+                                        ]])
 
   xor_rhs = funApp prelError
-  		   [ stringLit ("Bits.xor{"++qName name++"}: unimplemented") ]
+                   [ stringLit ("Bits.xor{"++qName name++"}: unimplemented") ]
   comp_rhs = funApp prelError
-  		   [ stringLit ("Bits.complement{"++qName name++"}: unimplemented") ]
+                   [ stringLit ("Bits.complement{"++qName name++"}: unimplemented") ]
   shift_rhs = funApp prelError
-  		   [ stringLit ("Bits.shift{"++qName name++"}: unimplemented") ]
+                   [ stringLit ("Bits.shift{"++qName name++"}: unimplemented") ]
   rot_rhs = funApp prelError
-  		   [ stringLit ("Bits.rotate{"++qName name++"}: unimplemented") ]
+                   [ stringLit ("Bits.rotate{"++qName name++"}: unimplemented") ]
   bit_rhs = funApp prelError
-  		   [ stringLit ("Bits.bitSize{"++qName name++"}: unimplemented") ]
+                   [ stringLit ("Bits.bitSize{"++qName name++"}: unimplemented") ]
   isS_rhs = funApp prelError
-  		   [ stringLit ("Bits.isSigned{"++qName name++"}: unimplemented") ]
+                   [ stringLit ("Bits.isSigned{"++qName name++"}: unimplemented") ]
 
     -- Marshalling --
   m_rhs
     | not optSmartEnums || kind == Unclassified = hCase v (add_m_list (map (enumToInt True) enums))
     | otherwise = 
         case kind of
-	  EnumProgression st 1 -> binOp Add (intLit st)
-	  				    (funApp LibUtils.enumToInt [v])
-	  EnumProgression st step -> binOp Add (intLit st)
-	  				       (binOp Mul (intLit step)
-					       		  (funApp LibUtils.enumToInt [v]))
-	  EnumFlags 0 -> funApp enumToFlag [v]
-	  EnumFlags k -> funApp toIntFlag [intLit k, funApp LibUtils.enumToInt [v]]
-	  Unclassified -> error "MarshallEnum.marshallEnum.m_rhs: the impossible happened"
+          EnumProgression st 1 -> binOp Add (intLit st)
+                                            (funApp LibUtils.enumToInt [v])
+          EnumProgression st step -> binOp Add (intLit st)
+                                               (binOp Mul (intLit step)
+                                                          (funApp LibUtils.enumToInt [v]))
+          EnumFlags 0 -> funApp enumToFlag [v]
+          EnumFlags k -> funApp toIntFlag [intLit k, funApp LibUtils.enumToInt [v]]
+          Unclassified -> error "MarshallEnum.marshallEnum.m_rhs: the impossible happened"
 
   add_m_list 
     | withListCon = ((alt (conPat (mkConName (tdef_name ++ "List__")) [patVar "xs"]) rhs) :)
@@ -184,25 +184,25 @@ marshallEnum tdef_id kind noEnumInstance enums
     | not optSmartEnums || kind == Unclassified = normal_u_rhs
     | otherwise            =
         case kind of
-		-- solve y = step * x + st
-	  EnumProgression st 1 -> 
-	       funApp tagToEnum
-	       	   [funApp unboxInt
-		   	   [binOp Sub v (intLit st)]]
-	  EnumProgression st step -> 
-	       funApp tagToEnum
-	       	   [funApp unboxInt
-		   	   [binOp Div (binOp Sub v (intLit st))
-		   	     	      (intLit step)]]
-	  EnumFlags k ->
-		funApp tagToEnum
-		   [funApp unboxInt
-		   	   [funApp toIntFlag [intLit k, funApp flagToIntTag [v]]]]
-	  Unclassified -> error "MarshallEnum.marshallEnum.u_rhs: the impossible happened"
-	  	
+                -- solve y = step * x + st
+          EnumProgression st 1 -> 
+               funApp tagToEnum
+                   [funApp unboxInt
+                           [binOp Sub v (intLit st)]]
+          EnumProgression st step -> 
+               funApp tagToEnum
+                   [funApp unboxInt
+                           [binOp Div (binOp Sub v (intLit st))
+                                      (intLit step)]]
+          EnumFlags k ->
+                funApp tagToEnum
+                   [funApp unboxInt
+                           [funApp toIntFlag [intLit k, funApp flagToIntTag [v]]]]
+          Unclassified -> error "MarshallEnum.marshallEnum.u_rhs: the impossible happened"
+                
   normal_u_rhs = hCase v (add_u_list (map intToEnum enums) ++ 
                          [defaultAlt Nothing
-			   (giveUp (u_name ++ ": illegal enum value "))])
+                           (giveUp (u_name ++ ": illegal enum value "))])
 
   giveUp msg =funApp prelError [stringLit msg]
 
@@ -214,27 +214,27 @@ marshallEnum tdef_id kind noEnumInstance enums
    where
     rhsFlg st= 
           dataCon (mkConName (tdef_name ++ "List__"))
-    		  [ funApp mapMaybeName
-		  	   [ lam [patVar "val"]
-			   	 (hIf (binOp Eq (binOp And (var "val") (funApp fromIntegralName [var "x"]))
-					       (var "val"))
-				      (just (funApp toEnumName [funApp fromIntegralName [var "val"]]))
-				      nothing)
-			   , funApp pow2Series [intLit (length enums), intLit st]
-			   ]
-		  ]
+                  [ funApp mapMaybeName
+                           [ lam [patVar "val"]
+                                 (hIf (binOp Eq (binOp And (var "val") (funApp fromIntegralName [var "x"]))
+                                               (var "val"))
+                                      (just (funApp toEnumName [funApp fromIntegralName [var "val"]]))
+                                      nothing)
+                           , funApp pow2Series [intLit (length enums), intLit st]
+                           ]
+                  ]
 
     rhsGen = 
           dataCon (mkConName (tdef_name ++ "List__"))
-    		  [ funApp mapMaybeName
-		  	   [ lam [patVar "val"]
-			   	 (hIf (binOp Eq (binOp And (var "val") (var "x"))
-					       (var "val"))
-				      (just (funApp toEnumName [var "val"]))
-				      nothing)
-			   , hList (map (enumToIntExpr fromIntegralName) enums)
-			   ]
-		  ]
+                  [ funApp mapMaybeName
+                           [ lam [patVar "val"]
+                                 (hIf (binOp Eq (binOp And (var "val") (var "x"))
+                                               (var "val"))
+                                      (just (funApp toEnumName [var "val"]))
+                                      nothing)
+                           , hList (map (enumToIntExpr fromIntegralName) enums)
+                           ]
+                  ]
 
 \end{code}
 
@@ -251,7 +251,7 @@ mkGuard long_enum_tags v (EnumValue i val) =
     case val of
       Left  il -> intLit il
       Right e  -> funApp (mkQVarName hdirectLib (if long_enum_tags then "toInt32" else "toInt16")) 
-		         [coreToHaskellExpr e]
+                         [coreToHaskellExpr e]
 -}
 
 enumToInt :: Bool -> EnumValue -> Haskell.CaseAlt
@@ -285,15 +285,15 @@ intToEnum (EnumValue i (Left v)) = alt (litPat (iLit v)) tag
   tag_nm            = mkConName (mkHaskellTyConName nm)
 
   def_vals          = 
-     	(\ x -> 
-	  case x of 
-	   [] -> []
-	   xs -> [lit (LitLit xs)]) $
-     	   unwords $
-	   map (\ xs -> '(':xs ++ ")") $
-	   map getStr $
+        (\ x -> 
+          case x of 
+           [] -> []
+           xs -> [lit (LitLit xs)]) $
+           unwords $
+           map (\ xs -> '(':xs ++ ")") $
+           map getStr $
            filterAttributes (idAttributes i)
-     			    ["hs_default"]
+                            ["hs_default"]
 
   getStr (Attribute _ [ParamLit (StringLit s)]) = s
   getStr _ = ""
@@ -306,5 +306,5 @@ intToEnum eVal = error ("intToEnum: unhandled enum RHS -- " ++ showCore (ppEnumV
 genDerivedEnumInstanceFor :: EnumKind -> [EnumValue] -> Bool
 genDerivedEnumInstanceFor (EnumProgression 0 1) vs 
   = not (any (\ x -> idAttributes (enumName x) `hasAttributeWithName` "hs_tyarg") vs)
-genDerivedEnumInstanceFor _ _	= False
+genDerivedEnumInstanceFor _ _   = False
 \end{code}

@@ -4,11 +4,11 @@ Haskell implementation of a COM class factory / component instance creator.
 \begin{code}
 {-# OPTIONS -#include "ClassFactory_stub.h" #-}
 module ClassFactory 
-	(
-	  createClassFactory -- :: (IID a -> IO (PrimIP a)) -> IO (PrimIP ())
+        (
+          createClassFactory -- :: (IID a -> IO (PrimIP a)) -> IO (PrimIP ())
 
         , iidIClassFactory
-	) where
+        ) where
 
 import Com
 import ComServ hiding ( createInstance )
@@ -21,7 +21,7 @@ import IOExts
 data ClassFactory a
  = ClassFactory {
          new_instance :: (IID (IUnknown ()) -> IO (IUnknown ())),
-	 lockCount    :: (IORef Int)
+         lockCount    :: (IORef Int)
    }
 
 type IClassFactory a = IUnknown (ClassFactory a)
@@ -38,9 +38,9 @@ Class factory implementation:
 \begin{code}
 createInstance :: This_ClassFactory 
                -> Ptr (IUnknown a)
-	       -> Ptr (IID (IUnknown ()))
-	       -> Ptr (Ptr (IUnknown b))
-	       -> IO HRESULT
+               -> Ptr (IID (IUnknown ()))
+               -> Ptr (Ptr (IUnknown b))
+               -> IO HRESULT
 createInstance this punkOuter riid ppv
  | punkOuter /= nullPtr = return cLASS_E_NOAGGREGATION
  | otherwise            = do
@@ -74,14 +74,14 @@ foreign export stdcall dynamic
 
 \begin{code}
 createClassFactory :: (IID (IUnknown ()) -> IO (IUnknown ()))
-		   -> IO (IClassFactory ())
+                   -> IO (IClassFactory ())
 createClassFactory mkInst = do
    lcount <- newIORef 0
    let cf_state = ClassFactory mkInst lcount
    createComInstance ""
                      cf_state (return ())
-		     [mkIface iidIClassFactory iClassFactory_vtbl]
-		     iidIClassFactory
+                     [mkIface iidIClassFactory iClassFactory_vtbl]
+                     iidIClassFactory
  where
   guidIClassFactory = iidToGUID iidIClassFactory
 

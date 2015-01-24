@@ -28,7 +28,7 @@ importLib nm = return (Pragma ("importLib: type library reader not compiled in. 
 import 
        HDirect
 import 
-       Com	   hiding (GUID)
+       Com         hiding (GUID)
 import
        qualified Com ( GUID )
 import
@@ -85,11 +85,11 @@ importLib libfile = do
   (hStringContext, hStringDll) <-
       catch 
        ( do
-	  typelib2 <- typelib # queryInterface iidITypeLib2
-	  (_,ctxt, dlln) <- typelib2 # getDocumentation2TL (-1) lOCALE_USER_DEFAULT
-	  return (ctxt, dlln))
+          typelib2 <- typelib # queryInterface iidITypeLib2
+          (_,ctxt, dlln) <- typelib2 # getDocumentation2TL (-1) lOCALE_USER_DEFAULT
+          return (ctxt, dlln))
        ( \ _ -> return (0,""))
-	
+        
   ~(Just libAttr) <- typelib # getLibAttr
   maxItem   <- typelib # getTypeInfoCount
 #ifdef DEBUG
@@ -98,40 +98,40 @@ importLib libfile = do
   let
       indices 
         | maxItem == 0 = []
-	| otherwise    = [0 .. (fromIntegral maxItem)-1]
+        | otherwise    = [0 .. (fromIntegral maxItem)-1]
 
-  customs	       <- typelib # getCustomTL
-  libItems	       <- mapM (\ x -> typelib # readItem [libName] x) indices
+  customs              <- typelib # getCustomTL
+  libItems             <- mapM (\ x -> typelib # readItem [libName] x) indices
   let 
       lFlags = wLibFlags libAttr
       attrs =
-	catMaybes
-        [ versionAttr	     (wMajorVerNum0 libAttr) (wMinorVerNum0 libAttr)
-	, Just $ uuidAttribute      (guid1 libAttr)
-	, helpStringAttr     docString
-	, helpContextAttr    (toInteger hContext)
-	, helpFileAttr       hString
-	, helpStringDllAttr  hStringDll
-	, helpStringCtxtAttr (toInteger hStringContext)
-	, lcidvalAttribute   (toInteger (lcid0 libAttr))
-	, isSet lFlags 0x1 restrictedAttribute
-	, isSet lFlags 0x2 controlAttribute
-	, isSet lFlags 0x4 hiddenAttribute
-	] ++ customs
+        catMaybes
+        [ versionAttr        (wMajorVerNum0 libAttr) (wMinorVerNum0 libAttr)
+        , Just $ uuidAttribute      (guid1 libAttr)
+        , helpStringAttr     docString
+        , helpContextAttr    (toInteger hContext)
+        , helpFileAttr       hString
+        , helpStringDllAttr  hStringDll
+        , helpStringCtxtAttr (toInteger hStringContext)
+        , lcidvalAttribute   (toInteger (lcid0 libAttr))
+        , isSet lFlags 0x1 restrictedAttribute
+        , isSet lFlags 0x2 controlAttribute
+        , isSet lFlags 0x4 hiddenAttribute
+        ] ++ customs
 
       sorted_libItems = sortDefns libItems
   rpath <- 
-	catch
-	   (queryPathOfRegTypeLib (guid1 libAttr) 
-				  (wMajorVerNum0 libAttr)
-				  (wMinorVerNum0 libAttr))
-	   ( \ _ -> return "")
+        catch
+           (queryPathOfRegTypeLib (guid1 libAttr) 
+                                  (wMajorVerNum0 libAttr)
+                                  (wMinorVerNum0 libAttr))
+           ( \ _ -> return "")
   ls <- readIORef libs_seen_ref
   let ls'  = filter (/=rpath) ls
       imps = map ImportLib ls'
   return (Attributed attrs
-		     (Library (Id libName)
-			      (imps ++ sorted_libItems)))
+                     (Library (Id libName)
+                              (imps ++ sorted_libItems)))
 
 \end{code}
              
@@ -173,10 +173,10 @@ readItem level index typelib = do
    TKIND_DISPATCH
         | isDual typeAttr -> typeinfo # readDual itemName level'
         | otherwise       -> typeinfo # readDispatch itemName level' typeAttr
-   TKIND_COCLASS	  -> typeinfo # readCoClass itemName level' typeAttr
-   TKIND_MODULE		  -> typeinfo # readModule itemName level' typeAttr
-   _		          -> do
-	hPutStrLn stderr "Something else"
+   TKIND_COCLASS          -> typeinfo # readCoClass itemName level' typeAttr
+   TKIND_MODULE           -> typeinfo # readModule itemName level' typeAttr
+   _                      -> do
+        hPutStrLn stderr "Something else"
         return (CppQuote "")
 
 -- To identify the context we're processing, pass down a list of names
@@ -199,7 +199,7 @@ readDispatch name level typeAttr typeinfo = do
   methods <- mapM (\ x -> typeinfo # readDispMember level x) [0..((fromIntegral (cFuncs typeAttr))-1)]
   vars    <- mapM (\ x -> typeinfo # readDispVar level x) [0..((fromIntegral (cVars typeAttr))-1)]
   (libName, docString, hContext, hString, hStringContext, hStringDll) 
-	  <- typeinfo # getHelpAttributesTI (-1)
+          <- typeinfo # getHelpAttributesTI (-1)
   customs <- typeinfo # getCustomTI
   let
    tFlags = wTypeFlags typeAttr
@@ -211,22 +211,22 @@ readDispatch name level typeAttr typeinfo = do
 
     -- we're less than interested in these.
    std_meths = ["QueryInterface", "AddRef", "Release",
-		"GetTypeInfoCount", "GetTypeInfo", "GetIDsOfNames",
-		"Invoke"
-	       ]
+                "GetTypeInfoCount", "GetTypeInfo", "GetIDsOfNames",
+                "Invoke"
+               ]
 
    disp_attrs =
      catMaybes
         [ Just $ uuidAttribute (guid typeAttr)
         , versionAttr   (wMajorVerNum typeAttr) (wMinorVerNum typeAttr)
-	, isSet tFlags 0x10   hiddenAttribute
-	, helpStringAttr     docString
-	, helpContextAttr    (toInteger hContext)
-	, helpFileAttr       hString
-	, helpStringDllAttr  hStringDll
-	, helpStringCtxtAttr (toInteger hStringContext)
-	] ++ customs
-	
+        , isSet tFlags 0x10   hiddenAttribute
+        , helpStringAttr     docString
+        , helpContextAttr    (toInteger hContext)
+        , helpFileAttr       hString
+        , helpStringDllAttr  hStringDll
+        , helpStringCtxtAttr (toInteger hStringContext)
+        ] ++ customs
+        
   return (Attributed disp_attrs (DispInterface (Id name) vars real_methods))
 
 readDispMember :: Level -> Int -> ITypeInfo a -> IO Defn
@@ -236,9 +236,9 @@ readDispMember level' index typeinfo = do
 #endif
    ~(Just funcDesc) <- typeinfo # getFuncDesc (fromIntegral index)
    metName          <- typeinfo # getMemberName (memid funcDesc)
-   customs	    <- typeinfo # getCustomTI
+   customs          <- typeinfo # getCustomTI
    (libName, docString, hContext, hString, hStringContext, hStringDll) 
-		    <- typeinfo # getHelpAttributesTI (fromIntegral (memid funcDesc))
+                    <- typeinfo # getHelpAttributesTI (fromIntegral (memid funcDesc))
    let
       fFlags = wFuncFlags funcDesc
       mId    = memid funcDesc
@@ -247,42 +247,42 @@ readDispMember level' index typeinfo = do
       iKind    = invkind funcDesc
 
       disp_attrs =
-	(case iKind of
-	   INVOKE_FUNC -> id
-	   INVOKE_PROPERTYGET -> ((Attrib (Id "propget") []):)
-	   INVOKE_PROPERTYPUT -> ((Attrib (Id "propput") []):)
-	   INVOKE_PROPERTYPUTREF -> ((Attrib (Id "propputref") []):)) $
+        (case iKind of
+           INVOKE_FUNC -> id
+           INVOKE_PROPERTYGET -> ((Attrib (Id "propget") []):)
+           INVOKE_PROPERTYPUT -> ((Attrib (Id "propput") []):)
+           INVOKE_PROPERTYPUTREF -> ((Attrib (Id "propputref") []):)) $
          catMaybes
-	   [ Just $ Attrib (Id "id") [AttrLit (IntegerLit (ILit 16 mId'))]
-	   , isSet fFlags 0x4   (Attrib (Id "bindable") [])
-	   , isSet fFlags 0x20  (Attrib (Id "defaultbind") [])
-	   , isSet fFlags 0x100 (Attrib (Id "defaultcollelem") [])
-	   , isSet fFlags 0x10  (Attrib (Id "displaybind") [])
-	   , isSet fFlags 0x40  hiddenAttribute
-	   , isSet fFlags 0x1000 (Attrib (Id "immediatebind") [])
-	   , isSet fFlags 0x400  (Attrib (Id "nonbrowsable") [])
-	   , isSet fFlags 0x800  (Attrib (Id "replaceable") [])
-	   , isSet fFlags 0x8    (Attrib (Id "requestedit") [])
-	   , isSet fFlags 0x1    (Attrib (Id "restricted")  [])
-	   , isSet fFlags 0x2    (Attrib (Id "source") [])
-	   , isSet fFlags 0x200  (Attrib (Id "uidefault") [])
-	   , helpStringAttr     docString
-	   , helpContextAttr    (toInteger hContext)
-	   , helpFileAttr       hString
-	   , helpStringDllAttr  hStringDll
-	   , helpStringCtxtAttr (toInteger hStringContext)
---	   , Just (Attrib (Id "offset") [AttrLit (IntegerLit (ILit 10 (toInteger (memid funcDesc))))])
-	   ] ++ customs
+           [ Just $ Attrib (Id "id") [AttrLit (IntegerLit (ILit 16 mId'))]
+           , isSet fFlags 0x4   (Attrib (Id "bindable") [])
+           , isSet fFlags 0x20  (Attrib (Id "defaultbind") [])
+           , isSet fFlags 0x100 (Attrib (Id "defaultcollelem") [])
+           , isSet fFlags 0x10  (Attrib (Id "displaybind") [])
+           , isSet fFlags 0x40  hiddenAttribute
+           , isSet fFlags 0x1000 (Attrib (Id "immediatebind") [])
+           , isSet fFlags 0x400  (Attrib (Id "nonbrowsable") [])
+           , isSet fFlags 0x800  (Attrib (Id "replaceable") [])
+           , isSet fFlags 0x8    (Attrib (Id "requestedit") [])
+           , isSet fFlags 0x1    (Attrib (Id "restricted")  [])
+           , isSet fFlags 0x2    (Attrib (Id "source") [])
+           , isSet fFlags 0x200  (Attrib (Id "uidefault") [])
+           , helpStringAttr     docString
+           , helpContextAttr    (toInteger hContext)
+           , helpFileAttr       hString
+           , helpStringDllAttr  hStringDll
+           , helpStringCtxtAttr (toInteger hStringContext)
+--         , Just (Attrib (Id "offset") [AttrLit (IntegerLit (ILit 10 (toInteger (memid funcDesc))))])
+           ] ++ customs
 
       level = level' ++ [metName]
 
    is_dispatch  <- checkKind level (funckind funcDesc)
    (params,metType) <- readMethodType iKind level funcDesc typeinfo
-   let cc	 = Just (toCallConv (callconv funcDesc))
+   let cc        = Just (toCallConv (callconv funcDesc))
    let (res_ty, fun_id) =
          case metType of
-	   TyPointer t -> (t, FunId (Pointed [[]] (Id metName)) cc params)
-	   _	       -> (metType, FunId (Id metName) cc params)
+           TyPointer t -> (t, FunId (Pointed [[]] (Id metName)) cc params)
+           _           -> (metType, FunId (Id metName) cc params)
      
    return (Attributed disp_attrs (Operation fun_id res_ty Nothing Nothing))
 
@@ -303,7 +303,7 @@ readDispVar level index typeinfo = do
   metName    <- typeinfo # getMemberName (memid0 varDesc)
   customs    <- typeinfo # getCustomTI
   (libName, docString, hContext, hString, hStringContext, hStringDll) 
-	     <- typeinfo # getHelpAttributesTI (fromIntegral (memid0 varDesc))
+             <- typeinfo # getHelpAttributesTI (fromIntegral (memid0 varDesc))
   propType   <- typeinfo # readElemType (level++[metName]) (elemdescVar varDesc)
   propOffset <- case (iHC_TAG_7 varDesc) of
                  OInst x        -> return x
@@ -314,26 +314,26 @@ readDispVar level index typeinfo = do
       mId'   = toInteger (int32ToWord32 mId)
       prop_attrs = 
          catMaybes
-	   [ Just $ Attrib (Id "id") [AttrLit (IntegerLit (ILit 16 mId'))]
-	   , isSet vFlags 0x1   (Attrib (Id "readonly") [])
-	   , isSet vFlags 0x2   (Attrib (Id "source") [])
-	   , isSet vFlags 0x4   (Attrib (Id "bindable") [])
-	   , isSet vFlags 0x8   (Attrib (Id "requestedit") [])
-	   , isSet vFlags 0x10  (Attrib (Id "displaybind") [])
-	   , isSet vFlags 0x20  (Attrib (Id "defaultbind") [])
-	   , isSet vFlags 0x40  hiddenAttribute
-	   , isSet vFlags 0x80  (Attrib (Id "restricted")  [])
-	   , isSet vFlags 0x100 (Attrib (Id "defaultcollelem") [])
-	   , isSet vFlags 0x200  (Attrib (Id "uidefault") [])
-	   , isSet vFlags 0x400  (Attrib (Id "nonbrowsable") [])
-	   , isSet vFlags 0x800  (Attrib (Id "replaceable") [])
-	   , isSet vFlags 0x1000 (Attrib (Id "immediatebind") [])
-	   , helpStringAttr     docString
-	   , helpContextAttr    (toInteger hContext)
-	   , helpFileAttr       hString
-	   , helpStringDllAttr  hStringDll
-	   , helpStringCtxtAttr (toInteger hStringContext)
-	   ] ++ customs
+           [ Just $ Attrib (Id "id") [AttrLit (IntegerLit (ILit 16 mId'))]
+           , isSet vFlags 0x1   (Attrib (Id "readonly") [])
+           , isSet vFlags 0x2   (Attrib (Id "source") [])
+           , isSet vFlags 0x4   (Attrib (Id "bindable") [])
+           , isSet vFlags 0x8   (Attrib (Id "requestedit") [])
+           , isSet vFlags 0x10  (Attrib (Id "displaybind") [])
+           , isSet vFlags 0x20  (Attrib (Id "defaultbind") [])
+           , isSet vFlags 0x40  hiddenAttribute
+           , isSet vFlags 0x80  (Attrib (Id "restricted")  [])
+           , isSet vFlags 0x100 (Attrib (Id "defaultcollelem") [])
+           , isSet vFlags 0x200  (Attrib (Id "uidefault") [])
+           , isSet vFlags 0x400  (Attrib (Id "nonbrowsable") [])
+           , isSet vFlags 0x800  (Attrib (Id "replaceable") [])
+           , isSet vFlags 0x1000 (Attrib (Id "immediatebind") [])
+           , helpStringAttr     docString
+           , helpContextAttr    (toInteger hContext)
+           , helpFileAttr       hString
+           , helpStringDllAttr  hStringDll
+           , helpStringCtxtAttr (toInteger hStringContext)
+           ] ++ customs
 
 --      propId = mkId metName metName prop_attrs
 
@@ -353,33 +353,33 @@ readAlias i_name level typeAttr typeinfo = do
 #endif
   alias <- typeinfo # readType level (tdescAlias typeAttr)
   (libName, docString, hContext, hString, hStringContext, hStringDll) 
-	<- typeinfo # getHelpAttributesTI (-1)
+        <- typeinfo # getHelpAttributesTI (-1)
   let 
        tFlags = wTypeFlags typeAttr
        gd     = guid typeAttr
        the_uuid_attr
          | gd == nullGUID = Nothing
-	 | otherwise	  = Just (uuidAttribute gd)
+         | otherwise      = Just (uuidAttribute gd)
 
        alias_attrs =
-	 catMaybes
-	   [ Just $ Attrib (Id "public") []
-	   , the_uuid_attr
-	   , helpStringAttr     docString
-	   , helpContextAttr    (toInteger hContext)
-	   , helpFileAttr       hString
-	   , helpStringDllAttr  hStringDll
-	   , helpStringCtxtAttr (toInteger hStringContext)
-	   , isSet tFlags 0x10   hiddenAttribute
-	   , isSet tFlags 0x200  restrictedAttribute
-	   ]
-	   
+         catMaybes
+           [ Just $ Attrib (Id "public") []
+           , the_uuid_attr
+           , helpStringAttr     docString
+           , helpContextAttr    (toInteger hContext)
+           , helpFileAttr       hString
+           , helpStringDllAttr  hStringDll
+           , helpStringCtxtAttr (toInteger hStringContext)
+           , isSet tFlags 0x10   hiddenAttribute
+           , isSet tFlags 0x200  restrictedAttribute
+           ]
+           
        -- the desugarer likes to see the Id as pointed if
        -- the type is, so we'll oblige.
   case alias of
 --    TyPointer t@(TyIface _) -> return (Typedef t alias_attrs [Id i_name])
     TyPointer t -> return (Typedef t alias_attrs [Pointed [[]] (Id i_name)])
-    _		-> return (Typedef alias alias_attrs [Id i_name])
+    _           -> return (Typedef alias alias_attrs [Id i_name])
 
 \end{code}
 
@@ -405,44 +405,44 @@ readEnumValue level index typeinfo = do
   hPutStrLn stderr ("readEnumValue: " ++ show level)
 #endif
   (Just varDesc) <- typeinfo # getVarDesc (fromIntegral index)
-  enumName	 <- typeinfo # getMemberName (memid0 varDesc)
+  enumName       <- typeinfo # getMemberName (memid0 varDesc)
 #ifdef DEBUG
   hPutStrLn stderr ("readEnumValue: " ++ show enumName)
 #endif
   (libName, docString, hContext, hString, hStringContext, hStringDll) 
-	         <- typeinfo # getHelpAttributesTI  (fromIntegral (memid0 varDesc))
-  enumValue	 <- 
+                 <- typeinfo # getHelpAttributesTI  (fromIntegral (memid0 varDesc))
+  enumValue      <- 
     case (varkind varDesc) of
       VAR_CONST   -> do
         case (iHC_TAG_7 varDesc) of
           LpvarValue (Just var) -> do
              vt <- readVarEnum var
-	     case vt of
+             case vt of
                VT_I2     -> readVarInt     (castPtr var)
                VT_I4     -> readVarInt     (castPtr var)
                _         -> do 
-	        giveWarning level ["Expecting integer intializer for enumeration",
+                giveWarning level ["Expecting integer intializer for enumeration",
                                    "assume: " ++ show index]
                 return (fromIntegral index)
           _  -> do
-	      giveWarning level
-		          [ "ImportLib.readEnumValue: unpack unionVARDESC is bogus."
-		          , "Assuming " ++ show index ++ " instead."
-		          ]
-	      return (fromIntegral index)
+              giveWarning level
+                          [ "ImportLib.readEnumValue: unpack unionVARDESC is bogus."
+                          , "Assuming " ++ show index ++ " instead."
+                          ]
+              return (fromIntegral index)
       _      -> do 
          giveWarning (level++[enumName]) ["enumeration tag / constant is not constant!",
                                           "assume: " ++ show index]
          return (fromIntegral index)
   let
    attrs = 
-	catMaybes
-	   [ helpStringAttr     docString
-	   , helpContextAttr    (toInteger hContext)
-	   , helpFileAttr       hString
-	   , helpStringDllAttr  hStringDll
-	   , helpStringCtxtAttr (toInteger hStringContext)
-	   ]
+        catMaybes
+           [ helpStringAttr     docString
+           , helpContextAttr    (toInteger hContext)
+           , helpFileAttr       hString
+           , helpStringDllAttr  hStringDll
+           , helpStringCtxtAttr (toInteger hStringContext)
+           ]
 
   return (Id enumName, attrs, Just (Lit (iLit enumValue)))
 
@@ -450,70 +450,70 @@ readEnumValue level index typeinfo = do
 readConst :: Level -> Int -> ITypeInfo a -> IO Defn
 readConst level index typeinfo = do
   (Just varDesc) <- typeinfo # getVarDesc (fromIntegral index)
-  cName	         <- typeinfo # getMemberName (memid0 varDesc)
+  cName          <- typeinfo # getMemberName (memid0 varDesc)
 #ifdef DEBUG
   hPutStrLn stderr ("readConst: " ++ cName)
 #endif
   (libName, docString, hContext, hString, hStringContext, hStringDll) 
-	         <- typeinfo # getHelpAttributesTI (-1)
-  customs	 <- typeinfo # getCustomTI
-  (ty,val)	 <- 
+                 <- typeinfo # getHelpAttributesTI (-1)
+  customs        <- typeinfo # getCustomTI
+  (ty,val)       <- 
     case (varkind varDesc) of
       VAR_CONST   -> do
         case (iHC_TAG_7 varDesc) of
           LpvarValue (Just var) -> do
              vt <- readVarEnum var
-	     case vt of
+             case vt of
                VT_I1     -> do
-		  v <- readVarInt (castPtr var)
-		  return (TyApply (TySigned True) TyChar, Lit (iLit v))
+                  v <- readVarInt (castPtr var)
+                  return (TyApply (TySigned True) TyChar, Lit (iLit v))
                VT_I2     -> do
-		  v <- readVarInt (castPtr var)
-		  return (tyInt16, Lit (iLit v))
+                  v <- readVarInt (castPtr var)
+                  return (tyInt16, Lit (iLit v))
                VT_I4     -> do
-	          v <- readVarInt (castPtr var)
-		  return (tyInt32, Lit (iLit v))
+                  v <- readVarInt (castPtr var)
+                  return (tyInt32, Lit (iLit v))
                VT_UI1     -> do
-		  v <- readVarInt (castPtr var)
-		  return (tyWord16, Lit (iLit v))
+                  v <- readVarInt (castPtr var)
+                  return (tyWord16, Lit (iLit v))
                VT_UI2     -> do
-		  v <- readVarInt (castPtr var)
-		  return (tyWord16, Lit (iLit v))
+                  v <- readVarInt (castPtr var)
+                  return (tyWord16, Lit (iLit v))
                VT_UI4     -> do
-	          v <- readVarInt (castPtr var)
-		  return (tyWord32, Lit (iLit v))
-	       VT_LPSTR  -> do
-	          (pbstr,_) <- readVarString  (castPtr var)
+                  v <- readVarInt (castPtr var)
+                  return (tyWord32, Lit (iLit v))
+               VT_LPSTR  -> do
+                  (pbstr,_) <- readVarString  (castPtr var)
                   str       <- readBSTR (castPtr pbstr)
-		  return (tyString, Lit (StringLit str))
-	       VT_BSTR  -> do
-	          (pbstr,_) <- readVarString  (castPtr var)
+                  return (tyString, Lit (StringLit str))
+               VT_BSTR  -> do
+                  (pbstr,_) <- readVarString  (castPtr var)
                   str       <- readBSTR (castPtr pbstr)
-		  return (tyString, Lit (StringLit str))
-	       VT_LPWSTR  -> do
-	          (pbstr,_) <- readVarString  (castPtr var)
+                  return (tyString, Lit (StringLit str))
+               VT_LPWSTR  -> do
+                  (pbstr,_) <- readVarString  (castPtr var)
                   str       <- readBSTR (castPtr pbstr)
-		  return (tyString, Lit (StringLit str)) -- ToDo: fix.
+                  return (tyString, Lit (StringLit str)) -- ToDo: fix.
                VT_BOOL   -> do
-		  v <- readVarBool var
-		  return (tyVariantBool, Lit (BooleanLit v))
+                  v <- readVarBool var
+                  return (tyVariantBool, Lit (BooleanLit v))
                _         -> do 
-	        giveWarning level ["Expecting integer intializer for enumeration (found: " ++ 
-				     show (fromEnum vt) ++ ")",
+                giveWarning level ["Expecting integer intializer for enumeration (found: " ++ 
+                                     show (fromEnum vt) ++ ")",
                                    "assume : " ++ show index]
                 return (tyInt32, Lit (iLit index))
           _  -> do
-	      giveWarning level
-		          [ "ImportLib.readConst: unpack unionVARDESC is 'odd'."
-		          , "Assuming " ++ show index ++ " (signed long) instead."
-		          ]
-	      -- Anything to avoid stopping (the user can patch up the output
-	      -- instead!)
-	      return (tyInt32, Lit (iLit index))
+              giveWarning level
+                          [ "ImportLib.readConst: unpack unionVARDESC is 'odd'."
+                          , "Assuming " ++ show index ++ " (signed long) instead."
+                          ]
+              -- Anything to avoid stopping (the user can patch up the output
+              -- instead!)
+              return (tyInt32, Lit (iLit index))
       _      -> do 
          giveWarning (level++[cName]) ["constant is not constant!",
                                        "assume: " ++ show index,
-				       " (signed long)"]
+                                       " (signed long)"]
          return (tyInt32, Lit (iLit index))
   let
    vFlags = wVarFlags varDesc
@@ -570,18 +570,18 @@ readRecord name level is_struct typeAttr typeinfo = do
    ty = tycon (Just (Id name)) fields Nothing
 
    ret_un_ty = do
-	when (not is_struct)
+        when (not is_struct)
              (giveWarning level ["unions are only partially supported."
                                 ,"if this is an output parameter or a field member,"
                                 ,"make sure to supply the right tag-reader."])
-	return (Typedef ty attrs [Id name])
+        return (Typedef ty attrs [Id name])
     {-
       This special case evaluates remoting unions to pick the inproc
       case. Horrible, but quite convenient.
     -}
   case fields of
      ((_,_,[Id "hInproc"]):(_,_, [Id "hRemote"]):_) 
-	    | not is_struct -> return (Typedef (TyInteger Long) attrs [Id name])
+            | not is_struct -> return (Typedef (TyInteger Long) attrs [Id name])
      _ 
       | name == "_RemotableHandle" -> return (Typedef (TyInteger Long) attrs [Id name])
       | otherwise -> ret_un_ty
@@ -615,8 +615,8 @@ readCoClass name level typeAttr typeinfo = do
   hPutStrLn stderr ("readCoClass: " ++ show name)
 #endif
   (libName, docString, hContext, hString, hStringContext, hStringDll) 
-	<- typeinfo # getHelpAttributesTI (-1)
-  customs	    <- typeinfo # getCustomTI
+        <- typeinfo # getHelpAttributesTI (-1)
+  customs           <- typeinfo # getCustomTI
   let
    tFlags = wTypeFlags typeAttr
 
@@ -648,20 +648,20 @@ readCoClass name level typeAttr typeinfo = do
      tk   <- tpl      # getTypeInfoType nIndex
      v    <- typeinfo # getImplTypeFlags (fromIntegral n)
      ~(Just tA) <- tp # getTypeAttr
-     nm   <- tp	      # getMemberName (-1)
+     nm   <- tp       # getMemberName (-1)
      let
        i_attrs = 
          catMaybes
-	   [ isSet v 1	    (Attrib (Id "default") [])
-	   , isSet v 2	    (Attrib (Id "source") [])
-	   , isSet v 4	    restrictedAttribute
-	   , isSet v 0x800  (Attrib (Id "defaultvtable") [])
-	   ]
+           [ isSet v 1      (Attrib (Id "default") [])
+           , isSet v 2      (Attrib (Id "source") [])
+           , isSet v 4      restrictedAttribute
+           , isSet v 0x800  (Attrib (Id "defaultvtable") [])
+           ]
 
        kind =
-	case tk of
+        case tk of
           TKIND_DISPATCH | not (dualBitSet (wTypeFlags tA)) -> False
-	  _  -> True
+          _  -> True
 
      return (Just (kind, Id nm, i_attrs)))
     (\ _ -> do
@@ -678,9 +678,9 @@ readCoClass name level typeAttr typeinfo = do
 readModule :: Name -> Level -> TYPEATTR -> ITypeInfo a -> IO Defn
 readModule name level typeAttr typeinfo = do
   methods  <- mapM (\ x -> typeinfo # readMethod level x True)
-  		   [0..(fromIntegral (cFuncs typeAttr) - 1)]
+                   [0..(fromIntegral (cFuncs typeAttr) - 1)]
   (libName, docString, hContext, hString, hStringContext, hStringDll) 
-	   <- typeinfo # getHelpAttributesTI (-1)
+           <- typeinfo # getHelpAttributesTI (-1)
   customs  <- typeinfo # getCustomTI
   flg      <- (typeinfo # getImplTypeFlags (-1)) `catch` \ _ -> return 0
   consts   <- mapM ((typeinfo # ).readConst level) [0..((fromIntegral (cVars typeAttr))-1)]
@@ -689,13 +689,13 @@ readModule name level typeAttr typeinfo = do
      getDllName (x:xs) =
        catch
          (do { (a,b,c) <- typeinfo # getDllEntry 0x60000000 x ; return a })
-	 (\ _ -> getDllName xs)       
+         (\ _ -> getDllName xs)       
 
      invs = [ INVOKE_FUNC
             , INVOKE_PROPERTYGET
             , INVOKE_PROPERTYPUT
             , INVOKE_PROPERTYPUTREF
-	    ]
+            ]
          
   dll_name <- getDllName invs
   let
@@ -703,15 +703,15 @@ readModule name level typeAttr typeinfo = do
 
     module_attrs = 
       (catMaybes $
-	 [ Just $ Attrib (Id "dllname") [AttrLit (StringLit dll_name)]
-	 , Just $ uuidAttribute (guid typeAttr)
+         [ Just $ Attrib (Id "dllname") [AttrLit (StringLit dll_name)]
+         , Just $ uuidAttribute (guid typeAttr)
          , helpStringAttr     docString
          , helpContextAttr    (toInteger hContext)
          , helpFileAttr       hString
          , helpStringDllAttr  hStringDll
          , helpStringCtxtAttr (toInteger hStringContext)
          , isSet tFlags 16   hiddenAttribute
-	 ]) ++ customs
+         ]) ++ customs
  
   return (Attributed module_attrs $ Module (Id name) (concat methods ++ consts))
 
@@ -746,48 +746,48 @@ readInterface name level typeAttr typeinfo = do
   hPutStrLn stderr ("readInterface: " ++ show name)
 #endif
   (libName, docString, hContext, hString, hStringContext, hStringDll) 
-	<- typeinfo # getHelpAttributesTI (-1)
+        <- typeinfo # getHelpAttributesTI (-1)
   methods <- mapM (\ x -> typeinfo # readMethod level x False)
-  		  [0..(fromIntegral (cFuncs typeAttr) - 1)]
+                  [0..(fromIntegral (cFuncs typeAttr) - 1)]
     -- figure out who it inherits from.
   iherit  <- (do
-	hr	        <- typeinfo  # getRefTypeOfImplType 0 
-	itypeinfo       <- typeinfo  # getRefTypeInfo hr
-	nm	        <- itypeinfo # getMemberName (-1)
+        hr              <- typeinfo  # getRefTypeOfImplType 0 
+        itypeinfo       <- typeinfo  # getRefTypeInfo hr
+        nm              <- itypeinfo # getMemberName (-1)
         (typelib,_)     <- itypeinfo # getContainingTypeLib
         ~(Just libAttr) <- typelib   # getLibAttr
-        rpath	        <- 
-	    catch
-	          (queryPathOfRegTypeLib (guid1 libAttr) 
-				         (wMajorVerNum0 libAttr)
-				         (wMinorVerNum0 libAttr))
-		  (\ _ -> return "")
+        rpath           <- 
+            catch
+                  (queryPathOfRegTypeLib (guid1 libAttr) 
+                                         (wMajorVerNum0 libAttr)
+                                         (wMinorVerNum0 libAttr))
+                  (\ _ -> return "")
         when (notNull rpath) $ do
             rs <- readIORef libs_seen_ref
             case rpath `elem` rs of
              False -> writeIORef libs_seen_ref (rpath:rs)
-	     True  -> return ()
-	return nm
+             True  -> return ()
+        return nm
       ) `catch` \ _ -> return "IUnknown"
   customs <- typeinfo # getCustomTI
   let
     tFlags    = wTypeFlags typeAttr
 
     meth_attr =
-	catMaybes
-	  [ Just (Attrib (Id "odl") [])
-	  , Just (uuidAttribute (guid typeAttr))
-	  , isSet tFlags 0x40 (Attrib (Id "dual") [])
-	  , isSet tFlags 0x10 hiddenAttribute
-	  , isSet tFlags 0x80  (Attrib (Id "nonextensible") [])
-	  , isSet tFlags 0x100 (Attrib (Id "oleautomation") [])
-	  , isSet tFlags 0x200 restrictedAttribute
+        catMaybes
+          [ Just (Attrib (Id "odl") [])
+          , Just (uuidAttribute (guid typeAttr))
+          , isSet tFlags 0x40 (Attrib (Id "dual") [])
+          , isSet tFlags 0x10 hiddenAttribute
+          , isSet tFlags 0x80  (Attrib (Id "nonextensible") [])
+          , isSet tFlags 0x100 (Attrib (Id "oleautomation") [])
+          , isSet tFlags 0x200 restrictedAttribute
           , helpStringAttr     docString
           , helpContextAttr    (toInteger hContext)
           , helpFileAttr       hString
           , helpStringDllAttr  hStringDll
           , helpStringCtxtAttr (toInteger hStringContext)
-	  ] ++ customs
+          ] ++ customs
 
   return (Attributed meth_attr $ Interface (Id name) [iherit] (concat methods))
 
@@ -805,7 +805,7 @@ readMethod level' index in_module typeinfo = do
 #endif
   ~(Just funcDesc)  <- typeinfo # getFuncDesc   (fromIntegral index)
   r@(libName, docString, hContext, hString, hStringContext, hStringDll) 
-	<- typeinfo # getHelpAttributesTI (fromIntegral (memid funcDesc))
+        <- typeinfo # getHelpAttributesTI (fromIntegral (memid funcDesc))
 #ifdef DEBUG
   hPutStrLn stderr ("readMethod3: " ++ show docString)
 #endif
@@ -813,8 +813,8 @@ readMethod level' index in_module typeinfo = do
 #ifdef DEBUG
   hPutStrLn stderr ("readMethod4: " ++ show metName)
 #endif
---  ~(Just varDesc)   <- typeinfo # getVarDesc	(fromIntegral index)
-  customs	    <- typeinfo # getCustomTI
+--  ~(Just varDesc)   <- typeinfo # getVarDesc  (fromIntegral index)
+  customs           <- typeinfo # getCustomTI
   let
       fId      = memid funcDesc
       fId'     = toInteger (int32ToWord32 fId)
@@ -823,13 +823,13 @@ readMethod level' index in_module typeinfo = do
   cons_entry        <- 
        if not in_module then
           return id
-	else do
+        else do
            (dname, nm, ord) <- typeinfo # getDllEntry fId iKind
-	   let dllname   = Attrib (Id "dllname") [AttrLit (StringLit dname)]
-	       entry_a v = Attrib (Id "entry") [AttrLit v]
-	   case nm of
-	     "" -> return (\ x -> dllname : entry_a (IntegerLit (ILit 10 (toInteger ord))) : x)
-	     _  -> return (\ x -> dllname : entry_a (StringLit nm) : x)
+           let dllname   = Attrib (Id "dllname") [AttrLit (StringLit dname)]
+               entry_a v = Attrib (Id "entry") [AttrLit v]
+           case nm of
+             "" -> return (\ x -> dllname : entry_a (IntegerLit (ILit 10 (toInteger ord))) : x)
+             _  -> return (\ x -> dllname : entry_a (StringLit nm) : x)
   let level = level' ++ [metName]
 
       fFlags   = wFuncFlags funcDesc
@@ -837,27 +837,27 @@ readMethod level' index in_module typeinfo = do
       id_nm    = "id"
 
       metAttrs =
-	 cons_entry $
-	 ((Attrib (Id id_nm) [AttrLit (IntegerLit (ILit 16 fId'))]):) $
-	 (case iKind of
-	   INVOKE_FUNC -> id
-	   INVOKE_PROPERTYGET -> ((Attrib (Id "propget") []):)
-	   INVOKE_PROPERTYPUT -> ((Attrib (Id "propput") []):)
-	   INVOKE_PROPERTYPUTREF -> ((Attrib (Id "propputref") []):)) $
+         cons_entry $
+         ((Attrib (Id id_nm) [AttrLit (IntegerLit (ILit 16 fId'))]):) $
+         (case iKind of
+           INVOKE_FUNC -> id
+           INVOKE_PROPERTYGET -> ((Attrib (Id "propget") []):)
+           INVOKE_PROPERTYPUT -> ((Attrib (Id "propput") []):)
+           INVOKE_PROPERTYPUTREF -> ((Attrib (Id "propputref") []):)) $
          catMaybes
-	   [ isSet fFlags 0x100 (Attrib (Id "defaultcollelem") [])
-	   , isSet fFlags 0x40  hiddenAttribute
-	   , isSet fFlags 0x800 (Attrib (Id "replaceable") [])
-	   , isSet fFlags 0x2   (Attrib (Id "source") [])
-	   , isSet fFlags 0x200 (Attrib (Id "uidefault") [])
-	   , isSet fFlags 0x1   (Attrib (Id "restricted") [])
+           [ isSet fFlags 0x100 (Attrib (Id "defaultcollelem") [])
+           , isSet fFlags 0x40  hiddenAttribute
+           , isSet fFlags 0x800 (Attrib (Id "replaceable") [])
+           , isSet fFlags 0x2   (Attrib (Id "source") [])
+           , isSet fFlags 0x200 (Attrib (Id "uidefault") [])
+           , isSet fFlags 0x1   (Attrib (Id "restricted") [])
            , helpStringAttr     docString
            , helpContextAttr    (toInteger hContext)
            , helpFileAttr       hString
            , helpStringDllAttr  hStringDll
            , helpStringCtxtAttr (toInteger hStringContext)
---	   , Just $ Attrib (Id "offset") [AttrLit (IntegerLit (ILit 10 (toInteger (oVft funcDesc))))]
-	   ] ++ customs
+--         , Just $ Attrib (Id "offset") [AttrLit (IntegerLit (ILit 10 (toInteger (oVft funcDesc))))]
+           ] ++ customs
 
   ok         <- checkKind level (funckind funcDesc)
   if (not ok)
@@ -865,11 +865,11 @@ readMethod level' index in_module typeinfo = do
    else do 
      (params, metType) <- typeinfo # readMethodType iKind level funcDesc
      let 
-	 cc = Just (toCallConv (callconv funcDesc))
+         cc = Just (toCallConv (callconv funcDesc))
          (res_ty, fun_id) =
            case metType of
-	    TyPointer t -> (t, FunId (Pointed [[]] (Id metName)) cc params)
-	    _	        -> (metType, FunId (Id metName) cc params)
+            TyPointer t -> (t, FunId (Pointed [[]] (Id metName)) cc params)
+            _           -> (metType, FunId (Id metName) cc params)
 
      return [Attributed metAttrs (Operation fun_id res_ty Nothing Nothing)]
  where
@@ -877,9 +877,9 @@ readMethod level' index in_module typeinfo = do
     case kind of
       FUNC_NONVIRTUAL -> do 
          giveWarning level ["cannot translate non-virtual functions"]
-	 return False
-	-- The rest can be handled, but let's just spell it out what
-	-- kinds they are..
+         return False
+        -- The rest can be handled, but let's just spell it out what
+        -- kinds they are..
       FUNC_VIRTUAL     -> return True
       FUNC_PUREVIRTUAL -> return True
       FUNC_STATIC      -> return True -- Legal inside module decls
@@ -911,7 +911,7 @@ readMethodType iKind level funcDesc typeinfo = do
   hPutStrLn stderr ("readMethodType2: " ++ show (showIDL (ppType metType)))
 #endif
   let no_params = fromIntegral $ length (lprgelemdescParam funcDesc)  + 1
-  parnames'	<- typeinfo # getNames (memid funcDesc) no_params
+  parnames'     <- typeinfo # getNames (memid funcDesc) no_params
 #ifdef DEBUG
   hPutStrLn stderr ("readMethodType3: " ++ show parnames')
 #endif
@@ -926,11 +926,11 @@ readMethodType iKind level funcDesc typeinfo = do
   return (params, metType)
 
 readParam :: INVOKEKIND
-	  -> Name
-	  -> Level 
+          -> Name
+          -> Level 
           -> ELEMDESC 
-	  -> ITypeInfo a
-	  -> IO Param
+          -> ITypeInfo a
+          -> IO Param
 readParam iKind name level elemDesc typeinfo = do
   partp   <- typeinfo # readElemType level elemDesc
   customs <- typeinfo # getCustomTI
@@ -939,93 +939,93 @@ readParam iKind name level elemDesc typeinfo = do
       pFlags = wParamFlags pdesc
       inout  = pARAMFLAG_FIN .|. pARAMFLAG_FOUT
 
-      parMode  | pFlags .&. inout	   == inout	     = InOut
+      parMode  | pFlags .&. inout          == inout          = InOut
                | pFlags .&. pARAMFLAG_FIN  == pARAMFLAG_FIN  = In
                | pFlags .&. pARAMFLAG_FOUT == pARAMFLAG_FOUT = Out
                | otherwise = 
-	        (\ x -> unsafePerformIO $ do
-			when (optDebug) (giveWarning level ["non-moded parameter seen, " ++ 
-							    name ++", assuming [" ++ show x ++ "]"])
-			return x) $
-		    {-
-		      A little bit of (hard won) AI..
-		    -}
-		   case iKind of
-		     INVOKE_PROPERTYGET | isPointed -> Out
-		     _ 
-		       | isRetVal  -> Out
-		       | otherwise -> In
+                (\ x -> unsafePerformIO $ do
+                        when (optDebug) (giveWarning level ["non-moded parameter seen, " ++ 
+                                                            name ++", assuming [" ++ show x ++ "]"])
+                        return x) $
+                    {-
+                      A little bit of (hard won) AI..
+                    -}
+                   case iKind of
+                     INVOKE_PROPERTYGET | isPointed -> Out
+                     _ 
+                       | isRetVal  -> Out
+                       | otherwise -> In
 
       isPointed = 
         case partp of
-	  TyPointer _ -> True
-	  TyArray _ _ -> True
-	  TyIface _   -> True
-	  _           -> False
+          TyPointer _ -> True
+          TyArray _ _ -> True
+          TyIface _   -> True
+          _           -> False
 
       isRetVal  = pFlags .&. pARAMFLAG_FRETVAL == pARAMFLAG_FRETVAL
 
   defVal <-
         case pparamdescex pdesc of
-	  Nothing -> return Nothing
-	  Just pd -> do
-	    let var = varDefaultValue pd
-	    vt       <- readVarEnum var
-	    case vt of
+          Nothing -> return Nothing
+          Just pd -> do
+            let var = varDefaultValue pd
+            vt       <- readVarEnum var
+            case vt of
                VT_I1     -> do
-		  v <- readVarInt var
-		  return (Just (iLit v))
+                  v <- readVarInt var
+                  return (Just (iLit v))
                VT_BOOL   -> do
-		  v <- readVarBool var
-		  return (Just (BooleanLit v))
+                  v <- readVarBool var
+                  return (Just (BooleanLit v))
                VT_I2     -> do
-		  v <- readVarInt var
-		  return (Just (iLit v))
+                  v <- readVarInt var
+                  return (Just (iLit v))
                VT_I4     -> do
-	          v <- readVarInt var
-		  return (Just (iLit v))
+                  v <- readVarInt var
+                  return (Just (iLit v))
                VT_UI1     -> do
-		  v <- readVarInt var
-		  return (Just (iLit v))
+                  v <- readVarInt var
+                  return (Just (iLit v))
                VT_UI2     -> do
-		  v <- readVarInt var
-		  return (Just (iLit v))
+                  v <- readVarInt var
+                  return (Just (iLit v))
                VT_UI4     -> do
-	          v <- readVarInt var
-		  return (Just (iLit v))
+                  v <- readVarInt var
+                  return (Just (iLit v))
                VT_R4     -> do
-	          v <- readVarFloat var
-		  return (Just (FloatingLit (show v, floatToDouble v)))
+                  v <- readVarFloat var
+                  return (Just (FloatingLit (show v, floatToDouble v)))
                VT_R8     -> do
-	          v <- readVarDouble var
-		  return (Just (FloatingLit (show v,v)))
-	       VT_LPSTR  -> do
-	          (pbstr,_) <- readVarString  var
+                  v <- readVarDouble var
+                  return (Just (FloatingLit (show v,v)))
+               VT_LPSTR  -> do
+                  (pbstr,_) <- readVarString  var
                   str       <- readBSTR (castPtr pbstr)
-		  return (Just (StringLit str))
-	       VT_BSTR  -> do
-	          (pbstr,_) <- readVarString  var
+                  return (Just (StringLit str))
+               VT_BSTR  -> do
+                  (pbstr,_) <- readVarString  var
                   str       <- readBSTR (castPtr pbstr)
-		  return (Just (StringLit str))
-	       VT_LPWSTR  -> do
-	          (pbstr,_) <- readVarString  var
+                  return (Just (StringLit str))
+               VT_LPWSTR  -> do
+                  (pbstr,_) <- readVarString  var
                   str       <- readBSTR (castPtr pbstr)
-		  return (Just (StringLit str)) -- ToDo: fix.
-	       _ -> 
-		catch (do
-	         (pbstr,_) <- readVarString  var
+                  return (Just (StringLit str)) -- ToDo: fix.
+               _ -> 
+                catch (do
+                 (pbstr,_) <- readVarString  var
                  str       <- readBSTR (castPtr pbstr)
-		 return (Just (StringLit str)))
-		 (\ _ -> return Nothing)
+                 return (Just (StringLit str)))
+                 (\ _ -> return Nothing)
   let
       par_attrs =
-	catMaybes
-	 [ Just $ Mode parMode
-	 , isSet   pFlags pARAMFLAG_FRETVAL	retValAttribute
-	 , isSet   pFlags pARAMFLAG_FOPT	optionalAttribute
-	 , isSetMb pFlags pARAMFLAG_FHASDEFAULT	(defaultAttribute defVal)
-	 , isSet   pFlags pARAMFLAG_FLCID	lcidAttribute
-	 ] ++ customs
+        catMaybes
+         [ Just $ Mode parMode
+         , isSet   pFlags pARAMFLAG_FRETVAL     retValAttribute
+         , isSet   pFlags pARAMFLAG_FOPT        optionalAttribute
+         , isSetMb pFlags pARAMFLAG_FHASDEFAULT (defaultAttribute defVal)
+         , isSet   pFlags pARAMFLAG_FLCID       lcidAttribute
+         ] ++ customs
 
       parType  = partp
                               
@@ -1047,9 +1047,9 @@ readParam iKind name level elemDesc typeinfo = do
 
 \begin{code}
 readElemType :: Level 
-	     -> ELEMDESC 
-	     -> ITypeInfo a
-	     -> IO Type
+             -> ELEMDESC 
+             -> ITypeInfo a
+             -> IO Type
 readElemType level elemDesc typeinfo = typeinfo # readType level (tdesc elemDesc) 
 
 readType :: Level -> TYPEDESC -> ITypeInfo a -> IO Type
@@ -1085,29 +1085,29 @@ readType level typeDesc typeinfo = do
     VT_PTR     -> do
       tp <- case (iHC_TAG_1 typeDesc) of
               Lptdesc (Just td) -> typeinfo # readType level td 
-	      Lpadesc _	        -> ioError (userError "ImportLib.readType: arraydesc, what to do?")
-	      Hreftype href     -> typeinfo # trackType level href
+              Lpadesc _         -> ioError (userError "ImportLib.readType: arraydesc, what to do?")
+              Hreftype href     -> typeinfo # trackType level href
               _                 -> ioError (userError "ImportLib.readType: anon - que pasa?")
       case tp of
-        TyArray t []	   -> return (TyPointer t) -- Don't like this.
+        TyArray t []       -> return (TyPointer t) -- Don't like this.
         _                  -> return (TyPointer tp)
 
     VT_CARRAY   -> do
-		case (iHC_TAG_1 typeDesc) of
+                case (iHC_TAG_1 typeDesc) of
                      Lpadesc (Just ad) -> do
-			  elemType <- typeinfo # readType level (tdescElem ad) 
+                          elemType <- typeinfo # readType level (tdescElem ad) 
                           let bounds = rgbounds ad
-			      exprs  = map (Lit . iLit . cElements) bounds
-			  case elemType of
-			    TyChar | length exprs == 1 -> return (TyPointer TyChar) -- hack (but a convenient one!) :)
-			    _      -> return (TyArray elemType exprs)
+                              exprs  = map (Lit . iLit . cElements) bounds
+                          case elemType of
+                            TyChar | length exprs == 1 -> return (TyPointer TyChar) -- hack (but a convenient one!) :)
+                            _      -> return (TyArray elemType exprs)
                                            
-	             Lpadesc _	      -> 
-				ioError (userError "ImportLib.readType{carray}: arraydesc, what to do?")
-	             Hreftype href    -> 
-				typeinfo # trackType level href
-                     _		      -> 
-				ioError (userError "ImportLib.readType{carray}: anon - que pasa?")
+                     Lpadesc _        -> 
+                                ioError (userError "ImportLib.readType{carray}: arraydesc, what to do?")
+                     Hreftype href    -> 
+                                typeinfo # trackType level href
+                     _                -> 
+                                ioError (userError "ImportLib.readType{carray}: anon - que pasa?")
 
     VT_USERDEFINED  ->
        case (iHC_TAG_1 typeDesc) of
@@ -1119,15 +1119,15 @@ readType level typeDesc typeinfo = do
     VT_DISPATCH ->  return (TyPointer tyIDispatch)
     VT_VARIANT  ->  return tyVARIANT
     VT_SAFEARRAY -> 
-		case (iHC_TAG_1 typeDesc) of
+                case (iHC_TAG_1 typeDesc) of
                      Lpadesc (Just ad) -> do
-			  elemType <- typeinfo # readType level (tdescElem ad) 
+                          elemType <- typeinfo # readType level (tdescElem ad) 
                           return (tySafeArray elemType)
-	             Lptdesc (Just td) -> do
-				elemType <- typeinfo # readType level td
-				return (tySafeArray elemType)
-	             Hreftype href    -> 
-				typeinfo # trackType level href
+                     Lptdesc (Just td) -> do
+                                elemType <- typeinfo # readType level td
+                                return (tySafeArray elemType)
+                     Hreftype href    -> 
+                                typeinfo # trackType level href
                      _  -> ioError (userError "ImportLib.readType{sarray}: unpack unionTYPEDESC.lpadesc error")
 
     VT_CY    -> return tyCURRENCY
@@ -1144,7 +1144,7 @@ readType level typeDesc typeinfo = do
     VT_STREAMED_OBJECT -> errtype "streamed object"
     VT_STORED_OBJECT   -> errtype "stored object"
     VT_BLOB_OBJECT     -> errtype "BLOB object"
-    _	               -> errtype "Unknown"
+    _                  -> errtype "Unknown"
 
    where
     errtype msg  = do 
@@ -1156,41 +1156,41 @@ trackType level href typeinfo = catch (do
   typeinfoRef     <- typeinfo    # getRefTypeInfo href
   (typelib,index) <- typeinfoRef # getContainingTypeLib
   ~(Just libAttr) <- typelib     # getLibAttr
-  rpath		  <- 
-	catch
-	   (queryPathOfRegTypeLib (guid1 libAttr) 
-				  (wMajorVerNum0 libAttr)
-				  (wMinorVerNum0 libAttr))
-	   (\ _ -> return "")
+  rpath           <- 
+        catch
+           (queryPathOfRegTypeLib (guid1 libAttr) 
+                                  (wMajorVerNum0 libAttr)
+                                  (wMinorVerNum0 libAttr))
+           (\ _ -> return "")
   when (notNull rpath) $ do
       rs <- readIORef libs_seen_ref
       case rpath `elem` rs of
         False -> writeIORef libs_seen_ref (rpath:rs)
-	True  -> return ()
+        True  -> return ()
   (Just typeAttr) <- typeinfoRef # getTypeAttr
   case (typekind typeAttr) of
     TKIND_ENUM    -> do
          ename   <- typelib # typeNamed (fromIntegral index)
-	 return (TyName ename Nothing)
+         return (TyName ename Nothing)
     TKIND_RECORD  -> do
          sname   <- typelib # typeNamed (fromIntegral index)
-	 return (TyName sname Nothing)
+         return (TyName sname Nothing)
     TKIND_UNION   -> do 
       uname  <- typelib # typeNamed (fromIntegral index)
       fields <- mapM ((typeinfoRef # ).readMember level) [0..((fromIntegral (cVars typeAttr)) -1)]
       let
-	{-
-	 This special case evaluates remoting unions to pick the inproc
-	 case. Horrible, but quite convenient.
-	-}
+        {-
+         This special case evaluates remoting unions to pick the inproc
+         case. Horrible, but quite convenient.
+        -}
         ret_un_ty = do
           giveWarning level ["unions are only partially supported.",
                              "if this is an output parameter or a field member,",
                              "make sure to supply the right tag-reader."]
-	  return (TyName uname (Just (TyCUnion (Just (Id ("tag"++uname))) fields Nothing)))
+          return (TyName uname (Just (TyCUnion (Just (Id ("tag"++uname))) fields Nothing)))
       case fields of
-	((_,_,[Id "hInproc"]):(_,_, [Id "hRemote"]):_) -> return (TyInteger Long)
-	_ -> ret_un_ty
+        ((_,_,[Id "hInproc"]):(_,_, [Id "hRemote"]):_) -> return (TyInteger Long)
+        _ -> ret_un_ty
 
     TKIND_INTERFACE -> do
       iname   <- typelib # typeNamed (fromIntegral index)
@@ -1200,31 +1200,31 @@ trackType level href typeinfo = catch (do
       cname   <- typelib # typeNamed (fromIntegral index)
        {-
          Life is never boring when you're writing a typelib reader...
-	 Some typelibs contain types that refer to the coclass, which
-	 doesn't make much sense, so we pick the [default] interface
-	 of the class and use that as the type.
+         Some typelibs contain types that refer to the coclass, which
+         doesn't make much sense, so we pick the [default] interface
+         of the class and use that as the type.
        -}
       cocl    <- typeinfoRef # readCoClass cname level typeAttr
       let 
         (Attributed _ (CoClass _ mems)) = cocl
         iname = 
-	 case filter (isDefaultIface) mems of
-	   [] -> cname
-	   ((_, Id i, _):_) -> i
+         case filter (isDefaultIface) mems of
+           [] -> cname
+           ((_, Id i, _):_) -> i
 
-	isDefaultIface (_,_,attrs) =
-	   hasAName "default" attrs && not (hasAName "source" attrs)
+        isDefaultIface (_,_,attrs) =
+           hasAName "default" attrs && not (hasAName "source" attrs)
 
         hasAName _  [] = False
-	hasAName nm ((Attrib (Id i) _):ls) = i == nm || hasAName nm ls
-	hasAName nm (_:xs) = hasAName nm xs
+        hasAName nm ((Attrib (Id i) _):ls) = i == nm || hasAName nm ls
+        hasAName nm (_:xs) = hasAName nm xs
 
       return (TyIface iname) --(TyPointer (TyIface iname))
     TKIND_DISPATCH  -> do
       iname   <- typelib # typeNamed (fromIntegral index)
       return (TyIface iname) --(TyPointer (TyIface iname))
     TKIND_ALIAS     -> do 
-      nm	<- typelib     # typeNamed (fromIntegral index)
+      nm        <- typelib     # typeNamed (fromIntegral index)
       aliasType <- typeinfoRef # readType level (tdescAlias typeAttr)
       return (TyName nm (Just aliasType))
     _ -> do 
@@ -1267,33 +1267,33 @@ getHelpAttributesTI index typeinfo = do
   (hStringContext, hStringDll) <-
       catch 
        ( do
-	  typeinfo2 <- typeinfo # queryInterface iidITypeInfo2
-	  (_,ctxt, dlln) <- typeinfo2 # getDocumentation2 (-1) lOCALE_USER_DEFAULT
-	  return (ctxt, dlln))
+          typeinfo2 <- typeinfo # queryInterface iidITypeInfo2
+          (_,ctxt, dlln) <- typeinfo2 # getDocumentation2 (-1) lOCALE_USER_DEFAULT
+          return (ctxt, dlln))
        ( \ _ -> return (0,""))
   return (libName, docString, hContext, hString, hStringContext, hStringDll)
 
 getCustomTL :: ITypeLib a -> IO [Attribute]
 getCustomTL typelib = do
   citems <- 
-	catch
-	   (do 
-	      typelib2 <- typelib # queryInterface iidITypeLib2
-	      (TagCUSTDATA cs) <- typelib2 # getAllCustDataTL
-	      return cs)
-	   (\ _ -> return [])
+        catch
+           (do 
+              typelib2 <- typelib # queryInterface iidITypeLib2
+              (TagCUSTDATA cs) <- typelib2 # getAllCustDataTL
+              return cs)
+           (\ _ -> return [])
 
   mapM toCustom citems
 
 getCustomTI :: ITypeInfo a -> IO [Attribute]
 getCustomTI itypeinfo = do
   citems <- 
-	catch
-	   (do 
-	      itypeinfo2 <- itypeinfo # queryInterface iidITypeInfo2
-	      (TagCUSTDATA cs) <- itypeinfo2 # getAllCustData
-	      return cs)
-	   (\ _ -> return [])
+        catch
+           (do 
+              itypeinfo2 <- itypeinfo # queryInterface iidITypeInfo2
+              (TagCUSTDATA cs) <- itypeinfo2 # getAllCustData
+              return cs)
+           (\ _ -> return [])
   mapM toCustom citems
 
 toCustom :: CUSTDATAITEM -> IO Attribute
@@ -1301,8 +1301,8 @@ toCustom ci = do
     (pstr,_) <- readVarString (varValue ci)
     str      <- readBSTR (castPtr pstr)
     return (Attrib (Id "custom") [ AttrLit (GuidLit [show (guid0 ci)])
-			         , AttrLit (StringLit str)
-			         ])
+                                 , AttrLit (StringLit str)
+                                 ])
 
 \end{code}
 
@@ -1325,17 +1325,17 @@ giveWarning level msg =
 isSet :: (Eq a, Bits a) => a -> a -> b -> Maybe b
 isSet val flag yes 
   | val .&. flag == flag = Just yes
-  | otherwise		 = Nothing
+  | otherwise            = Nothing
 
 isSetMb :: (Eq a, Bits a) => a -> a -> Maybe b -> Maybe b
 isSetMb val flag yes 
   | val .&. flag == flag = yes
-  | otherwise		 = Nothing
+  | otherwise            = Nothing
 
 isn'tSet :: (Num a, Eq a, Bits a) => a -> a -> b -> Maybe b
 isn'tSet val flag no 
   | val .&. flag == 0 = Just no
-  | otherwise	      = Nothing
+  | otherwise         = Nothing
 
 uuidAttribute :: Com.GUID -> Attribute
 uuidAttribute g  = Attrib (Id "uuid")  [AttrLit (LitLit g_sans_braces)]

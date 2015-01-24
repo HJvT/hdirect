@@ -8,25 +8,25 @@ exposes them via a COM-like interface.
 \begin{code}
 {-# OPTIONS -#include "ComDll_stub.h" -#include <windows.h> -#include "Registry.h" #-}
 module ComDll
-	(  
-	   ComponentInfo(..)
-	,  mkComponentInfo
-	,  withComponentName
-	,  withProgID
-	,  withVerIndepProgID
-	,  onRegister
-	,  onFinalize
-	,  hasTypeLib
+        (  
+           ComponentInfo(..)
+        ,  mkComponentInfo
+        ,  withComponentName
+        ,  withProgID
+        ,  withVerIndepProgID
+        ,  onRegister
+        ,  onFinalize
+        ,  hasTypeLib
 
-	,  createIComDll   -- :: Ptr (){-HMODULE-} -> [ComponentInfo] -> IO
+        ,  createIComDll   -- :: Ptr (){-HMODULE-} -> [ComponentInfo] -> IO
 
-	,  regAddEntry
-	,  regRemoveEntry
-	,  RegHive(..)
-	
-	,  stdRegComponent
-	,  stdUnRegComponent
-	) where
+        ,  regAddEntry
+        ,  regRemoveEntry
+        ,  RegHive(..)
+        
+        ,  stdRegComponent
+        ,  stdUnRegComponent
+        ) where
 
 import ClassFactory
 import Com
@@ -87,9 +87,9 @@ hasTypeLib info = info{componentTLB=True}
 
  -- constructor used to lessen the reliance on concrete rep.
 mkComponentInfo :: CLSID
-		-> (String -> Bool -> IO ())
-		-> (String -> IO () -> IID (IUnknown ()) -> IO (IUnknown ()))
-		-> ComponentInfo
+                -> (String -> Bool -> IO ())
+                -> (String -> IO () -> IID (IUnknown ()) -> IO (IUnknown ()))
+                -> ComponentInfo
 mkComponentInfo cls reg n = ComponentInfo n (return ()) "" "" "" False (\ _ -> reg) cls
 \end{code}
 
@@ -119,8 +119,8 @@ dllGetClassObject comDll rclsid riid ppvObject = do
       Nothing -> return cLASS_E_CLASSNOTAVAILABLE
       Just i  -> do
          ip <- createClassFactory (newInstance i (dllPath comDll) (componentFinalise i))
-	 writeIUnknown False ppvObject ip
-	 return s_OK
+         writeIUnknown False ppvObject ip
+         return s_OK
 
 lookupCLSID :: CLSID -> [ComponentInfo] -> Maybe ComponentInfo
 lookupCLSID clsid cs = find (\ x -> clsidToGUID (componentCLSID x) == guid) cs
@@ -148,8 +148,8 @@ registerServer isReg st = do
    path = dllPath st
    regComponent info
      | not isReg = do
-	 -- give the user-supplied un-reg action the opportunity
-	 -- to delete some entries first.
+         -- give the user-supplied un-reg action the opportunity
+         -- to delete some entries first.
        (registerComponent info) info path isReg
        stdUnRegComponent info True path
      | otherwise = do
@@ -196,17 +196,17 @@ createIComDll hMod components = do
 
 iComDllEntryPoints :: ComDllState -> IO [Ptr ()]
 iComDllEntryPoints state = do
-  addrOf_DllUnload	     <- export_DllUnload   (dllUnload state)
+  addrOf_DllUnload           <- export_DllUnload   (dllUnload state)
   addrOf_DllCanUnloadNow     <- export_nullaryMeth (dllCanUnloadNow state)
   addrOf_DllRegisterServer   <- export_nullaryMeth (dllRegisterServer state)
   addrOf_DllUnregisterServer <- export_nullaryMeth (dllUnregisterServer state)
   addrOf_DllGetClassObject   <- export_dllGetClassObject (dllGetClassObject state)
   return [ addrOf_DllUnload
          , addrOf_DllCanUnloadNow
-	 , addrOf_DllRegisterServer
-	 , addrOf_DllUnregisterServer
-	 , addrOf_DllGetClassObject
-	 ]
+         , addrOf_DllRegisterServer
+         , addrOf_DllUnregisterServer
+         , addrOf_DllGetClassObject
+         ]
 
 foreign export ccall dynamic
    export_DllUnload :: (IO ()) -> IO (Ptr ())
@@ -228,9 +228,9 @@ data RegHive
    deriving ( Eq, Ord, Enum )
 
 regAddEntry :: RegHive
-	    -> String
-	    -> Maybe String
-	    -> IO ()
+            -> String
+            -> Maybe String
+            -> IO ()
 regAddEntry hive path value = do
    m_path  <- marshallString path
    m_value <- marshallMaybe marshallString nullPtr value
@@ -238,10 +238,10 @@ regAddEntry hive path value = do
    checkHR hr
 
 regRemoveEntry :: RegHive
-	       -> String
-	       -> String
-	       -> Bool
-	       -> IO ()
+               -> String
+               -> String
+               -> Bool
+               -> IO ()
 regRemoveEntry hive path value removeKey = do
    m_path  <- marshallString path
    m_value <- marshallString value
@@ -278,9 +278,9 @@ stdRegComponent info isInProc path = do
       -- register the type library; we don't care if it fails, or not.
    when (componentTLB info)
         (catch (loadTypeLibEx path True{-register-} >>= \ p -> p # release >> return ())
-	       (\ _ -> return ()))
+               (\ _ -> return ()))
 
-	-- Add the ProgID entries
+        -- Add the ProgID entries
 
    when (not (null progid))  (regAddEntry HKEY_CLASSES_ROOT (progid  ++ "\\CLSID") (Just clsid_str))
    when (not (null vprogid)) (regAddEntry HKEY_CLASSES_ROOT (vprogid ++ "\\CLSID") (Just clsid_str))
@@ -309,11 +309,11 @@ stdUnRegComponent info isInProc path = do
         -- Remove CLSID\{clsid}\friendly name
    regRemoveEntry HKEY_CLASSES_ROOT "CLSID" clsid_str True
 
-	-- Remove the ProgID entries
+        -- Remove the ProgID entries
    when (not (null progid))  (regRemoveEntry HKEY_CLASSES_ROOT (progid  ++ "\\CLSID") clsid_str False)
    when (not (null progid))  (regRemoveEntry HKEY_CLASSES_ROOT progid  "CLSID"  True)
    when (not (null progid) && not (null vprogid)) 
-			     (regRemoveEntry HKEY_CLASSES_ROOT  progid "CurVer" True)
+                             (regRemoveEntry HKEY_CLASSES_ROOT  progid "CurVer" True)
    when (not (null vprogid)) (regRemoveEntry HKEY_CLASSES_ROOT (vprogid ++ "\\CLSID") clsid_str False)
    when (not (null vprogid)) (regRemoveEntry HKEY_CLASSES_ROOT vprogid  "CLSID" True)
    return ()

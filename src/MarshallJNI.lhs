@@ -9,12 +9,12 @@ Generating marshalling code for Haskell COM servers.
 
 \begin{code}
 module MarshallJNI 
-	( 
-	  cgJNIMethod
-	, cgJNIInterface
-	, cgJNIClass
-	, cgClassNameDecl
-	) where
+        ( 
+          cgJNIMethod
+        , cgJNIInterface
+        , cgJNIClass
+        , cgClassNameDecl
+        ) where
 
 import CoreIDL hiding ( Expr(..), CaseLabel(..) )
 import BasicTypes
@@ -28,7 +28,7 @@ import CgMonad
 import LibUtils
 import PpCore ( showCore, ppType )
 import Opts
-	( optOneModulePerInterface
+        ( optOneModulePerInterface
         )
 
 import Control.Monad ( when )
@@ -82,14 +82,14 @@ mkJNIMethod i iface res params iface_attrs = m_decl
     | isCtor      = mkTyConst jniEnv
     | isInterface = let 
                        tyv = tyVar "a"
-		       nm  = mkHaskellTyConName iface
-		       qnm
-		        | optOneModulePerInterface = mkQualName (Just nm) nm
-			| otherwise		   = mkQualName Nothing nm
-		    in
-		    mkTyCon jObject
-		       [ctxtTyApp (ctxtClass qnm [mkTyCon jObject [tyv]])
-			          tyv]
+                       nm  = mkHaskellTyConName iface
+                       qnm
+                        | optOneModulePerInterface = mkQualName (Just nm) nm
+                        | otherwise                = mkQualName Nothing nm
+                    in
+                    mkTyCon jObject
+                       [ctxtTyApp (ctxtClass qnm [mkTyCon jObject [tyv]])
+                                  tyv]
     | otherwise   = tyQCon Nothing (mkHaskellTyConName iface) [obj_ty_arg]
    where  
     obj_ty_arg
@@ -110,10 +110,10 @@ mkJNIMethod i iface res params iface_attrs = m_decl
 
   invoke_static_args = 
           [ var cls_cls_name
-	  , meth_name
-	  , ty_spec
-	  , tup m_args
-	  ]
+          , meth_name
+          , ty_spec
+          , tup m_args
+          ]
 
   ty_spec
    | isGetField = stringLit (toTyDesc (resultType res))
@@ -154,9 +154,9 @@ toTyDesc ty =
        Bool        -> "Z"
        Octet       -> "B"
        Char _      -> "C"
-       Void	   -> "V"
+       Void        -> "V"
        Array t _   -> '[':toTyDesc t
-       _	   -> error ("toTyDesc: unknown type " ++ showCore (ppType ty))
+       _           -> error ("toTyDesc: unknown type " ++ showCore (ppType ty))
 
  where
   trans x = map dotToSlash x
@@ -169,21 +169,21 @@ toTyDesc ty =
 cgClassNameDecl :: Id -> (HDecl, Name)
 cgClassNameDecl i = (cls_name_tysig `andDecl` cls_name_def, cls_cls_name)
  where
-   name	          = idName i
-   attrs	  = idAttributes i
+   name           = idName i
+   attrs          = idAttributes i
    h_nm           = mkHaskellTyConName (snd (splitLast "." name))
    cls_cls_name   = mkClassName (mkHaskellVarName h_nm)
    cls_name_tysig = typeSig cls_cls_name (mkTyCon className [ty_arg])
    ty_arg
     | attrs `hasAttributeWithName` "jni_class" = mkTyCon (mkQualName Nothing h_nm) [tyUnit]
-    | otherwise				       = tyUnit -- for an interface.
+    | otherwise                                = tyUnit -- for an interface.
 
    cls_name_def   = funDef cls_cls_name [] cls_name_rhs
    cls_name_rhs   = funApp makeClassName [stringLit (idOrigName i)]
 
 cgJNIInterface :: Id
-	       -> Bool
-	       -> CgM HDecl
+               -> Bool
+               -> CgM HDecl
 cgJNIInterface i ignore_decls = do
    when (not ignore_decls) $ do
         addExport (ieClass (mkHaskellTyConName name))
@@ -197,7 +197,7 @@ cgJNIInterface i ignore_decls = do
  where
    class_decl = hClass ctxt cls_name [tvar] []
 
-   name	      = idName i
+   name       = idName i
 
    (cls_nm_decl, cls_cls_name) = cgClassNameDecl i
 
@@ -218,8 +218,8 @@ cgJNIInterface i ignore_decls = do
 
 \begin{code}
 cgJNIClass :: Id
-	   -> Bool
-	   -> CgM HDecl
+           -> Bool
+           -> CgM HDecl
 cgJNIClass i incl_type_defs 
  | incl_type_defs = return iface_inst_decls
  | otherwise      = do
@@ -236,14 +236,14 @@ cgJNIClass i incl_type_defs
 
    default_ctor   = ctor_tysig `andDecl` ctor_def
    ctor_tysig = typeSig ctor_name
-		        (funTy (mkTyConst jniEnv)
-			       (io (tyCon h_nm [tyUnit])))
+                        (funTy (mkTyConst jniEnv)
+                               (io (tyCon h_nm [tyUnit])))
 
    ctor_def   = funDef ctor_name [] ctor_rhs
    ctor_rhs   = funApp newObj [ var cls_cls_name
-			      , stringLit "()V"
-			      , tup []
-			      ]
+                              , stringLit "()V"
+                              , tup []
+                              ]
    ctor_name  = "new" ++ h_nm 
 
    iface_inst_decls = andDecls (map declInstance ifaces_implemented)
@@ -251,13 +251,13 @@ cgJNIClass i incl_type_defs
    ifaces_implemented = mapMaybe toNm (filterAttributes attrs ["jni_interface"])
      where
       toNm  (Attribute _ [ParamLit (StringLit s)]) = Just s
-      toNm  _					   = Nothing
+      toNm  _                                      = Nothing
 
    declInstance n = hInstance Nothing (mkQConName hmod haskell_nm) obj_ty_open []
      where
       hmod 
         | optOneModulePerInterface = Just haskell_nm
-	| otherwise                = Nothing
+        | otherwise                = Nothing
 
       haskell_nm = mkHaskellTyConName (snd (splitLast "." n))
 

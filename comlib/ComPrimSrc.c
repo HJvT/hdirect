@@ -210,10 +210,10 @@ HRESULT bindObject( const WCHAR* name, IID* iid, void** unk )
 typedef HRESULT (__stdcall * qi_methPtrTy)(void*,void*,void**);
 
 HRESULT primQI ( /*[in]*/void*  methPtr
-	       , /*[in]*/void*  iptr
-	       , /*[in]*/void*  riid
-	       , /*[in]*/void** ppv
-	       )
+               , /*[in]*/void*  iptr
+               , /*[in]*/void*  riid
+               , /*[in]*/void** ppv
+               )
 {
  return ((qi_methPtrTy)methPtr)(iptr,riid,ppv);
 }
@@ -222,8 +222,8 @@ typedef unsigned int (__stdcall * addRef_methPtrTy)(void*);
  
 unsigned int
 primAddRef ( /*[in]*/void*  methPtr
-	   , /*[in]*/void*  iptr
-	   )
+           , /*[in]*/void*  iptr
+           )
 {
  return ((addRef_methPtrTy)methPtr)(iptr);
 }
@@ -232,8 +232,8 @@ typedef unsigned int (__stdcall * release_methPtrTy)(void*);
  
 unsigned int
 primRelease ( /*[in]*/void*  methPtr
-	    , /*[in]*/void*  iptr
-	    )
+            , /*[in]*/void*  iptr
+            )
 {
  return ((release_methPtrTy)methPtr)(iptr);
 }
@@ -290,11 +290,11 @@ HRESULT primGetActiveObject( CLSID* clsid, IUnknown** unk )
 
 HRESULT primLoadRegTypeLib 
                         ( GUID* rguid
-			, short wMaj
-			, short wMin
-			, LCID lcid
-			, void** ppv
-			)
+                        , short wMaj
+                        , short wMin
+                        , LCID lcid
+                        , void** ppv
+                        )
 {
   HRESULT hr;
 
@@ -385,9 +385,9 @@ HRESULT primCreateTypeLib ( int i, LPOLESTR fname, void** ppv )
 }
 
 BSTR primQueryPathOfRegTypeLib ( GUID* rguid
-			       , unsigned short maj
-			       , unsigned short min
-			       )
+                               , unsigned short maj
+                               , unsigned short min
+                               )
 {
   BSTR bs;
   HRESULT hr;
@@ -446,8 +446,8 @@ waitForEvent (HANDLE h)
        break;
     } else {
       while (PeekMessage(&msg,NULL, 0, 0, PM_REMOVE)) {
-	TranslateMessage(&msg);
-	DispatchMessage(&msg);
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
       }
     }
   }
@@ -474,8 +474,8 @@ void postQuitMsg()
 
 HRESULT
 stringToBSTR( /*[in,ptr]*/const char* pstrz
-	    , /*[out]*/ BSTR* pbstr
-	    )
+            , /*[out]*/ BSTR* pbstr
+            )
 {
   int i;
 
@@ -514,14 +514,14 @@ bstrLen( /*[in]*/ BSTR bstr )
    }
    //   return wcstombs( NULL, bstr, SysStringLen(bstr)+1);
    return WideCharToMultiByte ( CP_ACP, 0, bstr, SysStringLen(bstr)
-   			      , NULL, 0, NULL, NULL);
+                              , NULL, 0, NULL, NULL);
 }
 
 HRESULT
 bstrToStringLen ( BSTR bstr
                 , int len
-	        , char* p
-	        )
+                , char* p
+                )
 {
   int i;
   if (!p) {
@@ -534,7 +534,7 @@ bstrToStringLen ( BSTR bstr
   }
   //  i = wcstombs(p,bstr,len+1);
   i = WideCharToMultiByte ( CP_ACP, 0, bstr, SysStringLen(bstr)
-		          , p, len, NULL, NULL);
+                          , p, len, NULL, NULL);
   if ( i == 0 ) {
      return E_FAIL;
   } else {

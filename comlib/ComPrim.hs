@@ -21,7 +21,7 @@ import Word       ( Word32
                    )
 import IOExts     ( unsafePerformIO )
 import WideString ( WideString, marshallWideString, freeWideString,
-		    readWideString, writeWideString )
+                    readWideString, writeWideString )
 import IO         ( hPutStrLn, stderr )
 
 data IUnknown_ a  = Unknown  (ForeignPtr ())

@@ -6,29 +6,29 @@ This module is part of HaskellDirect (H/Direct).
 \begin{code}
 {-# OPTIONS -#include "PointerSrc.h" #-}
 module Pointer  
-	( 
-	  Ptr
-	
-	, allocMemory
-	, stackFrame
+        ( 
+          Ptr
+        
+        , allocMemory
+        , stackFrame
 
-	, writeSeqAtDec
+        , writeSeqAtDec
 {-
-	, ptrInc
-	, writeSeqAt
+        , ptrInc
+        , writeSeqAt
 -}
 
         , freeMemory
-	, freeBSTR
-	, freeWith
-	, freeWithC
-	
-	, primNoFree
-	
-	, finalNoFree
-	, finalFreeMemory
-	
-	, makeFO
+        , freeBSTR
+        , freeWith
+        , freeWithC
+        
+        , primNoFree
+        
+        , finalNoFree
+        , finalFreeMemory
+        
+        , makeFO
 
        ) where
 

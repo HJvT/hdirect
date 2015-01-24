@@ -36,9 +36,9 @@ import LibUtils
 
 \begin{code}
 cgJServMethod :: Id
-	      -> Result
-	      -> [Param]
-	      -> CgM HDecl
+              -> Result
+              -> [Param]
+              -> CgM HDecl
 cgJServMethod i res params = do
   cls_name <- getIfaceName
   return ( helpStringComment i `andDecl` marshallMethod i cls_name params res )
@@ -51,28 +51,28 @@ the arguments before applying them to the Haskell method.
 
 \begin{code}
 marshallMethod :: Id
-	       -> String
-	       -> [Param]
-	       -> Result
-	       -> HDecl
+               -> String
+               -> [Param]
+               -> Result
+               -> HDecl
 marshallMethod i cls_name params res 
   | is_ignorable = emptyDecl
   | otherwise    = ty_sig `andDecl` def
  where
   nm           = mkWrapperName (idName i)
-  attrs	       = idAttributes i
+  attrs        = idAttributes i
 
   is_ignorable = hasAttributeWithNames 
-  			attrs
-  			[ "jni_get_field"
-			, "jni_set_field"
-			, "jni_ctor"
-			]
+                        attrs
+                        [ "jni_get_field"
+                        , "jni_set_field"
+                        , "jni_ctor"
+                        ]
 
   ty_sig      = genTypeSig nm ctxt
-  			      (funTy method_ty        $
-  			       funTy (tuple arg_tys') $
-			       funTy thisTy (io res_ty'))
+                              (funTy method_ty        $
+                               funTy (tuple arg_tys') $
+                               funTy thisTy (io res_ty'))
   def         = funDef nm pats rhs
   pats        = [patVar "meth", tuplePat arg_pats, patVar "this"]
   rhs         = funApp (mkVarName "meth") (arg_exprs `snoc` var "this")
@@ -102,7 +102,7 @@ toJNIType t =
     Integer sz signed  -> mkIntTy sz signed
     Float Short        -> tyFloat
     Float Long         -> tyDouble
-    Float _	       -> error "toJNIType: unsupported Float size"
+    Float _            -> error "toJNIType: unsupported Float size"
     Char _             -> tyWord16
     Bool               -> tyBool
     Octet              -> tyByte
@@ -115,13 +115,13 @@ toJNIType t =
     Iface nm imod _ attrs _ _
       | not (attrs `hasAttributeWithName` "jni_iface_ty") -> tyQCon imod nm [tyVar "a"]
       | otherwise  -> 
-		    let 
+                    let 
                        i  = tyVar "a"
-		    in
-		    mkTyCon jObject
-		       [ctxtTyApp (ctxtClass (mkQualName imod nm)
-		       			     [mkTyCon jObject [i]])
-			          i]
+                    in
+                    mkTyCon jObject
+                       [ctxtTyApp (ctxtClass (mkQualName imod nm)
+                                             [mkTyCon jObject [i]])
+                                  i]
 
     _ -> error ("toJNIType: unknown type " ++ showCore (ppType t))
 
@@ -135,8 +135,8 @@ toHaskellMethodTy obj_ty meth = funTys ps_tys (funTy obj_ty (io res_ty))
 
 \begin{code}
 cgJClass :: Id
-	 -> [Decl]
-	 -> CgM HDecl
+         -> [Decl]
+         -> CgM HDecl
 cgJClass i ds 
  | is_interface = cgJNIInterface i False
  | otherwise = do
@@ -189,7 +189,7 @@ cgJClass i ds
     exportMethod d mi =
       bind (funApp newFPointer [funApp (mkWrapName d) [methArg mi], env])
            (xMethArg mi)
-	
+        
 
     xMethArg mi = var ("xm_" ++ show mi)
     methArg  mi = var ("meth_" ++ show mi)
@@ -198,6 +198,6 @@ cgJClass i ds
 
     isIgnorable d = 
      hasAttributeWithNames (idAttributes (declId d))
-     			   ["jni_set_field", "jni_get_field", "jni_ctor"]
+                           ["jni_set_field", "jni_get_field", "jni_ctor"]
 
 \end{code}

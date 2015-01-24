@@ -126,7 +126,7 @@ type Context = [String]
 type CoClassMember = (Bool, Id, [Attribute])
 
 data Param      = Param Id Type [Attribute]
-		  deriving ( Eq )
+                  deriving ( Eq )
 
 type Member     = (Type, [Attribute], [Id])
 
@@ -143,9 +143,9 @@ data AttrParam
    deriving ( Eq )
 
 data Switch    = Switch [CaseLabel] (Maybe SwitchArm) 
-		 deriving ( Eq )
+                 deriving ( Eq )
 data CaseLabel = Case [Expr] | Default
-		 deriving ( Eq )
+                 deriving ( Eq )
 
 -- switch arms can have attributes along with type and
 -- declarator, just as proc. params.

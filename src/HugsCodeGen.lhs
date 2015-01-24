@@ -13,16 +13,16 @@ import PP
 import BasicTypes
 import Utils ( traceIf )
 import Opts  ( optVerbose, optLongLongIsInteger,
-	       optGenHeader, optOneModulePerInterface
-	     )
+               optGenHeader, optOneModulePerInterface
+             )
 import Data.List  ( nub, intersperse )
 import Utils ( notNull, dropSuffix )
 \end{code}
 
 \begin{code}
-hugsCodeGen :: String		-- (base)name of output file
-	    -> [HTopDecl]	-- Haskell decls to derive Hugs stubs from.
-	    -> String
+hugsCodeGen :: String           -- (base)name of output file
+            -> [HTopDecl]       -- Haskell decls to derive Hugs stubs from.
+            -> String
 hugsCodeGen c_nm ls = showPPDoc (hCode c_nm ls) ([],[])
 
 type HugsStubCode = PPDoc ([(String,Int)],[String])
@@ -58,9 +58,9 @@ hCode c_nm xs = whizz xs
     let dlls_real = nub (filter notNull dlls) in
     traceIf (optVerbose && notNull dlls_real)
             ("\nStubs depend on entry points from the following DLLs/libraries:\n  " ++
-	     showList dlls_real (
-	     "\nyou may need to adjust your command-line when compiling the stubs to" ++
-	     "\ntake this into account.")) $
+             showList dlls_real (
+             "\nyou may need to adjust your command-line when compiling the stubs to" ++
+             "\ntake this into account.")) $
     getStubEnv $ \ env ->
     genTrailer env
   whizz (HLit _ : ls)     = whizz ls
@@ -68,7 +68,7 @@ hCode c_nm xs = whizz xs
     | not optGenHeader  = text s $$ whizz ls
     | otherwise         = whizz ls
   whizz (HInclude s : ls) = text "#include" <+> text (escapeString s) $$
-  			    whizz ls
+                            whizz ls
   whizz (HMod hm : ls)    = hMod c_nm hm (whizz ls)
 
   escapeString s@('"':_) = s -- "
@@ -159,7 +159,7 @@ ppCTy ty =
    TyVar _ tv    -> text (degrokNm (qName tv))
    TyCon tc      
      | qName tc == "()" -> empty
-     | otherwise	-> text (degrokNm (qName tc))
+     | otherwise        -> text (degrokNm (qName tc))
    TyApply (TyCon tc) [_] | qName tc == "StablePtr"  -> text "StablePtr"
    TyApply (TyCon tc) [_] | qName tc == "Ptr"        -> text "Addr"
    TyApply (TyCon tc) [_] | qName tc == "FunPtr"     -> text "Addr"
@@ -175,11 +175,11 @@ ppCTy ty =
      case nm of
       'I':'n':'t':_     -> "Int"
       'W':'o':'r':'d':_ -> "Word"
-      'F':'o':_		-> "Foreign"
+      'F':'o':_         -> "Foreign"
       "Char"            -> "Char"
       "Double"          -> "Double"
       "Float"           -> "Float"
-      _			-> "Addr"
+      _                 -> "Addr"
 
 argAssign :: Type -> [(Bool,String)] -> HugsStubCode
 argAssign ty c_args = ppDecls (zipWith3 declArg [0..] args c_args)
@@ -189,15 +189,15 @@ argAssign ty c_args = ppDecls (zipWith3 declArg [0..] args c_args)
   declArg n t@(TyCon tc) (_, c_ty) 
     | optLongLongIsInteger && qName tc == "Integer"
     = ppArg False n <+> equals    <+>
-	parens (text c_ty) <>
-	parens (text"hugs->get" <> ppCTy t <> text "()") <> semi $$
-	ppArg False n <+> text ">>= 32" <> semi $$
-	ppArg False n <+> text "+=" <+> parens (text c_ty) <> 
-	      parens (text"hugs->get" <> ppCTy t <> text "()")
+        parens (text c_ty) <>
+        parens (text"hugs->get" <> ppCTy t <> text "()") <> semi $$
+        ppArg False n <+> text ">>= 32" <> semi $$
+        ppArg False n <+> text "+=" <+> parens (text c_ty) <> 
+              parens (text"hugs->get" <> ppCTy t <> text "()")
   declArg n t (is_struct, c_ty) 
      = ppArg False n <+> equals    <+>
-	parens ppr_c_ty <>
-	parens (text"hugs->get" <> ppCTy t <> text "()")
+        parens ppr_c_ty <>
+        parens (text"hugs->get" <> ppCTy t <> text "()")
    where
     ppr_c_ty
       | is_struct = text c_ty <> char '*'
@@ -226,7 +226,7 @@ performCall is_dyn (_,_, fun, _) c_args ty =
 
   ppAssign (TyApply (TyCon _) [TyCon tc])
     | qName tc == "()" = empty
-  ppAssign _	       = text "res" <+> equals
+  ppAssign _           = text "res" <+> equals
 
 \end{code}
 
@@ -259,13 +259,13 @@ pushResult (isStructTy, c_ty) ty =
   assignRes
     | noResult  = empty
     | isIntegerRes = text "hugs->putInt" <> parens ( text "(unsigned int)res" ) <> semi $$
-		     text "hugs->putInt" <> parens ( text "(unsigned int)(res >> 32)" ) <> semi
+                     text "hugs->putInt" <> parens ( text "(unsigned int)(res >> 32)" ) <> semi
     | otherwise = text "hugs->put" <> (ppCTy res) <>
-		  parens (the_result) <> semi
+                  parens (the_result) <> semi
 
   the_result
     | isStructTy = text "copyBytes" <> parens (
-  	                text "sizeof" <> parens (text c_ty) <>
+                        text "sizeof" <> parens (text c_ty) <>
                         text ", &res")
     | otherwise  = parens (text c_ty) <> text "res" 
 
@@ -281,7 +281,7 @@ tdefFunTy :: Name -> CallConv -> [(Bool,String)] -> (Bool,String) -> HugsStubCod
 tdefFunTy nm cc c_args c_res =
  text "typedef" <+> ppResultTy <+>
    parens ( ppCallConv True cc <+> char '*' <+> 
-	    text (nm++"__funptr")) <+>
+            text (nm++"__funptr")) <+>
    ppTuple ppArgs <> semi
  where
   ppResultTy  = text (snd c_res)

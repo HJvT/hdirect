@@ -23,12 +23,12 @@ void PostTraceHook (long fd)
 #else
 void ErrorHdrHook (FILE *where)
 {
-    fflush( stdout );			/* Flush out any pending output */
+    fflush( stdout );                   /* Flush out any pending output */
 }
 
 void IOErrorHdrHook (FILE *where)
 {
-    fflush( stdout );			/* Flush out any pending output */
+    fflush( stdout );                   /* Flush out any pending output */
 }
 
 void PreTraceHook (FILE *where)

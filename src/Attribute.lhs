@@ -31,39 +31,39 @@ hasAttributeWithName :: [Attribute] -> Name -> Bool
 hasAttributeWithName attrs nm = elemBy lup attrs
  where
   lup (Attribute n _) = n == nm
-  lup _		      = False
+  lup _               = False
 
 hasAttributeWithNames :: [Attribute] -> [Name] -> Bool
 hasAttributeWithNames attrs nms = elemBy lup attrs
  where
   lup (Attribute n _) = n `elem` nms
-  lup _		      = False
+  lup _               = False
 
 -- return list of attributes that haven't got any of the names given in the list.
 filterOutAttributes :: [Attribute] -> [Name] -> [Attribute]
 filterOutAttributes attrs nms = filter out attrs
   where
    out (Attribute n _) = not (n `elem` nms)
-   out _	       = True
+   out _               = True
 
 -- return list of attributes that have got one of the names given in the list.
 filterAttributes :: [Attribute] -> [Name] -> [Attribute]
 filterAttributes attrs nms = filter predic attrs
   where
    predic (Attribute n _) = n `elem` nms
-   predic _	          = False
+   predic _               = False
 
 findAttribute :: Name -> [Attribute] -> Maybe Attribute
 findAttribute nm attrs = find lup attrs
  where
   lup (Attribute n _) = n == nm
-  lup _		      = False
+  lup _               = False
 
 findStringAttributes :: Name -> [Attribute] -> [String]
 findStringAttributes nm = mapMaybe toString . filter lup
  where
   lup (Attribute n _) = n == nm
-  lup _		      = False
+  lup _               = False
 
   toString (Attribute _ [ParamLit (StringLit s)]) = Just s
   toString _ = Nothing
@@ -73,11 +73,11 @@ findStringAttributes nm = mapMaybe toString . filter lup
 \begin{code}
 isDependentAttribute :: Attribute -> Maybe Attribute
 isDependentAttribute a@(AttrDependent _ _) = Just a
-isDependentAttribute _			   = Nothing
+isDependentAttribute _                     = Nothing
 
 isConstantAttribute :: Attribute -> Bool
 isConstantAttribute (AttrMode _) = True
-isConstantAttribute a		 = null (atParams a)
+isConstantAttribute a            = null (atParams a)
 
 stringToDepReason :: String -> Maybe DepReason
 stringToDepReason "size_is"   = Just SizeIs
@@ -87,7 +87,7 @@ stringToDepReason "length_is" = Just LengthIs
 stringToDepReason "max_is"    = Just MaxIs
 stringToDepReason "min_is"    = Just MinIs
 stringToDepReason "switch_is" = Just SwitchIs
-stringToDepReason _	      = Nothing
+stringToDepReason _           = Nothing
 \end{code}
 
 Special purpose ones:
@@ -112,28 +112,28 @@ getLengthAttribute attrs =
      _ -> Nothing
   where
    withDep (AttrDependent LengthIs _) = True
-   withDep _		 = False
+   withDep _             = False
 
 
 hasModeAttribute :: ParamDir -> [Attribute] -> Bool
 hasModeAttribute dir attrs = any withMode attrs
   where
    withMode (AttrMode d) = d == dir
-   withMode _		 = False
+   withMode _            = False
 
 getSwitchIsAttribute :: [Attribute] -> Maybe Expr
 getSwitchIsAttribute as = 
   case mapMb atParams (findAttribute "switch_is" as) of
     Just [ParamExpr e]          -> Just e
-    Just [ParamVar v]		-> Just (Var v)
+    Just [ParamVar v]           -> Just (Var v)
     _ ->
       case filter (isSwitchIs) as of
         ((AttrDependent _ [ParamVar v]): _ )  -> Just (Var v)
         ((AttrDependent _ [ParamExpr e]): _ ) -> Just e
-	_				      -> Nothing
+        _                                     -> Nothing
  where
   isSwitchIs (AttrDependent SwitchIs _) = True
-  isSwitchIs _				= False
+  isSwitchIs _                          = False
 
 getUuidAttribute :: [Attribute] -> Maybe [String]
 getUuidAttribute as =
@@ -158,7 +158,7 @@ getDefaultCConv :: [Attribute] -> Maybe CallConv
 getDefaultCConv as = 
   case mapMb atParams (findAttribute "cconv" as) of
    Just [ParamLit (StringLit cc)] -> strToCallConv cc
-   _			          -> Nothing
+   _                              -> Nothing
 
 \end{code}
 

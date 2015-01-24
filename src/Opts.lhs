@@ -21,7 +21,7 @@ import Utils ( bailIf, hdirect_root )
 import 
        Win32Registry  ( hKEY_LOCAL_MACHINE, regQueryValue, regOpenKeyEx, kEY_READ, regEnumKeyVals )
 import 
-       StdDIS	      ( MbString )
+       StdDIS         ( MbString )
    END_USE_REGISTRY -}
 
 \end{code}
@@ -51,8 +51,8 @@ expandDerivedArgs ls =
     []     -> []
     (x:xs) ->
       case (lookup x derivedArgs) of
-	Nothing -> x : expandDerivedArgs xs
-	Just ys -> let xs' = expandDerivedArgs xs in ys ++ xs'
+        Nothing -> x : expandDerivedArgs xs
+        Just ys -> let xs' = expandDerivedArgs xs in ys ++ xs'
 
 defaultArgs :: [String]
 defaultArgs =
@@ -101,7 +101,7 @@ registryOptions = unsafePerformIO $
       vs <- regEnumKeyVals hk
       let
         readOne (s,v,_) = do
-	 return (s,words v)
+         return (s,words v)
       ls <- mapM readOne vs
       return ls)
     (\ _ -> return [])
@@ -126,7 +126,7 @@ optNoOutput    = any (OptNoOutput==) ihc_opts
 
 optVersion, optHelp, optDebug, optVerbose, optGenHeader :: Bool
 optVersion     = any (DumpVersion==) ihc_opts
-optHelp	       = any (DumpHelp==)    ihc_opts
+optHelp        = any (DumpHelp==)    ihc_opts
 optDebug       = any (DumpDebug==)   ihc_opts
 optVerbose     = any (DumpVerbose==) ihc_opts
 optGenHeader   = any (OptGenHeader==) ihc_opts
@@ -177,9 +177,9 @@ optGenBitsInstance        = any (OptGenBitsInstance==) ihc_opts
 optGenNumInstance         = any (OptGenNumInstance==) ihc_opts
 
 optLongLongIsInteger, optNukeEmptyStructs, optShortHeader, optIntCoercesInPrelude :: Bool
-optLongLongIsInteger	   = any (OptLongLongIsInteger==) ihc_opts
-optNukeEmptyStructs	   = any (OptNukeEmptyStructs==) ihc_opts
-optShortHeader		   = any (OptShortHeader==) ihc_opts
+optLongLongIsInteger       = any (OptLongLongIsInteger==) ihc_opts
+optNukeEmptyStructs        = any (OptNukeEmptyStructs==) ihc_opts
+optShortHeader             = any (OptShortHeader==) ihc_opts
 optIntCoercesInPrelude     = any (OptIntCoercesInPrelude==) ihc_opts
 
 optServer, optOneModulePerInterface, optShowIDLInComments :: Bool
@@ -204,7 +204,7 @@ optNoQualNames     = any (OptNoQualNames==) ihc_opts
 
 optNoDependentArgs, optNoLibIds :: Bool
 optNoDependentArgs = any (OptNoDependentArgs==) ihc_opts
-optNoLibIds	   = any (OptNoLibraryIds==)    ihc_opts
+optNoLibIds        = any (OptNoLibraryIds==)    ihc_opts
 
 optPrefixIfaceName, optAppendIfaceName, optDeepMarshall :: Bool
 optPrefixIfaceName = any (OptPrefixIfaceName==) ihc_opts
@@ -217,27 +217,27 @@ optExportAbstractly   = any (OptExportAbstractly==) ihc_opts
 
 optIgnoreDispInterfaces, optDualVtbl, optCompilingDceIDL :: Bool
 optIgnoreDispInterfaces = any (OptIgnoreDispInterfaces==) ihc_opts
-optDualVtbl		= any (OptDualVtbl==) ihc_opts
-optCompilingDceIDL	= any (OptCompilingDceIDL==) ihc_opts
+optDualVtbl             = any (OptDualVtbl==) ihc_opts
+optCompilingDceIDL      = any (OptCompilingDceIDL==) ihc_opts
 -- MsIDL is currently the default.
 optCompilingMsIDL, optCompilingOmgIDL :: Bool
-optCompilingMsIDL	= any (OptCompilingMsIDL==) ihc_opts 
-			    || (not optCompilingDceIDL && not optCompilingOmgIDL)
-optCompilingOmgIDL	= any (OptCompilingOmgIDL==) ihc_opts
+optCompilingMsIDL       = any (OptCompilingMsIDL==) ihc_opts 
+                            || (not optCompilingDceIDL && not optCompilingOmgIDL)
+optCompilingOmgIDL      = any (OptCompilingOmgIDL==) ihc_opts
 
 optHaskellToC, optIgnoreHelpstring, optTlb :: Bool
-optHaskellToC		= any (OptHaskellToC==) ihc_opts
+optHaskellToC           = any (OptHaskellToC==) ihc_opts
 optIgnoreHelpstring     = any (OptIgnoreHelpstring==) ihc_opts
-optTlb			= any (OptTLB==)  ihc_opts
+optTlb                  = any (OptTLB==)  ihc_opts
 
 optIgnoreImpLibs, optHugs, optSkel, optUnsafeCalls :: Bool
-optIgnoreImpLibs	= any (OptIgnoreImpLibs==)  ihc_opts
-optHugs			= any (OptHugs==) ihc_opts
+optIgnoreImpLibs        = any (OptIgnoreImpLibs==)  ihc_opts
+optHugs                 = any (OptHugs==) ihc_opts
 optSkel                 = any (OptSkel==) ihc_opts
-optUnsafeCalls	        = any (OptUnsafeCalls==) ihc_opts
+optUnsafeCalls          = any (OptUnsafeCalls==) ihc_opts
 
 optH1_4, optIgnoreHiddenMeths, optIgnoreRestrictedMeths :: Bool
-optH1_4			= any (OptH1_4==) ihc_opts
+optH1_4                 = any (OptH1_4==) ihc_opts
 optIgnoreHiddenMeths    = any (OptIgnoreHiddenMeths==) ihc_opts
 optIgnoreRestrictedMeths = any (OptIgnoreRestrictedMeths==) ihc_opts
 
@@ -257,14 +257,14 @@ optOverloadVariant       = any (OptOverloadVariant==) ihc_opts
 optNoOverloadVariant     = any (OptNoOverloadVariant==) ihc_opts
 
 optGenCStubs, optExplicitIPointer, optAnonTLB :: Bool
-optGenCStubs		 = any (OptGenCStubs==) ihc_opts
+optGenCStubs             = any (OptGenCStubs==) ihc_opts
 optExplicitIPointer      = any (OptExpIPointer==) ihc_opts
 optAnonTLB               = any (OptAnonTLB==) ihc_opts
 
 optUnwrapSingletonStructs, optJNI, optCorba :: Bool
 optUnwrapSingletonStructs = any (OptUnwrapSingletonStructs==) ihc_opts
-optJNI			 = any (OptJNI==) ihc_opts
-optCorba		 = any (OptCorba==) ihc_opts
+optJNI                   = any (OptJNI==) ihc_opts
+optCorba                 = any (OptCorba==) ihc_opts
 
 optCharPtrIsString, optInlineTypes :: Bool
 optCharPtrIsString       = any (OptCharPtrIsString==) ihc_opts
@@ -473,139 +473,139 @@ options =
    opts
       [ prefixed "-" $
          opts 
-           [ "version"	    -=     DumpVersion
-   	   , "gc"	    -=     OptGreenCard
-	   , "hugs"	    -=     OptHugs
-	   , "gen-headers"  -=     OptGenHeader
-	   , "gen-defs"     -=     OptGenDefs
-           , "help"	    -=     DumpHelp
-           , "verbose"	    -=     DumpVerbose
-           , "debug"	    -=     DumpDebug
+           [ "version"      -=     DumpVersion
+           , "gc"           -=     OptGreenCard
+           , "hugs"         -=     OptHugs
+           , "gen-headers"  -=     OptGenHeader
+           , "gen-defs"     -=     OptGenDefs
+           , "help"         -=     DumpHelp
+           , "verbose"      -=     DumpVerbose
+           , "debug"        -=     DumpDebug
            , "include-dir"  -===   OptIncludeDirs
            , "include-header=" -== OptIncludeHeader
            , "include-c-header=" -== OptIncludeCHeader
-	   , "jni"	    -=	   OptJNI
-	   , "corba"	    -=	   OptCorba
-	   , "skeleton"     -=     OptSkel
-	   , "tlb"	    -=     OptTLB
-	   , "unsafe-calls" -=     OptUnsafeCalls
-	   , "h1.4"         -=     OptH1_4
-	   , "gen-tlb"      -=     OptOutputTlb
-	   , "gen-c-stubs"  -=     OptGenCStubs
-	   , "output-tlb="    -==  OptOutputTlbTo
-	   , "output-h="      -==  OptOutputHTo
-	   , "output-module=" -==  OptOutputModule
-	   , "output-dump="   -==  OptOutputDump
-	   , "asf="           -==  OptAsf
+           , "jni"          -=     OptJNI
+           , "corba"        -=     OptCorba
+           , "skeleton"     -=     OptSkel
+           , "tlb"          -=     OptTLB
+           , "unsafe-calls" -=     OptUnsafeCalls
+           , "h1.4"         -=     OptH1_4
+           , "gen-tlb"      -=     OptOutputTlb
+           , "gen-c-stubs"  -=     OptGenCStubs
+           , "output-tlb="    -==  OptOutputTlbTo
+           , "output-h="      -==  OptOutputHTo
+           , "output-module=" -==  OptOutputModule
+           , "output-dump="   -==  OptOutputDump
+           , "asf="           -==  OptAsf
            ]
       , prefixed "f" $
          opts 
-	   [ "anon-typelib"                -= OptAnonTLB
-	   , "com"			   -= OptCompilingMsIDL
-	   , "char-ptr-is-string"	   -= OptCharPtrIsString
-	   , "classic-name-mangling"       -= OptClassicNameMangling
-	   , "dual-vtbl"		   -= OptDualVtbl
-	   , "export-with-tysig"           -= OptExportTySig
-	   , "export-abstractly"           -= OptExportAbstractly
-	   , "enums-as-flags"              -= OptEnumsAsFlags
-	   , "gen-bits-instance"           -= OptGenBitsInstance
-	   , "gen-num-instance"            -= OptGenNumInstance
+           [ "anon-typelib"                -= OptAnonTLB
+           , "com"                         -= OptCompilingMsIDL
+           , "char-ptr-is-string"          -= OptCharPtrIsString
+           , "classic-name-mangling"       -= OptClassicNameMangling
+           , "dual-vtbl"                   -= OptDualVtbl
+           , "export-with-tysig"           -= OptExportTySig
+           , "export-abstractly"           -= OptExportAbstractly
+           , "enums-as-flags"              -= OptEnumsAsFlags
+           , "gen-bits-instance"           -= OptGenBitsInstance
+           , "gen-num-instance"            -= OptGenNumInstance
            , "keep-hresult"                -= OptKeepHResult
-	   , "maybe-optional-params"       -= OptOptionalAsMaybe
+           , "maybe-optional-params"       -= OptOptionalAsMaybe
            , "no-export-list"              -= OptNoExportList
-	   , "no-module-header"            -= OptNoModuleHeader
-	   , "no-tidy-defns"               -= OptDon'tTidyDefns
-	   , "no-share-ffi-decls"          -= OptNoShareFIDs
+           , "no-module-header"            -= OptNoModuleHeader
+           , "no-tidy-defns"               -= OptDon'tTidyDefns
+           , "no-share-ffi-decls"          -= OptNoShareFIDs
            , "no-expand-inherited"         -= OptNoExpandInherit
-	   , "no-foreign-dll-name"         -= OptNoDllName
+           , "no-foreign-dll-name"         -= OptNoDllName
            , "use-dispids"                 -= OptUseDispIDs
-	   , "ignore-importlibs"           -= OptIgnoreImpLibs
-	   , "ignore-methods-upto="        -== OptIgnoreMethsUpto
-	   , "int-is-int"                  -= OptIntIsInt
-	   , "int-prelude-coercions"       -= OptIntCoercesInPrelude
-           , "one-mod-per-iface"	   -= OptOneModulePerInterface
-	   , "coalesce-methods"		   -= OptCoalesceIsomorphicMethods
-	   , "show-idl-in-comments"	   -= OptShowIDLInComments
-	   , "compress-enums"              -= OptSmartEnums
-	   , "unparamed-interface-pointers"  -= OptUnParam'dIPointers
-	   , "subtyped-interface-pointers"  -= OptSubTypedInterfacePointers
-	   , "no-import-lists"		   -= OptNoImportLists
-	   , "no-imports"		   -= OptNoImports
-	   , "no-qualified-names"	   -= OptNoQualNames
-	   , "qualified-instance-methods"  -= OptQualInstanceMethods
-	   , "no-dependent-args"	   -= OptNoDependentArgs
-	   , "no-overload-variant"	   -= OptNoOverloadVariant
-	   , "no-enum-magic"               -= OptNoEnumMagic
-	   , "pattern-as-lambda"           -= OptPatternAsLambda
-	   , "prefix-interface-name"       -= OptPrefixIfaceName
-	   , "append-interface-short-name" -= OptAppendIfaceName
-	   , "shallow-marshall"		   -= OptShallowMarshall
-	   , "no-mangle-interface-names"   -= OptNoMangleIfaceNames
-	   , "no-gen-variant-instances"    -= OptNoVariantInstance
-	   , "gen-variant-instances"       -= OptVariantInstance
-	   , "ignore-dispinterfaces"       -= OptIgnoreDispInterfaces
-	   , "ignore-helpstrings"	   -= OptIgnoreHelpstring
-	   , "ignore-hidden-methods"       -= OptIgnoreHiddenMeths
-	   , "ignore-restricted-methods"   -= OptIgnoreRestrictedMeths
-	   , "ignore-source-interfaces"    -= OptIgnoreSourceIfaces
-	   , "include-as-import"           -= OptIncludeAsImport
-	   , "exclude-system-includes"     -= OptExcludeSysIncludes
-	   , "inline-synonyms"             -= OptInlineTypes
-	   , "longlong-as-integer"	   -= OptLongLongIsInteger
-	   , "explicit-i-pointer"          -= OptExpIPointer
-	   , "no-library-ids"              -= OptNoLibraryIds
-	   , "no-warn-missing-mode"        -= OptNoWarnMissingMode
-	   , "omg"			   -= OptCompilingOmgIDL
-	   , "pointer-default="            -== OptPointerDefault
-	   , "dce"			   -= OptCompilingDceIDL
-	   , "hs-to-c"			   -= OptHaskellToC
-	   , "use-ints-everywhere"         -= OptUseInts
-	   , "int-as-word"                 -= OptIntAsWord
-	   , "treat-importlibs-as-imports" -= OptConvertImportLibs
-	   , "sort-defns"		   -= OptSortDefns
-	   , "string-as-widestring"        -= OptNoWideStrings
-	   , "overload-variant"		   -= OptOverloadVariant
-	   , "remove-empty-structs"        -= OptNukeEmptyStructs
-	   , "only-remove-defns"	   -= OptOnlyRemoveDefns
-	   , "short-header"		   -= OptShortHeader
-	   , "no-gen-binary-interface"     -= OptDon'tGenBinaryComInterfaces
-	   , "out-pointers-are-not-refs"   -= OptOutPointersAreNotRefs
-	   , "no-deref-refs"               -= OptNoDerefRefs
-	   , "unwrap-singleton-structs"    -= OptUnwrapSingletonStructs
-	   , "use-std-dispatch"            -= OptUseStdDispatch
-	   , "use-iid-is"                  -= OptUseIIDIs
-	   , "void-typedef-is-abstract"    -= OptVoidTydefIsAbstract
-	   , "winnow-defns"		   -= OptWinnowDefns
-	   ]
-	   
+           , "ignore-importlibs"           -= OptIgnoreImpLibs
+           , "ignore-methods-upto="        -== OptIgnoreMethsUpto
+           , "int-is-int"                  -= OptIntIsInt
+           , "int-prelude-coercions"       -= OptIntCoercesInPrelude
+           , "one-mod-per-iface"           -= OptOneModulePerInterface
+           , "coalesce-methods"            -= OptCoalesceIsomorphicMethods
+           , "show-idl-in-comments"        -= OptShowIDLInComments
+           , "compress-enums"              -= OptSmartEnums
+           , "unparamed-interface-pointers"  -= OptUnParam'dIPointers
+           , "subtyped-interface-pointers"  -= OptSubTypedInterfacePointers
+           , "no-import-lists"             -= OptNoImportLists
+           , "no-imports"                  -= OptNoImports
+           , "no-qualified-names"          -= OptNoQualNames
+           , "qualified-instance-methods"  -= OptQualInstanceMethods
+           , "no-dependent-args"           -= OptNoDependentArgs
+           , "no-overload-variant"         -= OptNoOverloadVariant
+           , "no-enum-magic"               -= OptNoEnumMagic
+           , "pattern-as-lambda"           -= OptPatternAsLambda
+           , "prefix-interface-name"       -= OptPrefixIfaceName
+           , "append-interface-short-name" -= OptAppendIfaceName
+           , "shallow-marshall"            -= OptShallowMarshall
+           , "no-mangle-interface-names"   -= OptNoMangleIfaceNames
+           , "no-gen-variant-instances"    -= OptNoVariantInstance
+           , "gen-variant-instances"       -= OptVariantInstance
+           , "ignore-dispinterfaces"       -= OptIgnoreDispInterfaces
+           , "ignore-helpstrings"          -= OptIgnoreHelpstring
+           , "ignore-hidden-methods"       -= OptIgnoreHiddenMeths
+           , "ignore-restricted-methods"   -= OptIgnoreRestrictedMeths
+           , "ignore-source-interfaces"    -= OptIgnoreSourceIfaces
+           , "include-as-import"           -= OptIncludeAsImport
+           , "exclude-system-includes"     -= OptExcludeSysIncludes
+           , "inline-synonyms"             -= OptInlineTypes
+           , "longlong-as-integer"         -= OptLongLongIsInteger
+           , "explicit-i-pointer"          -= OptExpIPointer
+           , "no-library-ids"              -= OptNoLibraryIds
+           , "no-warn-missing-mode"        -= OptNoWarnMissingMode
+           , "omg"                         -= OptCompilingOmgIDL
+           , "pointer-default="            -== OptPointerDefault
+           , "dce"                         -= OptCompilingDceIDL
+           , "hs-to-c"                     -= OptHaskellToC
+           , "use-ints-everywhere"         -= OptUseInts
+           , "int-as-word"                 -= OptIntAsWord
+           , "treat-importlibs-as-imports" -= OptConvertImportLibs
+           , "sort-defns"                  -= OptSortDefns
+           , "string-as-widestring"        -= OptNoWideStrings
+           , "overload-variant"            -= OptOverloadVariant
+           , "remove-empty-structs"        -= OptNukeEmptyStructs
+           , "only-remove-defns"           -= OptOnlyRemoveDefns
+           , "short-header"                -= OptShortHeader
+           , "no-gen-binary-interface"     -= OptDon'tGenBinaryComInterfaces
+           , "out-pointers-are-not-refs"   -= OptOutPointersAreNotRefs
+           , "no-deref-refs"               -= OptNoDerefRefs
+           , "unwrap-singleton-structs"    -= OptUnwrapSingletonStructs
+           , "use-std-dispatch"            -= OptUseStdDispatch
+           , "use-iid-is"                  -= OptUseIIDIs
+           , "void-typedef-is-abstract"    -= OptVoidTydefIsAbstract
+           , "winnow-defns"                -= OptWinnowDefns
+           ]
+           
       , prefixed "ddump-" $
                opts [ "ds"    -= DumpDesugar
-	            , "idl"   -= DumpIDL
-		    , "abs"   -= DumpAbsH
-		    , "rn"    -= DumpRenamer
+                    , "idl"   -= DumpIDL
+                    , "abs"   -= DumpAbsH
+                    , "rn"    -= DumpRenamer
                     ],
       "dshow-passes"    -= OptShowPasses,
-      "cpp"		-= OptCpp,
-      "h"		-= DumpHelp,
-      "d"		-= DumpDebug,
-      "v"		-= DumpVerbose,
-      "c"		-= OptIgnore,   -- accept, but vacuous.
-      "g"		-= OptTargetGhc,
+      "cpp"             -= OptCpp,
+      "h"               -= DumpHelp,
+      "d"               -= DumpDebug,
+      "v"               -= DumpVerbose,
+      "c"               -= OptIgnore,   -- accept, but vacuous.
+      "g"               -= OptTargetGhc,
       "noC"             -= OptNoOutput,
       "odir"            -=== OptOutputDir,
       "otlb"            -=== OptOutputTlbTo,
-      "oh"		-=== OptOutputHTo,
+      "oh"              -=== OptOutputHTo,
       "odump"           -=== OptOutputDump,
-      "o"		-=== OptOutputFile,
+      "o"               -=== OptOutputFile,
       "s"               -= OptServer,
-      "i"		-== OptIncludeDirs,
-      "I"	        -== OptIncludeCppDirs,
-      "D"	        -== (\ s -> OptCppDefine ('-':'D':s)),
-      "U"	        -== (\ s -> OptCppDefine ('-':'U':s))
+      "i"               -== OptIncludeDirs,
+      "I"               -== OptIncludeCppDirs,
+      "D"               -== (\ s -> OptCppDefine ('-':'D':s)),
+      "U"               -== (\ s -> OptCppDefine ('-':'U':s))
      ]) `orOpt`
     (((\ opt -> head opt == '-' && notNull (tail opt)) -? 
-		(\ opt -> trace ("Unrecognised option: " ++ opt ++ ", ignoring.") OptIgnore))
-		  `orOpt`
+                (\ opt -> trace ("Unrecognised option: " ++ opt ++ ", ignoring.") OptIgnore))
+                  `orOpt`
     ((const True)  -? OptFile))
 
 data Option

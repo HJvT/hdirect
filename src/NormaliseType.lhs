@@ -42,7 +42,7 @@ normaliseType ty =
     Pointer pt isExp t ->  Pointer pt isExp (normaliseType t)
     Array t es      ->  Array (normaliseType t) es
     SafeArray t     ->  SafeArray (normaliseType t)
-    _		    -> ty
+    _               -> ty
 
 normaliseResult :: Result -> Result
 normaliseResult r = r{resultType=normaliseType (resultType r)}

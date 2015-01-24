@@ -12,139 +12,139 @@ cpp_quote("#if !defined(_MSC_VER) && __W32API_MAJOR_VERSION == 1")
 interface SAFEARRAY {};
 
 typedef struct tagSAFEARRAYBOUND {
-	unsigned long cElements;
-	long lLbound;
+        unsigned long cElements;
+        long lLbound;
 } SAFEARRAYBOUND;
 
 HRESULT _stdcall
 SafeArrayAccessData
-		( [in,ptr]SAFEARRAY* psa
-		, [out,ref]void** ppvData
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                , [out,ref]void** ppvData
+                );
 
 HRESULT _stdcall
 SafeArrayAllocData
-		( [in,ptr]SAFEARRAY* psa
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                );
 
 HRESULT _stdcall
 SafeArrayAllocDescriptor
-		( [in]unsigned int cDims
-		, [out]SAFEARRAY** ppsaOut
-		);
+                ( [in]unsigned int cDims
+                , [out]SAFEARRAY** ppsaOut
+                );
 
 HRESULT _stdcall
 SafeArrayCopy
-		( [in,ptr]SAFEARRAY* psa
-		, [out]SAFEARRAY** ppsaOut
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                , [out]SAFEARRAY** ppsaOut
+                );
 
 /*
 HRESULT _stdcall
 SafeArrayCopyData
-		( [in,ptr]SAFEARRAY* psaSource
-		, [in,out]SAFEARRAY** psaTarget
-		);
+                ( [in,ptr]SAFEARRAY* psaSource
+                , [in,out]SAFEARRAY** psaTarget
+                );
 */
 
 [ref]
 SAFEARRAY
 _stdcall
 *SafeArrayCreate
-		( [in]VARTYPE vt
-		, [in]unsigned int cDims
-		, [in,size_is(cDims)]SAFEARRAYBOUND* rgsabound
-		);
+                ( [in]VARTYPE vt
+                , [in]unsigned int cDims
+                , [in,size_is(cDims)]SAFEARRAYBOUND* rgsabound
+                );
 
 /*
 HRESULT _stdcall
 SafeArrayCreateVector
-		( [in]VARTYPE vt
-		, [in]long lLbound
-		, [in]unsigned int cElements
-		);
+                ( [in]VARTYPE vt
+                , [in]long lLbound
+                , [in]unsigned int cElements
+                );
 */
 HRESULT _stdcall
 SafeArrayDestroy
-		( [in,ptr]SAFEARRAY* psa
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                );
 
 HRESULT _stdcall
 SafeArrayDestroyData
-		( [in,ptr]SAFEARRAY* psa
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                );
 
 HRESULT _stdcall
 SafeArrayDestroyDescriptor
-		( [in,ptr]SAFEARRAY* psa
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                );
 
 unsigned int _stdcall
 SafeArrayGetDim
-		( [in,ptr]SAFEARRAY* psa
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                );
 
 HRESULT _stdcall
 SafeArrayGetElement
-		( [in,ptr]SAFEARRAY* psa
-		//Ideally:, [in,size_is(psa->cDims-1)]long* rgIndices
-		, [in,ptr]long* rgIndices
-		, [in,ptr]void* pv
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                //Ideally:, [in,size_is(psa->cDims-1)]long* rgIndices
+                , [in,ptr]long* rgIndices
+                , [in,ptr]void* pv
+                );
 
 unsigned int _stdcall
 SafeArrayGetElemsize
-		( [in,ptr]SAFEARRAY* psa
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                );
 
 HRESULT _stdcall
 SafeArrayGetLBound
-		( [in,ptr]SAFEARRAY* psa
-		, [in]unsigned int nDim
-		, [out]long* plLbound
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                , [in]unsigned int nDim
+                , [out]long* plLbound
+                );
 
 HRESULT _stdcall
 SafeArrayGetUBound
-		( [in,ptr]SAFEARRAY* psa
-		, [in]unsigned int nDim
-		, [out]long* plLbound
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                , [in]unsigned int nDim
+                , [out]long* plLbound
+                );
 
 HRESULT _stdcall
 SafeArrayLock
-		( [in,ptr]SAFEARRAY* psa
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                );
 
 HRESULT _stdcall
 SafeArrayPtrOfIndex
-		( [in,ptr]SAFEARRAY* psa
-		, [in,ptr]long* rgIndices
-		, [out]void** ppvData
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                , [in,ptr]long* rgIndices
+                , [out]void** ppvData
+                );
 
 HRESULT _stdcall
 SafeArrayPutElement
-		( [in,ptr]SAFEARRAY* psa
-		, [in,ptr]long* rgIndices
-		, [in,ptr]void* pv
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                , [in,ptr]long* rgIndices
+                , [in,ptr]void* pv
+                );
 
 HRESULT _stdcall
 SafeArrayRedim
-		( [in,ptr]SAFEARRAY* psa
-		, [in,ref]SAFEARRAYBOUND* psaboundNew
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                , [in,ref]SAFEARRAYBOUND* psaboundNew
+                );
 
 HRESULT _stdcall
 SafeArrayUnaccessData
-		( [in,ptr]SAFEARRAY* psa
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                );
 
 HRESULT _stdcall
 SafeArrayUnlock
-		( [in,ptr]SAFEARRAY* psa
-		);
+                ( [in,ptr]SAFEARRAY* psa
+                );
 
 cpp_quote("#endif")
 };

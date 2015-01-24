@@ -10,9 +10,9 @@ extern
 int
 primStringToWide ( char* str
                  , unsigned int len
-		 , WCHAR* wstr
-		 , unsigned int wlen
-		 );
+                 , WCHAR* wstr
+                 , unsigned int wlen
+                 );
 extern
 int
 wideToString ( WCHAR* wstr, char** pstr );

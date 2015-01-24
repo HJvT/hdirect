@@ -72,7 +72,7 @@ emitHeader i =
   ifaces_implemented = mapMaybe toNm (filterAttributes attrs ["jni_interface"])
     where
      toNm  (Attribute _ [ParamLit (StringLit s)]) = Just s
-     toNm  _					  = Nothing
+     toNm  _                                      = Nothing
 
   is_class = attrs `hasAttributeWithName` "jni_class"
   
@@ -108,8 +108,8 @@ emitMethod (Method i _ res ps _)
     char '{' $$
      return_decl <+>
        castResult (resultType res) 
-       		  (fptr_call <> ppTuple (zipWith emitParamUse ps [0..]))
-		  <> semi $$
+                  (fptr_call <> ppTuple (zipWith emitParamUse ps [0..]))
+                  <> semi $$
     char '}'
  where 
   attrs = idAttributes i
@@ -231,8 +231,8 @@ emitConstructor i ds =
   vsep (map mkMethodPtr ms) $$
   text "public" <+> text (idOrigName i ++ "Proxy") <> 
     ppTuple (zipWith (\ x _ -> text ("FunctionPtr arg" ++ show x))
-    		     idxs
-		     ms) $$
+                     idxs
+                     ms) $$
     char '{' $$
     vsep (zipWith assignFptr idxs ms) $$
     char '}'
@@ -251,5 +251,5 @@ emitConstructor i ds =
      text "private FunctionPtr" <+> functionPtrName d <> semi
 
   isMethod d = not (idAttributes (declId d) `hasAttributeWithNames` 
-  		    ["jni_set_field", "jni_get_field", "jni_ctor"])
+                    ["jni_set_field", "jni_get_field", "jni_ctor"])
 \end{code}

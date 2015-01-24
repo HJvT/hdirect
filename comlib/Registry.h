@@ -13,20 +13,20 @@ primRegRemoveEntry ( int hive, const char* path, const char* val, int kind);
 extern
 HRESULT
 RegisterServer ( HMODULE  hMod
-	       , REFCLSID rclsid
-	       , const char* name
-	       , const char* verProgID
-	       , const char* progID
-	       );
+               , REFCLSID rclsid
+               , const char* name
+               , const char* verProgID
+               , const char* progID
+               );
 extern
 HRESULT
 UnregisterServer 
                ( HANDLE hMod
-	       , REFCLSID rclsid
-	       , const char* name
-	       , const char* verProgID
-	       , const char* progID
-	       );
+               , REFCLSID rclsid
+               , const char* name
+               , const char* verProgID
+               , const char* progID
+               );
 
 #endif
 

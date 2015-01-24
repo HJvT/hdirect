@@ -36,7 +36,7 @@ import
 import
        WideString
 import 
-       Com	   hiding (GUID)
+       Com         hiding (GUID)
 import qualified
        Com         ( GUID )
 import 
@@ -62,20 +62,20 @@ writeTLB _ _ = ioError (userError ("writeTLB: type library writer code not compi
 \begin{code}
 writeTLB ofnames decls = do
    case interesting_decls of 
-	-- If one library is present, write it out to 
-	-- the type library file name given last on the command line.
+        -- If one library is present, write it out to 
+        -- the type library file name given last on the command line.
      []  -> return ()
      [x] -> 
        case ofnames of
          (_:_) -> wTLB (Just (last ofnames)) x
-	 _     -> wTLB Nothing x -- whatever the default name is.
+         _     -> wTLB Nothing x -- whatever the default name is.
      _   -> 
        mapM_ (wTLB Nothing) interesting_decls
  where
   interesting_decls = filter ofInterest decls
 
   ofInterest (Library _ _) = True
-  ofInterest _	           = False 
+  ofInterest _             = False 
   
 wTLB :: Maybe String -> Decl -> IO ()
 wTLB ofname decl = do
@@ -87,8 +87,8 @@ wTLB ofname decl = do
       plib # setTLBAttrs decl
       catch 
         (do
-	  plib2 <- plib # queryInterface iidICreateTypeLib2
-	  setCustInfo (\ x y -> plib2 # setCustDataCTL x y) tlib_id)
+          plib2 <- plib # queryInterface iidICreateTypeLib2
+          setCustInfo (\ x y -> plib2 # setCustDataCTL x y) tlib_id)
         (\ _ -> return ())
 #ifdef DEBUG
       hPutStrLn stderr ("wTLB: " ++ show ofname) >> hFlush stderr
@@ -106,17 +106,17 @@ wTLB ofname decl = do
     tlib_id    = declId decl
 
     tlib_nm    = 
-	case ofname of
-	  Nothing -> idOrigName tlib_id ++ ".tlb"
-	  Just x  -> x
+        case ofname of
+          Nothing -> idOrigName tlib_id ++ ".tlb"
+          Just x  -> x
 
     tlib_decls = sortDecls (declDecls decl)
 
 setTLBAttrs :: Decl -> ICreateTypeLib a -> IO ()
 setTLBAttrs decl typelib = do
   setHelpInfo (\ x -> typelib # setDocStringCTL x)
-	      (\ x -> typelib # setHelpContextCTL x) 
-	      i
+              (\ x -> typelib # setHelpContextCTL x) 
+              i
   setGuidInfo (\ x -> typelib # setGuidCTL x) i
   typelib # setLibFlags (fromIntegral lib_flags)
 
@@ -126,7 +126,7 @@ setTLBAttrs decl typelib = do
   tlib_nm_wide <- stringToWide tlib_nm
   typelib # setNameCTL tlib_nm_wide
   setVersionInfo (\ maj min -> typelib # setVersionCTL maj min)
-		 i
+                 i
  where
   i       = declId decl
   attrs   = idAttributes i
@@ -136,20 +136,20 @@ setTLBAttrs decl typelib = do
 
   controlFlag
     | attrs `hasAttributeWithName` "control" = fromEnum LIBFLAG_FCONTROL
-    | otherwise				     = 0
+    | otherwise                              = 0
 
   restrictedFlag
     | attrs `hasAttributeWithName` "restricted" = fromEnum LIBFLAG_FRESTRICTED
-    | otherwise				        = 0
+    | otherwise                                 = 0
 
   hiddenFlag
     | attrs `hasAttributeWithName` "hidden"   = fromEnum LIBFLAG_FHIDDEN
-    | otherwise				      = 0
+    | otherwise                               = 0
 
   lcid = 
      case findAttribute "lcid" attrs of
        Just (Attribute _ [ParamLit (IntegerLit (ILit _ x))]) -> (fromIntegral x)
-       _					      -> ((-1)::Int)
+       _                                              -> ((-1)::Int)
 
 
 \end{code}
@@ -167,7 +167,7 @@ writeDecl d typelib =
     DispInterface{}     -> typelib # writeDispInterface d 
     CoClass{}           -> typelib # writeCoClass d 
     Module{}            -> typelib # writeModule d 
-    _ 			-> return ()
+    _                   -> return ()
  where
    -- currently unused, all typedefs are exported.
   -- hasPublicAttr i = (idAttributes i) `hasAttributeWithName` "public"
@@ -178,11 +178,11 @@ writeDecl d typelib =
 writeTypedef :: Decl -> ICreateTypeLib a -> IO ()
 writeTypedef (Typedef i t o) typelib
   | isConstructedUnionTy = do
-	case unionToStruct t of
-	  (Nothing, t')       -> typelib # writeTypedef (Typedef i t' o) 
-	  (Just (u_i,u_t), s_t) -> do
-	      typelib # writeTypedef (Typedef u_i u_t o)
-	      typelib # writeTypedef (Typedef i s_t o)
+        case unionToStruct t of
+          (Nothing, t')       -> typelib # writeTypedef (Typedef i t' o) 
+          (Just (u_i,u_t), s_t) -> do
+              typelib # writeTypedef (Typedef u_i u_t o)
+              typelib # writeTypedef (Typedef i s_t o)
   | isConstructedTy = do
       wstr    <- stringToWide (idOrigName i)
 #ifdef DEBUG
@@ -193,16 +193,16 @@ writeTypedef (Typedef i t o) typelib
       addTyInfo (idOrigName i) itinfo1
       addTyInfo (idName i) itinfo1
       tinfo1 # (case tkind of
-		  TKIND_ENUM   -> writeEnum t
-		  TKIND_RECORD -> writeRecord t typelib
-		  TKIND_UNION  -> writeUnion t typelib)
+                  TKIND_ENUM   -> writeEnum t
+                  TKIND_RECORD -> writeRecord t typelib
+                  TKIND_UNION  -> writeUnion t typelib)
       setHelpInfo (\ x -> tinfo1 # setDocString x)
-	          (\ x -> tinfo1 # setHelpContext x)
-	          i
+                  (\ x -> tinfo1 # setHelpContext x)
+                  i
       catch 
         (do
-	  ti <- tinfo1 # queryInterface iidICreateTypeInfo2
-	  setCustInfo (\ x y -> ti # setCustData x y) i)
+          ti <- tinfo1 # queryInterface iidICreateTypeInfo2
+          setCustInfo (\ x y -> ti # setCustData x y) i)
         (\ _ -> return ())
       tinfo1 # layOut
       return ()
@@ -215,12 +215,12 @@ writeTypedef (Typedef i t o) typelib
       addTyInfo (idName i) itinfo1
       tinfo # setTypeDescAlias (typedesc typelib tinfo t)
       setHelpInfo (\ x -> tinfo # setDocString x)
-	          (\ x -> tinfo # setHelpContext x)
-	          i
+                  (\ x -> tinfo # setHelpContext x)
+                  i
       catch 
         (do
-	  ti <- tinfo # queryInterface iidICreateTypeInfo2
-	  setCustInfo (\ x y -> ti # setCustData x y) i)
+          ti <- tinfo # queryInterface iidICreateTypeInfo2
+          setCustInfo (\ x y -> ti # setCustData x y) i)
         (\ _ -> return ())
       tinfo # layOut
       return ()
@@ -230,15 +230,15 @@ writeTypedef (Typedef i t o) typelib
       Struct{}   -> (True, False, TKIND_RECORD)
       Union{}    -> (True, True,  TKIND_UNION)
       UnionNon{} -> (True, True,  TKIND_UNION)
-      CUnion{}	 -> (True, False, TKIND_UNION)
-      Enum{}	 -> (True, False, TKIND_ENUM)
-      _		 -> (False, False, TKIND_MAX)
+      CUnion{}   -> (True, False, TKIND_UNION)
+      Enum{}     -> (True, False, TKIND_ENUM)
+      _          -> (False, False, TKIND_MAX)
 
 typedesc :: ICreateTypeLib b -> ICreateTypeInfo a -> Type -> TYPEDESC
 typedesc tlib ti t =  
   case t of
-      Float Short	 -> simpleDesc VT_R4
-      Float Long	 -> simpleDesc VT_R8
+      Float Short        -> simpleDesc VT_R4
+      Float Long         -> simpleDesc VT_R8
       Integer Short signed
          | signed    -> simpleDesc VT_I2
          | otherwise -> simpleDesc VT_UI2
@@ -251,62 +251,62 @@ typedesc tlib ti t =
       Integer LongLong  signed
          | signed    -> simpleDesc VT_I8
          | otherwise -> simpleDesc VT_UI8
-      Char False	 -> simpleDesc VT_UI1
-      Char True		 -> simpleDesc VT_I1
-      WChar		 -> simpleDesc VT_I2  -- in line with what MIDL does.
-      String{}		 -> simpleDesc VT_LPSTR
-      WString{} 	 -> simpleDesc VT_LPWSTR
-      Void		 -> simpleDesc VT_VOID
-      SafeArray ty	 -> 
-	    let td = typedesc tlib ti ty in
-	    TagTYPEDESC (Lptdesc (Just td))
-			(fromIntegral (fromEnum VT_SAFEARRAY))
+      Char False         -> simpleDesc VT_UI1
+      Char True          -> simpleDesc VT_I1
+      WChar              -> simpleDesc VT_I2  -- in line with what MIDL does.
+      String{}           -> simpleDesc VT_LPSTR
+      WString{}          -> simpleDesc VT_LPWSTR
+      Void               -> simpleDesc VT_VOID
+      SafeArray ty       -> 
+            let td = typedesc tlib ti ty in
+            TagTYPEDESC (Lptdesc (Just td))
+                        (fromIntegral (fromEnum VT_SAFEARRAY))
       Array ty bnds       -> 
-	    let td   = typedesc tlib ti ty
-		lens = map (fromIntegral.evalExpr) bnds
-	        ad   = TagARRAYDESC td (map (\ x -> TagSAFEARRAYBOUND (fromIntegral x) 0)
-					    lens)
-	    in
-	    
-	    TagTYPEDESC (Lpadesc (Just ad))
-			(fromIntegral (fromEnum VT_CARRAY))
+            let td   = typedesc tlib ti ty
+                lens = map (fromIntegral.evalExpr) bnds
+                ad   = TagARRAYDESC td (map (\ x -> TagSAFEARRAYBOUND (fromIntegral x) 0)
+                                            lens)
+            in
+            
+            TagTYPEDESC (Lpadesc (Just ad))
+                        (fromIntegral (fromEnum VT_CARRAY))
       Name "VARIANT" _ _ _ _ _ -> simpleDesc VT_VARIANT
       Name _ "VARIANT" _ _ _ _ -> simpleDesc VT_VARIANT
       Name "IHC_TAG_3" _ _ _ _ _ -> simpleDesc VT_VARIANT
       Name "HRESULT" _ _ _ _ _ -> simpleDesc VT_HRESULT
-      Pointer _ _ ty	   -> ptrDesc (typedesc tlib ti ty)
+      Pointer _ _ ty       -> ptrDesc (typedesc tlib ti ty)
       Name nm _ _ _ origTy mb_ti ->
         case lookupTyInfo nm of
-	  Just it -> unsafePerformIO $ do -- proof obligation! :)
-	     hr <- ti # addRefTypeInfo it
-	     return (TagTYPEDESC (Hreftype hr) (fromIntegral (fromEnum VT_USERDEFINED)))
-	  Nothing -> unsafePerformIO $
-	     case mb_ti of
-	       Just tyinfo | isJust (auto_vt tyinfo) -> do
-		let (Just vt) = auto_vt tyinfo
-		return (simpleDesc vt)
-	       _ -> do
-  	        hPutStrLn stderr ("failed to find: " ++ show nm)
-	        case origTy of
-	          Nothing -> do
-		    hPutStrLn stderr ("..and it's type expansion. That's a shame - interpreting it as a VARIANT*")
-		    return (simpleDesc VT_VARIANT) -- ToDo: emit *warning/error*
-	          Just e_t  -> do
- 	            hPutStrLn stderr ("but found type expansion - everything's cool.")
+          Just it -> unsafePerformIO $ do -- proof obligation! :)
+             hr <- ti # addRefTypeInfo it
+             return (TagTYPEDESC (Hreftype hr) (fromIntegral (fromEnum VT_USERDEFINED)))
+          Nothing -> unsafePerformIO $
+             case mb_ti of
+               Just tyinfo | isJust (auto_vt tyinfo) -> do
+                let (Just vt) = auto_vt tyinfo
+                return (simpleDesc vt)
+               _ -> do
+                hPutStrLn stderr ("failed to find: " ++ show nm)
+                case origTy of
+                  Nothing -> do
+                    hPutStrLn stderr ("..and it's type expansion. That's a shame - interpreting it as a VARIANT*")
+                    return (simpleDesc VT_VARIANT) -- ToDo: emit *warning/error*
+                  Just e_t  -> do
+                    hPutStrLn stderr ("but found type expansion - everything's cool.")
                     tlib # writeDecl (Typedef (mkId nm nm Nothing []) e_t e_t)
-		     -- retry...shouldn't loop, but if it does the user will see..
-		    return (typedesc tlib ti t)
+                     -- retry...shouldn't loop, but if it does the user will see..
+                    return (typedesc tlib ti t)
       Iface nm _ _ _ _ _ ->
-		case lookupTyInfo nm of
-		    Just it -> unsafePerformIO $ do -- proof obligation! :)
-			hr <- ti # addRefTypeInfo it
-			return (TagTYPEDESC (Hreftype hr) (fromIntegral (fromEnum VT_USERDEFINED)))
-		    Nothing -> simpleDesc VT_UNKNOWN -- ToDo: emit *warning/error*
+                case lookupTyInfo nm of
+                    Just it -> unsafePerformIO $ do -- proof obligation! :)
+                        hr <- ti # addRefTypeInfo it
+                        return (TagTYPEDESC (Hreftype hr) (fromIntegral (fromEnum VT_USERDEFINED)))
+                    Nothing -> simpleDesc VT_UNKNOWN -- ToDo: emit *warning/error*
       _ -> error ("typedesc: can't handle " ++ showCore (ppType t))
 
- where	    			
+ where                          
   ptrDesc td = TagTYPEDESC (Lptdesc (Just td))
-			   (fromIntegral (fromEnum VT_PTR))
+                           (fromIntegral (fromEnum VT_PTR))
 
   simpleDesc x = TagTYPEDESC IHC_TAG_3_Anon (fromIntegral (fromEnum x))
 
@@ -324,10 +324,10 @@ writeEnum (Enum i _ vals) tinfo = do
   tinfo # setTypeFlags tflags
   setGuidInfo (\ x -> tinfo # setGuid x) i
   setHelpInfo (\ x -> tinfo # setDocString x)
-	      (\ x -> tinfo # setHelpContext x)
-	      i
+              (\ x -> tinfo # setHelpContext x)
+              i
   setVersionInfo (\ maj min -> tinfo # setVersion maj min)
-		 i
+                 i
   catch 
     (do
       ti <- tinfo # queryInterface iidICreateTypeInfo2
@@ -341,8 +341,8 @@ writeEnum (Enum i _ vals) tinfo = do
     tinfo # setVarName index wstr
      -- helpstrings on enum tags..nothing's stopping us, I suppose..
     setHelpInfo (\ x -> tinfo # setVarDocString index x)
-	        (\ x -> tinfo # setVarHelpContext index x) 
-	        (enumName val)
+                (\ x -> tinfo # setVarHelpContext index x) 
+                (enumName val)
     catch 
       (do
         ti <- tinfo # queryInterface iidICreateTypeInfo2
@@ -351,21 +351,21 @@ writeEnum (Enum i _ vals) tinfo = do
     return ()
    where
     vardesc = TagVARDESC (fromIntegral index) nullWideString 
-			 (LpvarValue (Just v)) ed 0 VAR_CONST
+                         (LpvarValue (Just v)) ed 0 VAR_CONST
     ed = TagELEMDESC td pd
      --ToDo: honour v1_enum (or its abscence, as the case might be here.)
     td = TagTYPEDESC IHC_TAG_3_Anon (fromIntegral (fromEnum VT_I4))
     pd = TagPARAMDESC Nothing 0
     v  = unsafePerformIO $ 
-	 case (enumValue val) of
-	    Left value -> do
-		var <- allocBytes (fromIntegral sizeofVARIANT)
-		writeVarInt value var
-		return var
-	    Right e -> do
-		var <- allocBytes (fromIntegral sizeofVARIANT)
-		writeVarInt (fromIntegral (evalExpr e)) var
-		return var
+         case (enumValue val) of
+            Left value -> do
+                var <- allocBytes (fromIntegral sizeofVARIANT)
+                writeVarInt value var
+                return var
+            Right e -> do
+                var <- allocBytes (fromIntegral sizeofVARIANT)
+                writeVarInt (fromIntegral (evalExpr e)) var
+                return var
 
   tflags = computeTypeFlags i
 
@@ -380,15 +380,15 @@ writeRecord s_ty@(Struct i fields _) typelib tinfo = do
   tinfo # setTypeFlags tflags
   setGuidInfo (\ x -> tinfo # setGuid x) i
   setHelpInfo (\ x -> tinfo # setDocString x)
-	      (\ x -> tinfo # setHelpContext x)
-	      i
+              (\ x -> tinfo # setHelpContext x)
+              i
   setVersionInfo (\ maj min -> tinfo # setVersion maj min)
-		 i
+                 i
   tinfo # setAlignment (fromIntegral struct_align)
   catch 
         (do
-	  tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
-	  setCustInfo (\ x y -> tinfo2 # setCustData x y) i)
+          tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
+          setCustInfo (\ x y -> tinfo2 # setCustData x y) i)
         (\ _ -> return ())
    -- writeTypedef will call 'layOut' for us.
   return ()
@@ -405,17 +405,17 @@ writeRecord s_ty@(Struct i fields _) typelib tinfo = do
     wstr <- stringToWide (idOrigName (fieldId field))
     tinfo # setVarName idx wstr
     setHelpInfo (\ x -> tinfo # setVarDocString idx x)
-	        (\ x -> tinfo # setVarHelpContext idx x) 
-	        i
+                (\ x -> tinfo # setVarHelpContext idx x) 
+                i
     catch 
         (do
-	  tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
-	  setCustInfo (\ x y -> tinfo2 # setVarCustData idx x y) i)
+          tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
+          setCustInfo (\ x y -> tinfo2 # setVarCustData idx x y) i)
         (\ _ -> return ())
     return ()
    where
     vardesc = TagVARDESC (fromIntegral idx) nullWideString 
-			 (OInst (fromIntegral off)) ed wflags VAR_PERINSTANCE
+                         (OInst (fromIntegral off)) ed wflags VAR_PERINSTANCE
     ed      = TagELEMDESC td pd
     td      = typedesc typelib tinfo (fieldType field)
     pd      = TagPARAMDESC Nothing 0
@@ -430,15 +430,15 @@ writeUnion (CUnion i fields _) typelib tinfo = do
   tinfo # setTypeFlags tflags
   setGuidInfo (\ x -> tinfo # setGuid x) i
   setHelpInfo (\ x -> tinfo # setDocString x)
-	      (\ x -> tinfo # setHelpContext x)
-	      i
+              (\ x -> tinfo # setHelpContext x)
+              i
   setVersionInfo (\ maj min -> tinfo # setVersion maj min)
-		 i
+                 i
   tinfo # setAlignment 1 --(fromIntegral struct_align)
   catch 
         (do
-	  tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
-	  setCustInfo (\ x y -> tinfo2 # setCustData x y) i)
+          tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
+          setCustInfo (\ x y -> tinfo2 # setCustData x y) i)
         (\ _ -> return ())
    -- writeTypedef will call 'layOut' for us.
   return ()
@@ -455,17 +455,17 @@ writeUnion (CUnion i fields _) typelib tinfo = do
     wstr <- stringToWide (idOrigName (fieldId field))
     tinfo # setVarName idx wstr
     setHelpInfo (\ x -> tinfo # setVarDocString idx x)
-	        (\ x -> tinfo # setVarHelpContext idx x) 
-	        i
+                (\ x -> tinfo # setVarHelpContext idx x) 
+                i
     catch 
         (do
-	  tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
-	  setCustInfo (\ x y -> tinfo2 # setVarCustData idx x y) i)
+          tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
+          setCustInfo (\ x y -> tinfo2 # setVarCustData idx x y) i)
         (\ _ -> return ())
     return ()
    where
     vardesc = TagVARDESC (fromIntegral idx) nullWideString 
-			 (OInst 0) ed wflags VAR_PERINSTANCE
+                         (OInst 0) ed wflags VAR_PERINSTANCE
     ed      = TagELEMDESC td pd
     td      = typedesc typelib tinfo (fieldType field)
     pd      = TagPARAMDESC Nothing 0
@@ -500,10 +500,10 @@ writeInterface (Interface i is_ref inherits decls) typelib
   tinfo # setTypeFlags tflags
   setGuidInfo (\ x -> tinfo # setGuid x) i
   setHelpInfo (\ x -> tinfo # setDocString x)
-	      (\ x -> tinfo # setHelpContext x)
-	      i
+              (\ x -> tinfo # setHelpContext x)
+              i
   setVersionInfo (\ maj min -> tinfo # setVersion maj min)
-		 i
+                 i
   catch 
       (do
         tin <- tinfo # queryInterface iidICreateTypeInfo2
@@ -541,7 +541,7 @@ paramDesc p = TagPARAMDESC desc_ex flags
     ifSet (attrs `hasAttributeWithName` "lcid")         pARAMFLAG_FLCID       .|.
     ifSet (attrs `hasAttributeWithName` "retval")       pARAMFLAG_FRETVAL     .|.
     ifSet (attrs `hasAttributeWithName` "optional")     pARAMFLAG_FOPT        .|.
-    ifSet has_def_val					pARAMFLAG_FHASDEFAULT .|.
+    ifSet has_def_val                                   pARAMFLAG_FHASDEFAULT .|.
     (case (paramMode p) of
       In    -> pARAMFLAG_FIN
       Out   -> pARAMFLAG_FOUT
@@ -554,15 +554,15 @@ paramDesc p = TagPARAMDESC desc_ex flags
   def_var =
        case findAttribute "defaultvalue" attrs of
          Just (Attribute _ [ParamLit (StringLit  x)]) -> unsafePerformIO $ do
-			p_bstr <- marshallBSTR x
-	                var    <- allocBytes (fromIntegral sizeofVARIANT)
-	                writeVarString (castPtr p_bstr) var -- poorly named, should be writeVarBSTR
-	                return var
+                        p_bstr <- marshallBSTR x
+                        var    <- allocBytes (fromIntegral sizeofVARIANT)
+                        writeVarString (castPtr p_bstr) var -- poorly named, should be writeVarBSTR
+                        return var
          Just (Attribute _ [ParamLit (IntegerLit (ILit _ x))]) -> unsafePerformIO $ do
-		       var <- allocBytes (fromIntegral sizeofVARIANT)
-		       writeVarInt (fromIntegral x) var
-		       return var
-	 _ -> unsafePerformIO $ do
+                       var <- allocBytes (fromIntegral sizeofVARIANT)
+                       writeVarInt (fromIntegral x) var
+                       return var
+         _ -> unsafePerformIO $ do
             var <- allocBytes (fromIntegral sizeofVARIANT)
             writeVarInt 0 var
             return var
@@ -586,28 +586,28 @@ writeDispInterface (DispInterface i ii props meths) typelib = do
   (case lookupTyInfo "IDispatch" of
         Nothing -> return ()
         Just it -> do
-	     hr <- tinfo # addRefTypeInfo it
-	     tinfo # addImplType 0 hr
-	     return ())
+             hr <- tinfo # addRefTypeInfo it
+             tinfo # addImplType 0 hr
+             return ())
   (case ii of
      Just (Interface{declId=id}) ->
       case lookupTyInfo (idName id) of
         Nothing -> 
-	  let nm = idName id in
-	  hPutStrLn stderr ("Help - inherited from interface: " ++ show nm ++
-			    " , but couldn't find its ITypeInfo")
+          let nm = idName id in
+          hPutStrLn stderr ("Help - inherited from interface: " ++ show nm ++
+                            " , but couldn't find its ITypeInfo")
         Just it -> do
-	     hr <- tinfo # addRefTypeInfo it
-	     tinfo # addImplType 1 hr
-	     return ()
+             hr <- tinfo # addRefTypeInfo it
+             tinfo # addImplType 1 hr
+             return ()
      _ -> return ())
   when (not (isJust ii)) (zipWithM_ (writeMethod False Nothing typelib tinfo) [0..] meths)
   setVersionInfo (\ maj min -> tinfo # setVersion maj min)
-		 i
+                 i
   setGuidInfo (\ x -> tinfo # setGuid x) i
   setHelpInfo (\ x -> tinfo # setDocString x)
-	      (\ x -> tinfo # setHelpContext x)
-	      i
+              (\ x -> tinfo # setHelpContext x)
+              i
   catch 
       (do
         tin <- tinfo # queryInterface iidICreateTypeInfo2
@@ -632,10 +632,10 @@ writeCoClass (CoClass i ds) typelib = do
     foldM (writeCoClassDecl tinfo) 0 ds
     tinfo # setTypeFlags c_flags
     setVersionInfo (\ maj min -> tinfo # setVersion maj min)
-		   i
+                   i
     setHelpInfo (\ x -> tinfo # setDocString x)
-		(\ x -> tinfo # setHelpContext x)
-		i
+                (\ x -> tinfo # setHelpContext x)
+                i
     catch 
       (do
         ti <- tinfo # queryInterface iidICreateTypeInfo2
@@ -650,40 +650,40 @@ writeCoClass (CoClass i ds) typelib = do
        let nm = idOrigName (coClassId d) in
        case lookupTyInfo nm of
          Nothing -> do
-	    hPutStrLn stderr ("writeCoClass: Warning - couldn't find type info for " ++ show nm)
-	    case (coClassDecl d) of
-	      Nothing -> return idx
-	      Just de -> do
-	          typelib # writeDecl de
-		    -- it should have been added to the cache by now.
-		  writeCoClassDecl tinfo idx d
-	 Just it -> do
-	    hr <- tinfo # addRefTypeInfo it
-	    tinfo # addImplType idx hr
-	    tinfo # setImplTypeFlags idx d_flags
+            hPutStrLn stderr ("writeCoClass: Warning - couldn't find type info for " ++ show nm)
+            case (coClassDecl d) of
+              Nothing -> return idx
+              Just de -> do
+                  typelib # writeDecl de
+                    -- it should have been added to the cache by now.
+                  writeCoClassDecl tinfo idx d
+         Just it -> do
+            hr <- tinfo # addRefTypeInfo it
+            tinfo # addImplType idx hr
+            tinfo # setImplTypeFlags idx d_flags
             catch 
                  (do
                    ti <- tinfo # queryInterface iidICreateTypeInfo2
                    setCustInfo (\ x y -> ti # setImplTypeCustData idx x y) i)
                  (\ _ -> return ())
-	    return (idx+1)
+            return (idx+1)
       where
-	i_attrs = idAttributes (coClassId d)
+        i_attrs = idAttributes (coClassId d)
 
-	d_flags :: Int32
+        d_flags :: Int32
         d_flags = 
            foldr (\ (nm, val) acc -> ifSet (i_attrs `hasAttributeWithName` nm) val .|. acc) 
-	         0
-	         [ ("default", 0x1)
-	         , ("source",  0x2)
-	         , ("restricted", 0x4)
-	         , ("defaultvtable", 0x800)
-	         ]
+                 0
+                 [ ("default", 0x1)
+                 , ("source",  0x2)
+                 , ("restricted", 0x4)
+                 , ("defaultvtable", 0x800)
+                 ]
 
    c_flags  :: Word32
    c_flags
     | attrs `hasAttributeWithName` "noncreatable" = c_flags'
-    | otherwise					  = c_flags' .|. 0x02
+    | otherwise                                   = c_flags' .|. 0x02
 
    c_flags' :: Word32
    c_flags' = computeTypeFlags i
@@ -698,10 +698,10 @@ writeModule (Module i ds) typelib = do
     setGuidInfo (\ x -> tinfo # setGuid x) i
     tinfo # setTypeFlags m_flags
     setVersionInfo (\ maj min -> tinfo # setVersion maj min)
-	   i
+           i
     setHelpInfo (\ x -> tinfo # setDocString x)
-		(\ x -> tinfo # setHelpContext x)
-		i
+                (\ x -> tinfo # setHelpContext x)
+                i
     let (ms, non_ms) = partition isMethod ds
     let (cs, non_cs) = partition isConst non_ms
      -- MIDL magically lifts typedefs out of a module{} in 
@@ -711,8 +711,8 @@ writeModule (Module i ds) typelib = do
     zipWithM_ (writeConst typelib tinfo) [0..] cs
     catch 
         (do
-	  tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
-	  setCustInfo (\ x y -> tinfo2 # setCustData x y) i)
+          tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
+          setCustInfo (\ x y -> tinfo2 # setCustData x y) i)
         (\ _ -> return ())
     tinfo # layOut
 
@@ -722,7 +722,7 @@ writeModule (Module i ds) typelib = do
    dllname = 
        case findAttribute "dllname" (idAttributes i) of
          Just (Attribute _ [ParamLit (StringLit  x)]) -> x
-	 _ -> ""
+         _ -> ""
 
 \end{code}
 
@@ -735,33 +735,33 @@ writeMethod isBinary hasDllName typelib tinfo idx (Method f cc res params _) = d
    wnames <- mapM stringToWide names
    tinfo # setFuncAndParamNames idx wnames
    setHelpInfo (\ x -> tinfo # setFuncDocString idx x)
-	       (\ x -> tinfo # setFuncHelpContext idx x)
-	       f
+               (\ x -> tinfo # setFuncHelpContext idx x)
+               f
    when isDllMethod $ do
       w_dll   <- stringToWide dllname
        -- Why, oh why - if the high word of w_entry
        -- is zero, then the low word contains the DLL ordinal. If not,
        -- it contains the entry name. Lovely.
       w_entry <- 
-	  if isOrdinal then
-	     word16ToWideString ordinal
-	  else
-	     stringToWide entry
+          if isOrdinal then
+             word16ToWideString ordinal
+          else
+             stringToWide entry
       tinfo # defineFuncAsDllEntry idx w_dll w_entry
     -- set custom attributes for the method...
    catch 
         (do
-	  tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
-	  setCustInfo (\ x y -> tinfo2 # setCustData x y) f)
+          tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
+          setCustInfo (\ x y -> tinfo2 # setCustData x y) f)
         (\ _ -> return ())
     -- ...and for its parameters.
    catch 
         (do
           ti <- tinfo # queryInterface iidICreateTypeInfo2
-	  let
-	    setParamCust i p = 
-	       setCustInfo (\ x y -> ti # setParamCustData idx i x y) (paramId p)
-	  zipWithM_ setParamCust [0..] params)
+          let
+            setParamCust i p = 
+               setCustInfo (\ x y -> ti # setParamCustData idx i x y) (paramId p)
+          zipWithM_ setParamCust [0..] params)
         (\ _ -> return ())
    return ()
   where
@@ -778,7 +778,7 @@ writeMethod isBinary hasDllName typelib tinfo idx (Method f cc res params _) = d
        case findAttribute "entry" attrs of
          Just (Attribute _ [ParamLit (IntegerLit (ILit _ x))]) -> ("", fromIntegral x, True)
          Just (Attribute _ [ParamLit (StringLit  x)])          -> (x, 0, False)
-	 _ -> ("", 0, True)
+         _ -> ("", 0, True)
       
 
      isDllMethod    = isJust hasDllName
@@ -791,10 +791,10 @@ writeMethod isBinary hasDllName typelib tinfo idx (Method f cc res params _) = d
 
      fdesc = 
        TagFUNCDESC memid [] elemdesc_params
-		   fkind invkind
-		   cc_fd no_opt_params ovft
-		   elemdesc_res f_flags
-		   
+                   fkind invkind
+                   cc_fd no_opt_params ovft
+                   elemdesc_res f_flags
+                   
      ovft
       | isDllMethod = fromIntegral memid
       | otherwise   = fromIntegral mEMBER_NULL
@@ -802,60 +802,60 @@ writeMethod isBinary hasDllName typelib tinfo idx (Method f cc res params _) = d
      memid 
        | not isDllMethod = 
           case findAttribute "id" attrs of
-	    Just (Attribute _ [ParamLit (IntegerLit (ILit _ x))]) -> fromIntegral x
-	    _ -> fromIntegral idx
+            Just (Attribute _ [ParamLit (IntegerLit (ILit _ x))]) -> fromIntegral x
+            _ -> fromIntegral idx
 
-	 -- This one is odd, for some reason the memberid has be an offset of
-	 -- the below value. I can't make out why bits 2 and 3 of the msb
-	 -- needs to be set just from looking at the docs for a MEMBERID. 
-	 -- (I figured this one out by peering at the memid fields produced
-	 -- by MIDL.)
+         -- This one is odd, for some reason the memberid has be an offset of
+         -- the below value. I can't make out why bits 2 and 3 of the msb
+         -- needs to be set just from looking at the docs for a MEMBERID. 
+         -- (I figured this one out by peering at the memid fields produced
+         -- by MIDL.)
        | otherwise = fromIntegral (0x60000000 + fromIntegral idx)
 
      (invkind , isPropPut)
        | attrs `hasAttributeWithName` "propget"    = (INVOKE_PROPERTYGET, False)
        | attrs `hasAttributeWithName` "propput"    = (INVOKE_PROPERTYPUT, True)
        | attrs `hasAttributeWithName` "propputref" = (INVOKE_PROPERTYPUTREF, True)
-       | otherwise				   = (INVOKE_FUNC, False)
+       | otherwise                                 = (INVOKE_FUNC, False)
 
      elemdesc_params = 
         map (\ p -> TagELEMDESC (typedesc typelib tinfo (paramType p))
-				(paramDesc p)) params
+                                (paramDesc p)) params
 
      elemdesc_res = 
-	 TagELEMDESC
-	    (typedesc typelib tinfo (resultOrigType res))
-	    (TagPARAMDESC Nothing 0)
+         TagELEMDESC
+            (typedesc typelib tinfo (resultOrigType res))
+            (TagPARAMDESC Nothing 0)
 
      cc_fd =
        case cc of
          Stdcall  -> CC_STDCALL
-	 Pascal   -> CC_PASCAL
-	 Cdecl    -> CC_CDECL
-	 Fastcall -> CC_FASTCALL
+         Pascal   -> CC_PASCAL
+         Cdecl    -> CC_CDECL
+         Fastcall -> CC_FASTCALL
 
      no_opt_params = fromIntegral $
-		     length (filter (hasOptionalAttr.idAttributes.paramId) params)
+                     length (filter (hasOptionalAttr.idAttributes.paramId) params)
      
      hasOptionalAttr at = at `hasAttributeWithName` "optional"
 
      f_flags :: Word16
      f_flags =
         foldr (\ (nm, val) acc -> ifSet (attrs `hasAttributeWithName` nm) val .|. acc) 0 
-	      [ ("restricted",	      0x1)
-	      , ("source",	      0x2)
-	      , ("bindable",	      0x4)
-	      , ("requestedit",	      0x8)
-	      , ("displaybind",      0x10)
-	      , ("defaultbind",      0x20)
-	      , ("hidden",           0x40)
-	      , ("usesgetlasterror", 0x80)
-	      , ("defaultcollelem", 0x100)
-	      , ("uidefault",       0x200)
-	      , ("nonbrowsable",    0x400)
-	      , ("replaceable",     0x800)
-	      , ("immediatebind",  0x1000)
-	      ]
+              [ ("restricted",        0x1)
+              , ("source",            0x2)
+              , ("bindable",          0x4)
+              , ("requestedit",       0x8)
+              , ("displaybind",      0x10)
+              , ("defaultbind",      0x20)
+              , ("hidden",           0x40)
+              , ("usesgetlasterror", 0x80)
+              , ("defaultcollelem", 0x100)
+              , ("uidefault",       0x200)
+              , ("nonbrowsable",    0x400)
+              , ("replaceable",     0x800)
+              , ("immediatebind",  0x1000)
+              ]
 
 writeMethod _ _ _ _ _ _ = return ()
 
@@ -865,32 +865,32 @@ writeProp typelib tinfo (Property i ty _ _ _) = do
     wstr <- stringToWide (idOrigName i)
     tinfo # setVarName memid wstr
     setHelpInfo (\ x -> tinfo # setVarDocString memid x)
-	        (\ x -> tinfo # setVarHelpContext memid x)
-	        i
+                (\ x -> tinfo # setVarHelpContext memid x)
+                i
     catch 
         (do
-	  tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
-	  setCustInfo (\ x y -> tinfo2 # setVarCustData memid x y) i)
+          tinfo2 <- tinfo # queryInterface iidICreateTypeInfo2
+          setCustInfo (\ x y -> tinfo2 # setVarCustData memid x y) i)
         (\ _ -> return ())
     return ()
  where
     attrs   = idAttributes i
 
     vardesc = TagVARDESC (fromIntegral (fromIntegral memid)) nullWideString 
-			 (LpvarValue (Just v)) ed wflags VAR_DISPATCH
+                         (LpvarValue (Just v)) ed wflags VAR_DISPATCH
     ed = TagELEMDESC td pd
     td = typedesc typelib tinfo ty
     pd = TagPARAMDESC Nothing 0
     v  = unsafePerformIO $ do
-		var <- allocBytes (fromIntegral sizeofVARIANT)
-		writeVarInt 0 var
-		return var
+                var <- allocBytes (fromIntegral sizeofVARIANT)
+                writeVarInt 0 var
+                return var
     wflags = computeVarFlags i
 
     memid  =
       case findAttribute "id" attrs of
         Just (Attribute _ [ParamLit (IntegerLit (ILit _ x))]) -> fromIntegral x
-	_ -> 0
+        _ -> 0
 
 writeProp _ _ _ = return ()
 
@@ -903,8 +903,8 @@ writeConst typelib tinfo idx (Constant i ty _ e) = do
    wstr <- stringToWide (idOrigName i)
    tinfo # setVarName memid wstr
    setHelpInfo (\ x -> tinfo # setVarDocString memid x)
-	       (\ x -> tinfo # setVarHelpContext memid x)
-	       i
+               (\ x -> tinfo # setVarHelpContext memid x)
+               i
    catch 
      (do
        ti <- tinfo # queryInterface iidICreateTypeInfo2
@@ -915,28 +915,28 @@ writeConst typelib tinfo idx (Constant i ty _ e) = do
     attrs   = idAttributes i
 
     vardesc = TagVARDESC 0 nullWideString 
-			 (LpvarValue (Just v)) ed 0{-no VARFLAGS-} VAR_CONST
+                         (LpvarValue (Just v)) ed 0{-no VARFLAGS-} VAR_CONST
     ed = TagELEMDESC td pd
     td = typedesc typelib tinfo ty
     pd = TagPARAMDESC Nothing 0
     v  = unsafePerformIO $ 
-	 case e of
-	    Lit l -> do
-	      p_bstr <- marshallBSTR (litToString l)
-	      var    <- allocBytes (fromIntegral sizeofVARIANT)
-	      writeVarString (castPtr p_bstr) var -- poorly named, should be writeVarBSTR
-	      return var
-	    _ -> do
-		-- ToDo: look for other exprs.
-		var <- allocBytes (fromIntegral sizeofVARIANT)
-		hPutStrLn stderr "writeConst: cannot handle expr"
-		writeVarInt 1 var
-		return var
+         case e of
+            Lit l -> do
+              p_bstr <- marshallBSTR (litToString l)
+              var    <- allocBytes (fromIntegral sizeofVARIANT)
+              writeVarString (castPtr p_bstr) var -- poorly named, should be writeVarBSTR
+              return var
+            _ -> do
+                -- ToDo: look for other exprs.
+                var <- allocBytes (fromIntegral sizeofVARIANT)
+                hPutStrLn stderr "writeConst: cannot handle expr"
+                writeVarInt 1 var
+                return var
 
     memid  =
       case findAttribute "entry" attrs of
         Just (Attribute _ [ParamLit (IntegerLit (ILit _ x))]) -> fromIntegral x
-	_ -> idx
+        _ -> idx
 
 writeConst _ _ _ _ = return ()
 
@@ -971,13 +971,13 @@ setInherit []         _     = return ()
 setInherit ((qn,_):_) tinfo = do
      case lookupTyInfo (qName qn) of
         Nothing -> 
-	  let nm = qName qn in
-	  hPutStrLn stderr ("Help - inherited from interface: " ++ show nm ++
-			    " , but couldn't find its ITypeInfo")
+          let nm = qName qn in
+          hPutStrLn stderr ("Help - inherited from interface: " ++ show nm ++
+                            " , but couldn't find its ITypeInfo")
         Just it -> do
-	     hr <- tinfo # addRefTypeInfo it
-	     tinfo # addImplType 0 hr
-	     return ()
+             hr <- tinfo # addRefTypeInfo it
+             tinfo # addImplType 0 hr
+             return ()
 
 setupTyInfoCache :: IO ()
 setupTyInfoCache = do
@@ -985,16 +985,16 @@ setupTyInfoCache = do
       -- create a cross-reference to IUnknown / IDispatch impl in Stdole32
      let guid    = mkGUID "{00020430-0000-0000-C000-000000000046}"
          majVer  = 2::Int
-	 minVer  = 0::Int
-	 lcid   =  0::Int
+         minVer  = 0::Int
+         lcid   =  0::Int
      tlbOle <- loadRegTypeLib guid majVer minVer lcid
      count  <- tlbOle # getTypeInfoCount
      mapM_ (addTy tlbOle) [(0::Word32)..(count-1)]
       -- some aliases.
      addTyInfo "IID" (fromMaybe (error "failed to find IID") -- 
-				(lookupTyInfo "GUID"))
+                                (lookupTyInfo "GUID"))
      addTyInfo "CLSID" (fromMaybe (error "failed to find CLSID") -- 
-				  (lookupTyInfo "GUID"))
+                                  (lookupTyInfo "GUID"))
      return ()
  where 
   addTy tlb i = do
@@ -1009,8 +1009,8 @@ setupTyInfoCache = do
 
   prim_ls = [ "IUnknown"
             , "IDispatch"
-	    , "GUID"
-	    ]
+            , "GUID"
+            ]
 
 \end{code}
 
@@ -1054,12 +1054,12 @@ and ICreateTypeInfo.
 
 \begin{code}
 setHelpInfo :: (WideString -> IO ()) -- write out helpstring
-	    -> (Word32 -> IO ())     -- write out helpcontext
-	    -> Id
-	    -> IO ()
+            -> (Word32 -> IO ())     -- write out helpcontext
+            -> Id
+            -> IO ()
 setHelpInfo wr_str wr_ctxt i = do
   when (notNull doc_str) $ do
-	    wstr <- stringToWide doc_str
+            wstr <- stringToWide doc_str
             wr_str wstr
   when (h_ctxt /= 0) (wr_ctxt h_ctxt)
   return ()
@@ -1077,8 +1077,8 @@ setHelpInfo wr_str wr_ctxt i = do
        _ -> 0
 
 setVersionInfo :: (Word16 -> Word16 -> IO ())
-	       -> Id
-	       -> IO ()
+               -> Id
+               -> IO ()
 setVersionInfo wr_version i = do
   when (isJust versionInfo) $ 
        wr_version (fromIntegral major) (fromIntegral minor)
@@ -1088,34 +1088,34 @@ setVersionInfo wr_version i = do
   versionInfo =
      case findAttribute "version" attrs of
        Just (Attribute _ [ParamLit (FloatingLit (d,_))]) -> 
-		-- sigh, brittle allright.
-		let (maj,min) = break (=='.') d in
-		Just (read maj,read (tail min))
+                -- sigh, brittle allright.
+                let (maj,min) = break (=='.') d in
+                Just (read maj,read (tail min))
        _ -> Nothing
 
   Just (major, minor) = versionInfo
 
 setGuidInfo :: (Com.GUID -> IO ())
-	    -> Id
-	    -> IO ()
+            -> Id
+            -> IO ()
 setGuidInfo wr_guid i = when (notNull guid_str) 
-			     (wr_guid (mkGUID guid_str))
+                             (wr_guid (mkGUID guid_str))
  where
-  attrs	   = idAttributes i
+  attrs    = idAttributes i
 
   guid_str = 
     case getUuidAttribute attrs of
       Just [g] -> 
         case g of
-	  '{':_ -> g
-	  _     -> '{':g ++ "}"
+          '{':_ -> g
+          _     -> '{':g ++ "}"
        -- shouldn't happen, but who cares.
       Just gs  -> '{':concat (intersperse "-" gs) ++ "}"
-      _	       -> []
+      _        -> []
 
 setCustInfo :: (Com.GUID -> VARIANT -> IO ())
-	    -> Id
-	    -> IO ()
+            -> Id
+            -> IO ()
 setCustInfo wr_cust i = mapM_ writeCustom customs
  where
   writeCustom (guid, v) = do
@@ -1134,13 +1134,13 @@ setCustInfo wr_cust i = mapM_ writeCustom customs
      where
        s = case (litToString l1) of
             ls@('{':_) -> ls
-	    xs	       -> '{':xs ++ "}"
+            xs         -> '{':xs ++ "}"
 
   customise (Attribute _ [ ParamExpr (Lit (GuidLit [s]))
-			 , ParamExpr (Lit l)
-			 ]) = (s, litToString l)
+                         , ParamExpr (Lit l)
+                         ]) = (s, litToString l)
   customise a = error ("setCustInfo: oops - can't handle " ++ showCore (ppAttr a))
-			 
+                         
 
 \end{code}
 
@@ -1152,20 +1152,20 @@ computeTypeFlags i = tflags
 
   tflags =
     foldr (\ (x,val) acc -> ifSet (attrs `hasAttributeWithName` x) (fromEnum32 val) .|. acc) 0
-	  [ ("appobject", TYPEFLAG_FAPPOBJECT)
-	  , ("creatable", TYPEFLAG_FCANCREATE)
-	  , ("licensed",  TYPEFLAG_FLICENSED)
-	  , ("predecl",   TYPEFLAG_FPREDECLID) 
-	      -- wild&random guess at how this is done at the ODL level
-	      -- - exactly what is the function of that attr anyway?
-	  , ("hidden",    TYPEFLAG_FHIDDEN)
-	  , ("control",   TYPEFLAG_FCONTROL)
-	  , ("dual",	  TYPEFLAG_FDUAL)
-	  , ("nonextensible", TYPEFLAG_FNONEXTENSIBLE)
-	  , ("oleautomation", TYPEFLAG_FOLEAUTOMATION)
-	  , ("restricted",    TYPEFLAG_FRESTRICTED)
-	  , ("aggregatable",  TYPEFLAG_FAGGREGATABLE)
-	  ]
+          [ ("appobject", TYPEFLAG_FAPPOBJECT)
+          , ("creatable", TYPEFLAG_FCANCREATE)
+          , ("licensed",  TYPEFLAG_FLICENSED)
+          , ("predecl",   TYPEFLAG_FPREDECLID) 
+              -- wild&random guess at how this is done at the ODL level
+              -- - exactly what is the function of that attr anyway?
+          , ("hidden",    TYPEFLAG_FHIDDEN)
+          , ("control",   TYPEFLAG_FCONTROL)
+          , ("dual",      TYPEFLAG_FDUAL)
+          , ("nonextensible", TYPEFLAG_FNONEXTENSIBLE)
+          , ("oleautomation", TYPEFLAG_FOLEAUTOMATION)
+          , ("restricted",    TYPEFLAG_FRESTRICTED)
+          , ("aggregatable",  TYPEFLAG_FAGGREGATABLE)
+          ]
 
 computeVarFlags :: Id -> Word16
 computeVarFlags i = wflags
@@ -1174,20 +1174,20 @@ computeVarFlags i = wflags
 
   wflags =
     foldr (\ (x,val) acc -> ifSet (attrs `hasAttributeWithName` x) (fromEnum16 val) .|. acc) 0
-	  [ ("readonly", VARFLAG_FREADONLY)
-	  , ("source",   VARFLAG_FSOURCE)
-	  , ("bindable", VARFLAG_FBINDABLE)
-	  , ("requestedit", VARFLAG_FREQUESTEDIT)
-	  , ("displaybind", VARFLAG_FDISPLAYBIND)
-	  , ("defaultbind", VARFLAG_FDEFAULTBIND)
-	  , ("hidden",      VARFLAG_FHIDDEN)
-	  , ("restricted",  VARFLAG_FRESTRICTED)
-	  , ("defaultcollelem", VARFLAG_FDEFAULTCOLLELEM)
-	  , ("uidefault",    VARFLAG_FUIDEFAULT)
-	  , ("nonbrowsable", VARFLAG_FNONBROWSABLE)
-	  , ("replaceable",   VARFLAG_FREPLACEABLE)
-	  , ("immediatebind", VARFLAG_FIMMEDIATEBIND)
-	  ]
+          [ ("readonly", VARFLAG_FREADONLY)
+          , ("source",   VARFLAG_FSOURCE)
+          , ("bindable", VARFLAG_FBINDABLE)
+          , ("requestedit", VARFLAG_FREQUESTEDIT)
+          , ("displaybind", VARFLAG_FDISPLAYBIND)
+          , ("defaultbind", VARFLAG_FDEFAULTBIND)
+          , ("hidden",      VARFLAG_FHIDDEN)
+          , ("restricted",  VARFLAG_FRESTRICTED)
+          , ("defaultcollelem", VARFLAG_FDEFAULTCOLLELEM)
+          , ("uidefault",    VARFLAG_FUIDEFAULT)
+          , ("nonbrowsable", VARFLAG_FNONBROWSABLE)
+          , ("replaceable",   VARFLAG_FREPLACEABLE)
+          , ("immediatebind", VARFLAG_FIMMEDIATEBIND)
+          ]
 
 \end{code}
 

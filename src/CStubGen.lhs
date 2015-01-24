@@ -22,8 +22,8 @@ import Utils ( notNull )
 
 \begin{code}
 cStubGen :: String       -- (base)name of output file
-	 -> [HTopDecl]   -- Haskell decls to derive C code from.
-	 -> String
+         -> [HTopDecl]   -- Haskell decls to derive C code from.
+         -> String
 cStubGen c_nm hs = inc_header ((showPPDoc (hCode hs)) [])
  where
   inc_header ls =
@@ -57,15 +57,15 @@ hCode xs = whizz xs
     let dlls_real = nub (filter notNull dlls) in
     traceIf (optVerbose && notNull dlls_real)
             ("\nStubs depend on entry points from the following DLLs/libraries:\n  " ++
-	     showList dlls_real (
-	     "\nyou may need to adjust your command-line when compiling the stubs to" ++
-	     "\ntake this into account.")) empty
+             showList dlls_real (
+             "\nyou may need to adjust your command-line when compiling the stubs to" ++
+             "\ntake this into account.")) empty
   whizz (HLit _ : ls)     = whizz ls
   whizz (CLit s : ls)
     | not optGenHeader    = text s $$ whizz ls
     | otherwise           = whizz ls
   whizz (HInclude s : ls) = text "#include" <+> text (escapeString s) $$
-  			    whizz ls
+                            whizz ls
   whizz (HMod hm : ls)    = hMod hm (whizz ls)
 
   escapeString s@('"':_) = s -- "
@@ -79,7 +79,7 @@ hDecl :: HDecl -> CStubCode -> CStubCode
 hDecl (AndDecl d1 d2) cont = hDecl d1 (hDecl d2 cont)
 hDecl (Primitive _ cc lspec nm ty needs_wrapper c_args c_res) cont
  | not needs_a_wrapper = cont
- | otherwise	       =
+ | otherwise           =
    addToDllEnv dll_name $
    tdefFun lspec cc c_args c_res $$
    primHeader nm c_res c_args    $$ 
@@ -106,7 +106,7 @@ hDecl (Primitive _ cc lspec nm ty needs_wrapper c_args c_res) cont
 
 hDecl (PrimCast cc nm ty needs_wrapper c_args c_res) cont
  | not needs_wrapper = cont
- | otherwise	     = 
+ | otherwise         = 
    tdefFunTy ty nm cc c_args c_res $$
    primHeader nm c_res c_args      $$ 
    lbrace $$
@@ -185,8 +185,8 @@ pushResult (isStructTy, c_ty) ty = assignRes
 
   the_result
    | isStructTy = text "copyBytes" <> parens (
-			text "sizeof" <> parens (text c_ty) <>
-			text ", &res")
+                        text "sizeof" <> parens (text c_ty) <>
+                        text ", &res")
    | otherwise  = text "res"
 
 \end{code}
@@ -196,7 +196,7 @@ tdefFunTy :: Type -> Name -> CallConv -> [(Bool,String)] -> (Bool,String) -> CSt
 tdefFunTy ty nm cc c_args (_,c_res) =
  text "typedef" <+> ppResultTy <+>
    parens ( ppCallConv True cc <+> char '*' <+> 
-	    text (nm++"__funptr")) <+>
+            text (nm++"__funptr")) <+>
    ppTuple ppArgs <> semi
  where
   (_, res) = splitFunTys ty
@@ -213,5 +213,5 @@ tdefFunTy ty nm cc c_args (_,c_res) =
 
 noResultTy :: Type -> Bool
 noResultTy (TyApply (TyCon _) [TyCon tc]) = qName tc == "()"
-noResultTy _				  = False
+noResultTy _                              = False
 \end{code}

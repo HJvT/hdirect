@@ -64,16 +64,16 @@ of [out] parameters plus dependent arguments etc.
 
 \begin{code}
 toHaskellMethodTy :: Bool
-		  -> Bool
-		  -> Bool
-	          -> Maybe Haskell.Type
-		  -> [Param]
-		  -> Result
-		  -> (Haskell.Type, Maybe Haskell.Context)
+                  -> Bool
+                  -> Bool
+                  -> Maybe Haskell.Type
+                  -> [Param]
+                  -> Result
+                  -> (Haskell.Type, Maybe Haskell.Context)
 toHaskellMethodTy isPure isServer isAuto mb_iface_ty params result 
   = case generaliseTys (mb_io_res_ty: the_param_tys) of
      ((r:ps), mb_c) -> (funTys ps r, mb_c)
-     _              -> error "MarshallCore.toHaskellMethodTy: unexpected result"		       
+     _              -> error "MarshallCore.toHaskellMethodTy: unexpected result"                       
   where
    mb_io_res_ty
      | isPure    = the_res_ty
@@ -90,25 +90,25 @@ toHaskellMethodTy isPure isServer isAuto mb_iface_ty params result
 
    (param_tys, res_tys) = 
        constrainIIDParams (paramToHaskellType par_deps isServer isAuto False)
-       			  (paramToHaskellType res_deps isServer isAuto True)
-			  real_params
-			  res_params
+                          (paramToHaskellType res_deps isServer isAuto True)
+                          real_params
+                          res_params
 
    res_params = removeDependees res_deps res
 
    the_res_ty =
      tuple (
       case (resultOrigType result) of
-	t  | isHRESULTTy t && not optKeepHRESULT -> res_tys
-	   | not (isVoidTy (removeNames t)) -> (res_tys ++ [toHaskellTy False (resultOrigType result)])
-	   | otherwise   -> res_tys)
+        t  | isHRESULTTy t && not optKeepHRESULT -> res_tys
+           | not (isVoidTy (removeNames t)) -> (res_tys ++ [toHaskellTy False (resultOrigType result)])
+           | otherwise   -> res_tys)
      
 
 constrainIIDParams :: (Param -> Haskell.Type)
-		   -> (Param -> Haskell.Type)
-		   -> [Param]
-		   -> [Param]
-		   -> ([Haskell.Type], [Haskell.Type])
+                   -> (Param -> Haskell.Type)
+                   -> [Param]
+                   -> [Param]
+                   -> ([Haskell.Type], [Haskell.Type])
 constrainIIDParams paramToType resultToType params res 
   | optUseIIDIs = (param_tys, res_tys)
   | otherwise   = (param_tys_vanilla, res_tys_vanilla)
@@ -120,19 +120,19 @@ constrainIIDParams paramToType resultToType params res
 
    toIIDTyVarRes p ty =
        case findAttribute "iid_is" (idAttributes (paramId p)) of
-	  Just (Attribute _ [ParamVar v]) -> 
-	     case lookup v iidIs_vars of
-	        Just x -> replaceTyVar (uniqueTyVar ('i':show x)) ty
-		_ -> ty
+          Just (Attribute _ [ParamVar v]) -> 
+             case lookup v iidIs_vars of
+                Just x -> replaceTyVar (uniqueTyVar ('i':show x)) ty
+                _ -> ty
           _ -> ty
-	    
+            
    iidIs_vars = zip (nub (catMaybes (map isIIDDep res)))
-   		    [(0::Int)..]
+                    [(0::Int)..]
      where
       isIIDDep p = 
         case findAttribute "iid_is" (idAttributes (paramId p)) of
-	  Just (Attribute _ [ParamVar v]) -> Just v
-	  _ -> Nothing
+          Just (Attribute _ [ParamVar v]) -> Just v
+          _ -> Nothing
 
    param_tys = zipWith toIIDTyVar    params param_tys_vanilla
    res_tys   = zipWith toIIDTyVarRes res    res_tys_vanilla
@@ -161,15 +161,15 @@ toHaskellTy isGround ty =
    Octet           -> tyWord8
    Any             -> tyAddr
    Object          -> tyAddr
-   StablePtr	   -> tyStable
+   StablePtr       -> tyStable
    FunTy _ res ps  -> 
-   	case (toHaskellMethodTy False isGround False Nothing ps res') of
-	  (t, Nothing) -> t
-	  (t, Just c)  -> ctxtTyApp c t
+        case (toHaskellMethodTy False isGround False Nothing ps res') of
+          (t, Nothing) -> t
+          (t, Just c)  -> ctxtTyApp c t
      where
       res' = res{ resultType     = removePtr (resultType res)
-	        , resultOrigType = removePtr (resultOrigType res)
-	        }
+                , resultOrigType = removePtr (resultOrigType res)
+                }
  
    String _ isUnique _ -> (if isUnique then tyMaybe else id) tyString
    WString isUnique _  -> (if isUnique then tyMaybe else id) tyWString
@@ -177,13 +177,13 @@ toHaskellTy isGround ty =
    Fixed{}             -> error "not implemented yet."
    Name _ _ _ _ (Just o@Iface{}) _ -> toHaskellTy isGround o
    Name _ _ _ _ _ (Just ti) ->
-   	case mkTyConst (haskell_type ti) of
-	   t | optCom && isTyVar t -> 
-			if isGround then
-			   mkTyConst vARIANT
-			else
-			   ctxtTyApp (ctxtClass variantClass [t]) t
-	     | otherwise           -> t
+        case mkTyConst (haskell_type ti) of
+           t | optCom && isTyVar t -> 
+                        if isGround then
+                           mkTyConst vARIANT
+                        else
+                           ctxtTyApp (ctxtClass variantClass [t]) t
+             | otherwise           -> t
    Name nm _ md _ _ _ -> tyQConst (fmap mkHaskellTyConName md) (mkHaskellTyConName nm)
    SafeArray t 
      | isGround  -> mkTyConst sAFEARRAY
@@ -199,64 +199,64 @@ toHaskellTy isGround ty =
 {-
    Pointer Unique isExp (Iface nm mod _ attrs _ _) 
      | optJNI && attrs `hasAttributeWithName` "jni_iface_ty" -> 
-     	        let i = tyVar "a" in
-		mkTyCon jObject
-			[ ctxtTyApp (ctxtClass (mkQualName mod nm) [mkTyCon jObject [i]]) i]
+                let i = tyVar "a" in
+                mkTyCon jObject
+                        [ ctxtTyApp (ctxtClass (mkQualName mod nm) [mkTyCon jObject [i]]) i]
 
      | optSubtypedInterfacePointers -> 
-		     -- Pointer to anything interface'ish is an interface pointer. Period.
+                     -- Pointer to anything interface'ish is an interface pointer. Period.
                      tyQCon prelude "Maybe" [tyQCon mod nm [mkTyConst groundInterface]]
-		     --tyQCon mod nm [iface_ptr_ty_arg]
-     | otherwise		    -> tyQCon prelude "Maybe" [tyQConst mod nm]
+                     --tyQCon mod nm [iface_ptr_ty_arg]
+     | otherwise                    -> tyQCon prelude "Maybe" [tyQConst mod nm]
 -}
 {- moved down
    Pointer _ isExp (Iface nm mod _ attrs _ _)
      | optCorba         -> tyQCon  mod nm [iface_ptr_ty_arg]
-	-- what's the IU/ID bit? Needed for processing AutoPrim.idl without
-	-- a hitch. ToDo: remove it.
+        -- what's the IU/ID bit? Needed for processing AutoPrim.idl without
+        -- a hitch. ToDo: remove it.
      | optHaskellToC && not (nm `elem` ["IUnknown", "IDispatch"]) -> tyQConst mod nm
      | optJNI && attrs `hasAttributeWithName` "jni_iface_ty" -> 
-     	        let i = tyVar "a" in
-		mkTyCon jObject
-			[ ctxtTyApp (ctxtClass (mkQualName mod nm) [mkTyCon jObject [i]]) i ]
+                let i = tyVar "a" in
+                mkTyCon jObject
+                        [ ctxtTyApp (ctxtClass (mkQualName mod nm) [mkTyCon jObject [i]]) i ]
      | optSubtypedInterfacePointers -> tyQCon  mod nm [iface_ptr_ty_arg]
-     | otherwise		    -> tyQConst mod nm
+     | otherwise                    -> tyQConst mod nm
 -}
    Pointer Unique _ (Iface nm md _ attrs _ _) 
      | optJNI && attrs `hasAttributeWithName` "jni_iface_ty" -> 
-     	        let i = tyVar "a" in
-		mkTyCon jObject
-			[ ctxtTyApp (ctxtClass (mkQualName md nm) [mkTyCon jObject [i]]) i]
+                let i = tyVar "a" in
+                mkTyCon jObject
+                        [ ctxtTyApp (ctxtClass (mkQualName md nm) [mkTyCon jObject [i]]) i]
 
      | optSubtypedInterfacePointers -> 
-		     -- Pointer to anything interface'ish is an interface pointer. Period.
+                     -- Pointer to anything interface'ish is an interface pointer. Period.
                      tyQCon prelude "Maybe" [tyQCon md nm [mkTyConst groundInterface]]
-		     --tyQCon md nm [iface_ptr_ty_arg]
-     | otherwise		    -> tyQCon prelude "Maybe" [tyQConst md nm]
+                     --tyQCon md nm [iface_ptr_ty_arg]
+     | otherwise                    -> tyQCon prelude "Maybe" [tyQConst md nm]
    Pointer _ _ (Iface nm md _ attrs _ _)
      | optCorba         -> tyQCon  md nm [iface_ptr_ty_arg]
-	-- what's the IU/ID bit? Needed for processing AutoPrim.idl without
-	-- a hitch. ToDo: remove it.
+        -- what's the IU/ID bit? Needed for processing AutoPrim.idl without
+        -- a hitch. ToDo: remove it.
      | optHaskellToC && not (nm `elem` ["IUnknown", "IDispatch"]) -> tyQConst md nm
      | optJNI && attrs `hasAttributeWithName` "jni_iface_ty" -> 
-     	        let i = tyVar "a" in
-		mkTyCon jObject
-			[ ctxtTyApp (ctxtClass (mkQualName md nm) [mkTyCon jObject [i]]) i ]
+                let i = tyVar "a" in
+                mkTyCon jObject
+                        [ ctxtTyApp (ctxtClass (mkQualName md nm) [mkTyCon jObject [i]]) i ]
      | optSubtypedInterfacePointers -> tyQCon  md nm [iface_ptr_ty_arg]
-     | otherwise		    -> tyQConst md nm
+     | otherwise                    -> tyQConst md nm
    Pointer pt _ (Name _ _ _ _ _ (Just ti))
      | pt /= Ptr && is_pointed ti ->
         (\ x -> 
-	 if pt == Unique {-&& not (isVARIANTTy x)-} then 
-	    tyQCon prelude "Maybe" [x] 
-	 else x) $
-   	case mkTyConst (haskell_type ti) of
-	   t | optCom && isTyVar t -> 
-			if isGround then
-			   mkTyConst vARIANT
-			else
-			   ctxtTyApp (ctxtClass variantClass [t]) t
-	     | otherwise           -> t
+         if pt == Unique {-&& not (isVARIANTTy x)-} then 
+            tyQCon prelude "Maybe" [x] 
+         else x) $
+        case mkTyConst (haskell_type ti) of
+           t | optCom && isTyVar t -> 
+                        if isGround then
+                           mkTyConst vARIANT
+                        else
+                           ctxtTyApp (ctxtClass variantClass [t]) t
+             | otherwise           -> t
 
    Pointer pt _ t
      | pt /= Ptr && isFunTy t -> toHaskellTy isGround t
@@ -267,18 +267,18 @@ toHaskellTy isGround ty =
    Pointer _ _ t | isVoidTy t || (isConstructedTy t && isReferenceTy t) -> tyAddr
    Pointer pt _ t
       | pt == Ref || (optHaskellToC && isIfaceTy t) ->
-		if isIfaceTy t then
-		   toHaskellTy isGround (getIfaceTy t)
-		else
-		   toHaskellTy isGround t
+                if isIfaceTy t then
+                   toHaskellTy isGround (getIfaceTy t)
+                else
+                   toHaskellTy isGround t
       | pt == Unique ->
-	     tyQCon prelude "Maybe" $
-	     case t of
-	       Void -> [tyAddr]
+             tyQCon prelude "Maybe" $
+             case t of
+               Void -> [tyAddr]
                _  
-	       --  optDeepMarshall  -> [tyPtr (toHaskellTy isGround ty)]
-	        | optCom && isIfaceTy t -> [toHaskellTy isGround (getIfaceTy t)]
-		| otherwise	   -> [toHaskellTy isGround t]   -- is this right?
+               --  optDeepMarshall  -> [tyPtr (toHaskellTy isGround ty)]
+                | optCom && isIfaceTy t -> [toHaskellTy isGround (getIfaceTy t)]
+                | otherwise        -> [toHaskellTy isGround t]   -- is this right?
 
       | isVariantTy t -> toHaskellTy isGround t
       | otherwise -> -- assumed to be a pure/raw pointer
@@ -289,13 +289,13 @@ toHaskellTy isGround ty =
    UnionNon u _     -> tyConst' u
    Enum   i _ _     -> tyConst' i
    Iface{}          -> toHaskellIfaceTy ty
-   _		    -> error ("toHaskellTy: "++showCore (ppType ty))
+   _                -> error ("toHaskellTy: "++showCore (ppType ty))
    where
     iface_ptr_ty_arg = tyVar "a"
 
     tyConst' i = tyQConst 
-		    (idHaskellModule i)
-		    (mkHaskellTyConName (idName i))
+                    (idHaskellModule i)
+                    (mkHaskellTyConName (idName i))
 
 \end{code}
 
@@ -343,9 +343,9 @@ mkHStructDef tg fields =
     -- any dependees apart from the switch_is() ones, which
     -- we keep.
    dependees = map    (idName.fieldId)  $
-	       filter (\ f -> isNotSwitchDependee dep_list (fieldId f) &&
-	       		      not (isVoidPointerTy (fieldType f)))
-		      fields
+               filter (\ f -> isNotSwitchDependee dep_list (fieldId f) &&
+                              not (isVoidPointerTy (fieldType f)))
+                      fields
 
    dependers = map (idName.fst) (filter (notNull.snd) dep_list)
 
@@ -356,16 +356,16 @@ mkHStructDef tg fields =
 
    convDependees f
        | (idName i) `elem` dependers = 
-		    let r_ty = removeNames ty in
-		    case r_ty of
-		      Array _ _        -> (i, toHaskellTy True ty)
-		      Pointer _ _ Void -> (i, toHaskellTy True r_ty)
-		      Pointer{}        -> (i, tyList (toHaskellTy True (removeNames (removePtr r_ty))))
-		      _		       -> (i, toHaskellTy True ty)
+                    let r_ty = removeNames ty in
+                    case r_ty of
+                      Array _ _        -> (i, toHaskellTy True ty)
+                      Pointer _ _ Void -> (i, toHaskellTy True r_ty)
+                      Pointer{}        -> (i, tyList (toHaskellTy True (removeNames (removePtr r_ty))))
+                      _                -> (i, toHaskellTy True ty)
        | otherwise = (i, toHaskellTy True ty)
          where
-	  i  = fieldId f
-	  ty = fieldOrigType f
+          i  = fieldId f
+          ty = fieldOrigType f
 
 mkHEnumDef :: Name -> [Attribute] -> EnumKind -> [EnumValue] -> [Haskell.ConDecl]
 mkHEnumDef enumTag attrs kind vals = addList (map mkCon vals)
@@ -375,27 +375,27 @@ mkHEnumDef enumTag attrs kind vals = addList (map mkCon vals)
       EnumFlags{} -> (listCon:)
       _ 
         | optEnumsAsFlags || asFlag -> (listCon:)
-	| otherwise -> id
+        | otherwise -> id
 
   asFlag = attrs `hasAttributeWithName` "hs_flag"
 
   listCon = conDecl (mkHaskellTyConName (enumTag ++ "List__"))
-      		    [tyList (tyCon (mkHaskellTyConName enumTag) [])]
+                    [tyList (tyCon (mkHaskellTyConName enumTag) [])]
 
   mkCon ev = conDecl (mkHaskellTyConName (idName i))
-  		     tys
+                     tys
    where
      i   = enumName ev
      tys = 
-     	(\ x -> 
-	  case x of 
-	   [] -> []
-	   xs -> [tyCon xs []]) $
-     	   unwords $
-	   map (\ xs -> '(':xs ++ ")") $
-	   map getStr $
+        (\ x -> 
+          case x of 
+           [] -> []
+           xs -> [tyCon xs []]) $
+           unwords $
+           map (\ xs -> '(':xs ++ ")") $
+           map getStr $
            filterAttributes (idAttributes i)
-     			    ["hs_tyarg"]
+                            ["hs_tyarg"]
      getStr (Attribute _ [ParamLit (StringLit s)]) = s
      getStr _ = ""
      
@@ -428,7 +428,7 @@ paramToHaskellType deps isServer isAuto isResult p
   | keep_external = mkHaskellTy ty'
   | otherwise     = real_ty
    where
-    nm		 = paramId p
+    nm           = paramId p
     attrs        = idAttributes nm
 
       -- Note: we need to use the paramType rather than the
@@ -436,8 +436,8 @@ paramToHaskellType deps isServer isAuto isResult p
       -- because the orig. type might be a straight synonym.
       -- (the peeling function could look through names to avoid
       -- this, but it doesn't at the moment.)
-    ty	
-      | peel	  = removePtrAndArray (paramType p)
+    ty  
+      | peel      = removePtrAndArray (paramType p)
       | otherwise = paramOrigType p
 
     dependees    = fromMaybe [] (lookupDepender deps nm)
@@ -446,21 +446,21 @@ paramToHaskellType deps isServer isAuto isResult p
     ty'  = mkPtrPointer ty
     keep_external = 
         attrs `hasAttributeWithName` "ptr"  ||
-	(not isResult && keepValueAsPointer ty)
+        (not isResult && keepValueAsPointer ty)
 
     mkHaskellTy t
       | attrs `hasAttributeWithName` "foreign"  = tyForeignObj
       | isAuto && paramMode p == In &&
-	attrs `hasAttributeWithName` "optional" = 
-	    if optOptionalAsMaybe then
-	       tyQCon prelude "Maybe" [autoTypeToHaskellTy pkind t]
-	    else
-	       overloadedTyVar variantClass "a"
+        attrs `hasAttributeWithName` "optional" = 
+            if optOptionalAsMaybe then
+               tyQCon prelude "Maybe" [autoTypeToHaskellTy pkind t]
+            else
+               overloadedTyVar variantClass "a"
       | isAuto     = autoTypeToHaskellTy pkind t
       | otherwise  = 
-	 (if isOut &&
-	     not (attrs `hasAttributeWithName` "iid_is")
-	   then groundTyVars else id) $ toHaskellTy isServer t
+         (if isOut &&
+             not (attrs `hasAttributeWithName` "iid_is")
+           then groundTyVars else id) $ toHaskellTy isServer t
 
     real_ty = go sizes ty
 
@@ -476,16 +476,16 @@ paramToHaskellType deps isServer isAuto isResult p
      case computeArrayConstraints False{-not unmarshalling-} dependees of
        (_,_,cs)   ->
           case cs of
-	    (DepNone:cs1) | isOut  -> (cs1, True)
---	    (_:cs) | isOut  -> (cs, True)
-	    _ -> (cs, False)
+            (DepNone:cs1) | isOut  -> (cs1, True)
+--          (_:cs) | isOut  -> (cs, True)
+            _ -> (cs, False)
 
     pkind = paramMode p
 
     isOut = 
       case pkind of
         Out   -> True
-	_     -> False
+        _     -> False
 
 \end{code}
 
@@ -521,7 +521,7 @@ toHaskellBaseTy isResult ty =
    String{}      -> tyPtr tyString
    WString{}     -> tyPtr tyWString
    FunTy{}       -> tyPtr (toHaskellTy False ty) -- (-- the toplevel type --)
-   StablePtr	 -> tyStable
+   StablePtr     -> tyStable
    Sequence{}    -> tyAddr --error "toHaskellBaseTy.Sequence: not implemented yet."
    Fixed{}       -> error "toHaskellBaseTy.Fixed: not implemented yet."
    Name _ _ _ _ _ (Just ti)
@@ -533,25 +533,25 @@ toHaskellBaseTy isResult ty =
       Nothing ->
        case mb_orig_ty of
          Nothing -> 
-	  trace ("toHaskellBaseTy: Warning, defaulting " ++ show n ++ "to Addr")
-	  tyAddr
+          trace ("toHaskellBaseTy: Warning, defaulting " ++ show n ++ "to Addr")
+          tyAddr
          Just t  -> toHaskellBaseTy isResult t
 
    Pointer _ _ (Name _ _ _ _ _ (Just ti))
      | not isResult && is_pointed ti && finalised ti ->
-	prim_type ti
+        prim_type ti
      | otherwise    -> (if not (is_pointed ti) && not (isPtrTy (prim_type ti)) 
                         then tyPtr else id) $ ((if isResult then toPtrTy else id) $ prim_type ti)
    Pointer _ _ i@(Iface nm _ _ attrs _ _) 
         | not isResult ->
-	   if not optHaskellToC || 
-	      attrs `hasAttributeWithName` "finaliser" ||
-	      nm `elem` ["IUnknown" , "IDispatch"] -- fudge
-	        	    then
-	      tyForeignPtr (toHaskellIfaceTy i)
-	   else
-	      tyPtr (toHaskellIfaceTy i)
-	| otherwise    -> tyPtr (toHaskellIfaceTy i)
+           if not optHaskellToC || 
+              attrs `hasAttributeWithName` "finaliser" ||
+              nm `elem` ["IUnknown" , "IDispatch"] -- fudge
+                            then
+              tyForeignPtr (toHaskellIfaceTy i)
+           else
+              tyPtr (toHaskellIfaceTy i)
+        | otherwise    -> tyPtr (toHaskellIfaceTy i)
 
    Pointer _ _ (Name n _ m _ _ _) ->
       tyPtr (tyQConst (fmap mkHaskellTyConName m) (mkHaskellTyConName n))
@@ -570,12 +570,12 @@ toHaskellBaseTy isResult ty =
    CUnion{}         -> tyAddr
    UnionNon{}       -> tyAddr
    Enum{}           -> tyInt32
-   _		    -> error ("toHaskellBaseTy: not handled" ++ showCore (ppType ty))
+   _                -> error ("toHaskellBaseTy: not handled" ++ showCore (ppType ty))
 
 toBaseTy :: Type -> Type
 toBaseTy ty =
  case ty of
-   Bool	        -> int32Ty
+   Bool         -> int32Ty
    Octet        -> charTy
    String{}     -> addrTy
    WString{}    -> addrTy
@@ -593,13 +593,13 @@ toBaseTy ty =
    Enum{}          -> int32Ty
    Union{}         -> int32Ty
    UnionNon{}      -> int32Ty
-   CUnion{}	   -> int32Ty
+   CUnion{}        -> int32Ty
    Pointer _ _ t
       | isIfaceTy t    -> ty
       | otherwise      -> addrTy
-   Array{}	       -> addrTy
-   SafeArray{}	       -> addrTy
-   _		       -> ty
+   Array{}             -> addrTy
+   SafeArray{}         -> addrTy
+   _                   -> ty
    
 \end{code}
 
@@ -649,45 +649,45 @@ mbAutoTypeToHaskellTy pkind ty =
    Integer sz isSigned ->
      case sz of
        Short
-	 | isSigned  -> Just $ mkTyConst $ tyInt16Name
-	 | otherwise -> Just $ mkTyConst $ tyWord16Name
+         | isSigned  -> Just $ mkTyConst $ tyInt16Name
+         | otherwise -> Just $ mkTyConst $ tyWord16Name
        Long 
-	 | isSigned  -> Just $ mkTyConst $ tyInt32Name
-	 | otherwise -> Just $ mkTyConst $ tyWord32Name
+         | isSigned  -> Just $ mkTyConst $ tyInt32Name
+         | otherwise -> Just $ mkTyConst $ tyWord32Name
        Natural
-	 | optIntIsInt && isSigned -> Just $ mkTyConst $ tyIntName
-	 | isSigned  -> Just $ mkTyConst $ tyInt32Name
-	 | otherwise -> Just $ mkTyConst $ tyWord32Name
+         | optIntIsInt && isSigned -> Just $ mkTyConst $ tyIntName
+         | isSigned  -> Just $ mkTyConst $ tyInt32Name
+         | otherwise -> Just $ mkTyConst $ tyWord32Name
        LongLong
-	 | optLongLongIsInteger -> Just $ mkTyConst $ tyIntegerName
-	 | isSigned	        -> Just $ mkTyConst $ tyInt64Name
-	 | otherwise		-> Just $ mkTyConst $ tyWord64Name
+         | optLongLongIsInteger -> Just $ mkTyConst $ tyIntegerName
+         | isSigned             -> Just $ mkTyConst $ tyInt64Name
+         | otherwise            -> Just $ mkTyConst $ tyWord64Name
 
    Char{}        -> Just $ mkTyConst $ mkQualName prelude "Char" -- dodgy, but it works..
-   Octet	 -> Just $ mkTyConst $ mkQualName prelude "Char"
-   Bool		 -> Just $ mkTyConst $ mkQualName prelude "Bool"
+   Octet         -> Just $ mkTyConst $ mkQualName prelude "Char"
+   Bool          -> Just $ mkTyConst $ mkQualName prelude "Bool"
    Float sz      ->
      case sz of
        Short     -> Just $ mkTyConst $ mkQualName prelude "Float"
        Long      -> Just $ mkTyConst $ mkQualName prelude "Double"
-       LongLong	 -> Just $ mkTyConst $ mkQualName prelude "Double"
+       LongLong  -> Just $ mkTyConst $ mkQualName prelude "Double"
        Natural   -> Just $ mkTyConst $ mkQualName prelude "Float"
 
    Pointer _ _ (Iface "IUnknown" _ _ _ _ _)  -> Just (mkIType iUnknown)
    Pointer _ _ (Iface "IDispatch" _ _ _ _ _) -> Just (mkIType iDispatch)
    Pointer _ _ (Iface nm md _ _ _ _)         -> Just $ mkIType $ mkQualName md (mkIfaceTypeName nm)
-   Pointer _ _ Void		 -> Just varTy
+   Pointer _ _ Void              -> Just varTy
    Pointer _ _ (Name _ _ _ _ _ (Just ti)) 
       | is_pointed ti  -> Just (mkAutoTyConst (auto_type ti))
-   Iface "IUnknown" _ _ _ _ _	 -> Just $ mkIType iUnknown
+   Iface "IUnknown" _ _ _ _ _    -> Just $ mkIType iUnknown
    Iface "IDispatch" _ _ _ _ _   -> Just $ mkIType iDispatch
    Iface nm md _ _ _ _           -> Just $ mkIType $ mkQualName md (mkIfaceTypeName nm)
 
-   SafeArray t		   -> 
-	    case mbAutoTypeToHaskellTy Out{-want to ground any embedded iface-pointers-} t of
-	      Nothing -> Nothing
---	      Just x  -> Just $ mkTyCon (mkQualName autoLib "SafeArray") [groundTyVars x]
-	      Just x  -> Just $ mkTyCon (mkQualName autoLib "SafeArray") [x]
+   SafeArray t             -> 
+            case mbAutoTypeToHaskellTy Out{-want to ground any embedded iface-pointers-} t of
+              Nothing -> Nothing
+--            Just x  -> Just $ mkTyCon (mkQualName autoLib "SafeArray") [groundTyVars x]
+              Just x  -> Just $ mkTyCon (mkQualName autoLib "SafeArray") [x]
    (Name "HRESULT" _ _ _ _ _)  -> Just $ mkTyConst $ mkQualName comLib "HRESULT"
    (Name "VARIANT_BOOL" _ _ _ _ _) -> Just $ mkTyConst $ mkQualName prelude "Bool"
 --   (Name "VARIANT" _ _ _ _ _)  -> Just varTy
@@ -699,7 +699,7 @@ mbAutoTypeToHaskellTy pkind ty =
    (Name _ _ _ _ _ (Just ti))      -> Just (mkTyConst $ haskell_type ti)
    Name{}                          -> Nothing
    Pointer _ _ t                   -> mbAutoTypeToHaskellTy pkind t
-   Enum{} 			   -> Just $ mkTyConst $ mkQualName prelude "Int"
+   Enum{}                          -> Just $ mkTyConst $ mkQualName prelude "Int"
      --As if by magic..
    (Struct (Id {idName="TagVARIANT"}) _ _) -> Just varTy
    _ -> Nothing
@@ -713,7 +713,7 @@ mbAutoTypeToHaskellTy pkind ty =
   mkIType qv
    | optSubtypedInterfacePointers && isOut = mkTyCon qv [mkTyConst groundInterface]
    | optSubtypedInterfacePointers          = mkTyCon qv [tyVar "a"]
-   | otherwise                             = mkTyCon qv [tyVar "a"]	     
+   | otherwise                             = mkTyCon qv [tyVar "a"]          
 
 
 {-
@@ -733,23 +733,23 @@ autoTypeToQName ty =
    Integer sz isSigned ->
      case sz of
        Short
-	 | isSigned  -> tyInt16Name
-	 | otherwise -> tyWord16Name
+         | isSigned  -> tyInt16Name
+         | otherwise -> tyWord16Name
        Long 
-	 | isSigned  -> tyInt32Name
-	 | otherwise -> tyWord32Name
+         | isSigned  -> tyInt32Name
+         | otherwise -> tyWord32Name
        Natural
-	 | optIntIsInt && isSigned -> tyIntName
-	 | isSigned  -> tyInt32Name
-	 | otherwise -> tyWord32Name
+         | optIntIsInt && isSigned -> tyIntName
+         | isSigned  -> tyInt32Name
+         | otherwise -> tyWord32Name
        LongLong
-	 | optLongLongIsInteger -> tyIntegerName
-	 | isSigned	        -> tyInt64Name
-	 | otherwise		-> tyWord64Name
+         | optLongLongIsInteger -> tyIntegerName
+         | isSigned             -> tyInt64Name
+         | otherwise            -> tyWord64Name
 
    Char{}        -> mkQualName prelude "Char" -- dodgy, but it works.. (don't take signedness into account, nor the size of a Haskell Char)
    Octet         -> mkQualName prelude "Char"
-   Bool		 -> mkQualName prelude "Bool"
+   Bool          -> mkQualName prelude "Bool"
    Float sz      ->
      case sz of
        Short     -> mkQualName prelude "Float"
@@ -759,30 +759,30 @@ autoTypeToQName ty =
 
    Iface _ _ _ _ is_idis _
         | is_idis   -> iDispatch
-	| otherwise -> iUnknown
+        | otherwise -> iUnknown
    Pointer _ _ Void -> mkQualName autoLib "Variant" 
-   SafeArray{}		    -> mkQualName autoLib "SafeArray"
+   SafeArray{}              -> mkQualName autoLib "SafeArray"
    (Name "HRESULT" _ _ _ _ _) -> mkQualName comLib "HRESULT"
     -- hack
 --   (Name "LPSTR" _ _ _ _ _) -> mkQualName prelude stringName
    Name _ _ _ _ _ (Just ti)
-   	| isTyVar (mkTyConst (auto_type ti)) -> mkQualName autoLib "Variant"
-	| otherwise			     -> auto_type ti
+        | isTyVar (mkTyConst (auto_type ti)) -> mkQualName autoLib "Variant"
+        | otherwise                          -> auto_type ti
    Name _ _ _ _ (Just orig_ty) _ -> autoTypeToQName orig_ty
    Name nm _ _ _ _ _            -> 
-	trace ("warning: found type name " ++ show nm ++ " but not its defn.") $
-	mkQualName autoLib "Variant"
+        trace ("warning: found type name " ++ show nm ++ " but not its defn.") $
+        mkQualName autoLib "Variant"
    Pointer _ _ (Name _ _ _ _ _ (Just ti))
         | is_pointed ti ->
-	   let at = auto_type ti in
-	   if isTyVar (mkTyConst at) then
-	      mkQualName autoLib "Variant"
-	   else
-	      at
+           let at = auto_type ti in
+           if isTyVar (mkTyConst at) then
+              mkQualName autoLib "Variant"
+           else
+              at
    Pointer _ _ t               -> autoTypeToQName t
    Enum{}                      -> mkQualName autoLib "Enum"
    (Struct (Id {idName="TagVARIANT"}) _ _) -> mkQualName autoLib "Variant"  -- hmm..
    _ -> trace ("autoTypeToQName: unknown auto type "++ showCore (ppType ty) ++ "\n Giving it a variant type") $
-	mkQualName autoLib "Variant"
+        mkQualName autoLib "Variant"
 
 \end{code}

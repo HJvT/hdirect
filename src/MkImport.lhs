@@ -23,57 +23,57 @@ import BasicTypes
 
 import Data.List   ( nub )
 import Opts   ( optNoImportLists, optQualInstanceMethods, optNoQualNames,
-		optLongLongIsInteger )
+                optLongLongIsInteger )
 import Utils  ( concMaybe )
 \end{code}
 
 \begin{code}
 mkImportLists :: String
               -> [QualName]
-	      -> [HDecl]
-	      -> [(String, Bool, [HIEEntity])]
+              -> [HDecl]
+              -> [(String, Bool, [HIEEntity])]
 mkImportLists local_nm hs_imports decls = import_list
   where
    import_list = 
-		    -- sigh, to avoid pointless trouble with the generated
-		    -- sources due to Hugs' lack of support for qualified
-		    -- instance names, we optionally allow method names
-		    -- to be emitted in unqual'ed form. GHC (quite rightfully)
-		    -- complains when it is fed such input, since it has
-		    -- only got the qualified method name in scope.
-		    --
-		    -- To avoid the unfortunate situation that GHC and Hugs
-		    -- require separate Haskell stubs for normal stuff, we
-		    -- explicitly bring the unqual'ed Enum instance methods
-		    -- into scope.
-		    --
-		    -- A hack that doesn't solve the general problem.
-		    -- 
-   		 (if not optQualInstanceMethods && not optNoQualNames then 
-		     (("Prelude", False, [ ieValue (qName fromEnumName)
-		     			 , ieValue (qName toEnumName)
-					 ]):)
-		  else
-		     id) $
-		 ("Prelude", True, []):
-   		 filter ofInterest (map mkImpList (envToList (go (andDecls decls) new_env )))
+                    -- sigh, to avoid pointless trouble with the generated
+                    -- sources due to Hugs' lack of support for qualified
+                    -- instance names, we optionally allow method names
+                    -- to be emitted in unqual'ed form. GHC (quite rightfully)
+                    -- complains when it is fed such input, since it has
+                    -- only got the qualified method name in scope.
+                    --
+                    -- To avoid the unfortunate situation that GHC and Hugs
+                    -- require separate Haskell stubs for normal stuff, we
+                    -- explicitly bring the unqual'ed Enum instance methods
+                    -- into scope.
+                    --
+                    -- A hack that doesn't solve the general problem.
+                    -- 
+                 (if not optQualInstanceMethods && not optNoQualNames then 
+                     (("Prelude", False, [ ieValue (qName fromEnumName)
+                                         , ieValue (qName toEnumName)
+                                         ]):)
+                  else
+                     id) $
+                 ("Prelude", True, []):
+                 filter ofInterest (map mkImpList (envToList (go (andDecls decls) new_env )))
 
    new_env
      | optLongLongIsInteger = addQName (\ nm -> ieType nm False) tyInt32Name base_env
-     | otherwise	    = base_env
+     | otherwise            = base_env
 
    base_env = foldr (addQName ieValue) newEnv hs_imports
 
    ofInterest ("Prelude",_,_) = False
    ofInterest (nm, _, _)      = nm /= local_nm
 
-   mkImpList (x, bag)	    = (x, True, nub (bagToList bag))
+   mkImpList (x, bag)       = (x, True, nub (bagToList bag))
 
    go :: HDecl -> Env String (Bag HIEEntity) -> Env String (Bag HIEEntity)
-   go (AndDecl d1 d2)	         env = go d2 (go d1 env)
+   go (AndDecl d1 d2)            env = go d2 (go d1 env)
    go (TypeSig _ ctxt ty)        env = gatherTyImports ty (gatherTyContext ctxt env)
-   go (ValDecl _ _ es)	         env = foldr gatherGExprImports env es
-   go (TyD td)		         env = gatherTyDeclImports td env
+   go (ValDecl _ _ es)           env = foldr gatherGExprImports env es
+   go (TyD td)                   env = gatherTyDeclImports td env
    go (Primitive _ _ _ _ ty _ _ _) env = gatherTyImports ty env
    go (PrimCast _ _ ty _ _ _ )     env = gatherTyImports ty env
    go (Entry _ _ _ ty)           env = gatherTyImports ty env
@@ -90,25 +90,25 @@ gatherTyImports :: Type -> Env String (Bag HIEEntity) -> Env String (Bag HIEEnti
 gatherTyImports ty env = 
  case ty of
    TyVar _ tv     -> addQName (\ nm -> ieType nm True) tv env 
-   TyCon tc	  -> addQName (\ nm -> ieType nm True) tc env 
+   TyCon tc       -> addQName (\ nm -> ieType nm True) tc env 
    TyApply f args -> foldr gatherTyImports env (f:args)
-   TyList t	  -> gatherTyImports t env
-   TyTuple es	  -> foldr gatherTyImports env es
+   TyList t       -> gatherTyImports t env
+   TyTuple es     -> foldr gatherTyImports env es
    TyCtxt c t     -> gatherTyContext (Just c) (gatherTyImports t env)
-   TyFun f a	  -> gatherTyImports a (gatherTyImports f env)
+   TyFun f a      -> gatherTyImports a (gatherTyImports f env)
 
 addQName :: (String -> a) -> QualName -> Env String (Bag a) -> Env String (Bag a)
 addQName f qn env = 
    case concMaybe (qDefModule qn) (qModule qn) of
      Nothing  -> env
      v@(Just md)
-	    -- don't record what we're picking up from the Prelude.
+            -- don't record what we're picking up from the Prelude.
         | v == prelude -> env  
-	| otherwise    -> addToEnv_C (unionBags) env md nm
+        | otherwise    -> addToEnv_C (unionBags) env md nm
        where
         nm 
-	 | optNoImportLists = emptyBag
-	 | otherwise        = unitBag (f (qName qn))
+         | optNoImportLists = emptyBag
+         | otherwise        = unitBag (f (qName qn))
 
 gatherTyDeclImports :: TyDecl -> Env String (Bag HIEEntity) -> Env String (Bag HIEEntity)
 gatherTyDeclImports (TypeSyn _ _ t) env     = gatherTyImports t env
@@ -148,10 +148,10 @@ gatherExprImports e env =
    Case e1 alts  -> foldr gatherAltImports (gatherExprImports e1 env) alts
    If e1 e2 e3   -> gatherExprImports e1 (gatherExprImports e2 (gatherExprImports e3 env))
    Let binds e1  -> foldr gatherBindingImports (gatherExprImports e1 env) binds
-   Var v 	 -> addQName (ieValue) v env 
-   Con c	 -> addQName (ieValue) c env
+   Var v         -> addQName (ieValue) v env 
+   Con c         -> addQName (ieValue) c env
    WithTy e1 ty  -> gatherExprImports e1 (gatherTyImports ty env)
-   _		 -> env
+   _             -> env
 
    where
      gatherBindingImports (Binder _ e1) env1 = gatherExprImports e1 env1
@@ -164,19 +164,19 @@ gatherExprImports e env =
 
      gatherUnaryOpImports op env1 =
         case op of
-	  Not -> addBitsImp "complement" env1
-	  _   -> env1
+          Not -> addBitsImp "complement" env1
+          _   -> env1
 
      gatherBinOpImports op env1 =
         case op of
-	  Xor -> addBitsImp "xor" env1
-	  Or  -> addBitsImp "(.|.)" env1
-	  And -> addBitsImp "(.&.)" env1
-	  Shift L -> addBitsImp "shiftL" env1
-	  Shift R -> addBitsImp "shiftR" env1
-	  _ -> env1
-	  
-	  
+          Xor -> addBitsImp "xor" env1
+          Or  -> addBitsImp "(.|.)" env1
+          And -> addBitsImp "(.&.)" env1
+          Shift L -> addBitsImp "shiftL" env1
+          Shift R -> addBitsImp "shiftR" env1
+          _ -> env1
+          
+          
      addBitsImp nm env1 = addQName ieValue (mkQVarName bitsLib nm) env1
 
 \end{code}

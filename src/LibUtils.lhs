@@ -11,131 +11,131 @@ module abstracts away from their names and locations.
 \begin{code}
 module LibUtils
         (
-	  hdirectLib
-	, bitsLib
-	, comLib
-	, comServLib
-	, prelude
-	, maybe_module
-	, autoLib
-	, ioExts
-	, intLib
-	, wordLib
---	, addrLib
-	, foreignLib
-	, arrayLib
-	, jniLib
-	, wStringLib
-	, safeArrayLib
-	, ptrLib
-	, foreignPtrLib
-	
-	, iDispatch
-	, iUnknown
-	, iUnknownFO
-	, iID
-	, cLSID
-	, gUID
-	, lIBID
-	, mkIID
-	, mkCLSID
-	, mkLIBID
-	, primIP
-	, currency
-	, variantClass
-	, variantType
-	, groundInterface
+          hdirectLib
+        , bitsLib
+        , comLib
+        , comServLib
+        , prelude
+        , maybe_module
+        , autoLib
+        , ioExts
+        , intLib
+        , wordLib
+--      , addrLib
+        , foreignLib
+        , arrayLib
+        , jniLib
+        , wStringLib
+        , safeArrayLib
+        , ptrLib
+        , foreignPtrLib
+        
+        , iDispatch
+        , iUnknown
+        , iUnknownFO
+        , iID
+        , cLSID
+        , gUID
+        , lIBID
+        , mkIID
+        , mkCLSID
+        , mkLIBID
+        , primIP
+        , currency
+        , variantClass
+        , variantType
+        , groundInterface
 
-	, vARIANT
-	, sAFEARRAY
+        , vARIANT
+        , sAFEARRAY
 
-	, derefPtr
-	, indexPtr
-	, interfacePtrToAddr
-	, intToAddr
-	, mkWString
-	, lengthWString
-	
-	, castPtrName
-	, castFPtrName
-	, withForeignPtrName
+        , derefPtr
+        , indexPtr
+        , interfacePtrToAddr
+        , intToAddr
+        , mkWString
+        , lengthWString
+        
+        , castPtrName
+        , castFPtrName
+        , withForeignPtrName
 
-	, checkHR
-	, check2HR
-	, invokeAndCheck
-	, returnHR
-	, invokeIt
-	, primInvokeIt
-	
-	, getIfaceState
-	, createComVTable
-	, createDispVTable
-	, comVTableTy
-	, createComInst
-	, mkComInterface
-	, mkDispInterface
-	, mkDualInterface
-	, comInterfaceTy
-	
-	, componentInfo
-	, mkComponentInfo
-	, hasTypeLib
-	
-	, mkForeignObj
+        , checkHR
+        , check2HR
+        , invokeAndCheck
+        , returnHR
+        , invokeIt
+        , primInvokeIt
+        
+        , getIfaceState
+        , createComVTable
+        , createDispVTable
+        , comVTableTy
+        , createComInst
+        , mkComInterface
+        , mkDispInterface
+        , mkDualInterface
+        , comInterfaceTy
+        
+        , componentInfo
+        , mkComponentInfo
+        , hasTypeLib
+        
+        , mkForeignObj
 
-	, trivialFree
-	, allocOutPointer
-	, allocBytes
-	, allocWords
+        , trivialFree
+        , allocOutPointer
+        , allocBytes
+        , allocWords
 
-	, list
-	, blist
-	, bstring
-	, ref
-	, unique
---	, ptr
-	, fptr
-	, iptr
-	, wstring
-	, wstring2
+        , list
+        , blist
+        , bstring
+        , ref
+        , unique
+--      , ptr
+        , fptr
+        , iptr
+        , wstring
+        , wstring2
 
-	, enum32
-	, enum16
+        , enum32
+        , enum16
 
-	, stringName
-	, bool
-	, integer
-	, bstr
-	, safearray
-	, ptrName
-	, funPtrName
-	, foreignPtrName
-	
-	, free
-	, freeRef
-	, doThenFree
-	, nullPtr
-	, nullFO
-	, nullFinaliser
-	, nullIPointer
-	, prelError
-	, raiseIOException
-	, prelUserError
-	, prelReturn
-	, bindName
-	, bind_Name
-	
+        , stringName
+        , bool
+        , integer
+        , bstr
+        , safearray
+        , ptrName
+        , funPtrName
+        , foreignPtrName
+        
+        , free
+        , freeRef
+        , doThenFree
+        , nullPtr
+        , nullFO
+        , nullFinaliser
+        , nullIPointer
+        , prelError
+        , raiseIOException
+        , prelUserError
+        , prelReturn
+        , bindName
+        , bind_Name
+        
         , xorName
         , orName
         , andName
         , shiftLName
         , shiftRName
-	, bitsClass
-	, complementName
-	, shiftName
-	, rotateName
-	, bitSizeName
-	, isSignedName
+        , bitsClass
+        , complementName
+        , shiftName
+        , rotateName
+        , bitSizeName
+        , isSignedName
 
         , addName
         , subName
@@ -153,117 +153,117 @@ module LibUtils
         , negateName
         , notName
 
-	, marshStruct
-	, unmarshStruct
-	, marshUnion
-	, unmarshUnion
-	
-	, dollarName
-	, inArgName
-	, inIUnknownArgName
-	, outArgName
-	, inoutArgName
-	, retValName
-	, applyName
-	, mkDispMethod
-	
-	, enumClass
-	, eqClass
-	, showClass
-	, numClass
+        , marshStruct
+        , unmarshStruct
+        , marshUnion
+        , unmarshUnion
+        
+        , dollarName
+        , inArgName
+        , inIUnknownArgName
+        , outArgName
+        , inoutArgName
+        , retValName
+        , applyName
+        , mkDispMethod
+        
+        , enumClass
+        , eqClass
+        , showClass
+        , numClass
 
-	, fromEnumName
-	, toEnumName
-	
-	, enumToInt
-	, enumToFlag
-	, unboxInt
-	, flagToIntTag
-	, tagToEnum
-	, toIntFlag
-	, pow2Series
-	, orListName
-	, orFlagsName
-	, orFlagName
-	, flagsClass
-	
-	, inVariantName
-	, resVariantName
-	, defaultVariantName
-	, vtEltTypeName
+        , fromEnumName
+        , toEnumName
+        
+        , enumToInt
+        , enumToFlag
+        , unboxInt
+        , flagToIntTag
+        , tagToEnum
+        , toIntFlag
+        , pow2Series
+        , orListName
+        , orFlagsName
+        , orFlagName
+        , flagsClass
+        
+        , inVariantName
+        , resVariantName
+        , defaultVariantName
+        , vtEltTypeName
 
-	, fromMaybeName
-	, maybeName
-	, justName
-	, nothingName
-	, mapName
-	, mapListName
-	, concatName
-	, concatMapName
-	, intersectName
-	, mapMaybeName
-	, sumName
-	, fromIntegralName
-	, lengthName
-	
-	, true
-	, false
-	
-	, uPerformIO
+        , fromMaybeName
+        , maybeName
+        , justName
+        , nothingName
+        , mapName
+        , mapListName
+        , concatName
+        , concatMapName
+        , intersectName
+        , mapMaybeName
+        , sumName
+        , fromIntegralName
+        , lengthName
+        
+        , true
+        , false
+        
+        , uPerformIO
 
-	, marshallPrefix
-	, marshallRefPrefix
-	, unmarshallPrefix
-	, unmarshallRefPrefix
-	, sizeofPrefix
-	, sizeOfName
-	, outPrefix
-	, allocPrefix
-	, freePrefix
-	, copyPrefix
-	
-	, marshallMaybe
-	, writeMaybe
-	, readMaybe
+        , marshallPrefix
+        , marshallRefPrefix
+        , unmarshallPrefix
+        , unmarshallRefPrefix
+        , sizeofPrefix
+        , sizeOfName
+        , outPrefix
+        , allocPrefix
+        , freePrefix
+        , copyPrefix
+        
+        , marshallMaybe
+        , writeMaybe
+        , readMaybe
 
         , mkPrimitiveName
-	, mkWrapperName
+        , mkWrapperName
         , mkPrimExportName
-	, mkVtblOffsetName
-	, mkCLSIDName
-	, mkLIBIDName
-	
-	, defaultCConv
-	
-	, invokeMethod
-	, invokeStaticMethod
-	, invokeInterfaceMethod
-	, getField
-	, getStaticField
-	, setField
-	, setStaticField
-	, inArg
-	, jvalueClass
-	, jObject
-	, jArray
-	, jniEnv
-	, fPointer
+        , mkVtblOffsetName
+        , mkCLSIDName
+        , mkLIBIDName
+        
+        , defaultCConv
+        
+        , invokeMethod
+        , invokeStaticMethod
+        , invokeInterfaceMethod
+        , getField
+        , getStaticField
+        , setField
+        , setStaticField
+        , inArg
+        , jvalueClass
+        , jObject
+        , jArray
+        , jniEnv
+        , fPointer
 
-	, newObj
-	, className
-	, makeClassName
-	, mkClassName
-	, newFPointer
-	
-	, orbLib
-	, cObject
-	
+        , newObj
+        , className
+        , makeClassName
+        , mkClassName
+        , newFPointer
+        
+        , orbLib
+        , cObject
+        
        ) where
 
 import BasicTypes
 import Opts ( optHaskellToC, optH1_4, 
-	      optCorba
-	    )
+              optCorba
+            )
 
 \end{code}
 
@@ -352,7 +352,7 @@ castFPtrName   = mkQualName foreignPtrLib "castForeignPtr"
 withForeignPtrName = mkQualName foreignPtrLib "withForeignPtr"
 
 checkHR, check2HR, invokeAndCheck, returnHR, invokeIt, primInvokeIt :: QualName
-checkHR	       = mkQualName comLib "checkHR"
+checkHR        = mkQualName comLib "checkHR"
 check2HR       = mkQualName comLib "check2HR"
 invokeAndCheck = mkQualName comLib "invokeAndCheck"
 returnHR       = mkQualName comLib "returnHR"
@@ -399,7 +399,7 @@ mkDispMethod     = mkQualName stdDispatchLib "mkDispMethod"
 trivialFree, free, freeRef, doThenFree :: QualName
 trivialFree   = mkQualName hdirectLib "trivialFree"
 free          = mkQualName hdirectLib "free"
-freeRef	      = mkQualName hdirectLib "freeref"
+freeRef       = mkQualName hdirectLib "freeref"
 doThenFree    = mkQualName hdirectLib "doThenFree"
 
 nullPtr, nullFO, nullFinaliser, prelError, prelFail, prelIOError :: QualName
@@ -534,8 +534,8 @@ fromIntegralName :: QualName
 fromIntegralName = mkQualName prelude "fromIntegral"
 
 true, false :: QualName
-true	      = mkQualName prelude "True"
-false	      = mkQualName prelude "False"
+true          = mkQualName prelude "True"
+false         = mkQualName prelude "False"
 
 uPerformIO :: QualName
 uPerformIO    = mkQualName ioExts  "unsafePerformIO"
@@ -548,8 +548,8 @@ lengthWString     = mkQualName wStringLib "lengthWideString"
 
 allocOutPointer, allocBytes, allocWords :: QualName
 allocOutPointer = mkQualName hdirectLib "allocOutPtr"
-allocBytes	= mkQualName hdirectLib "allocBytes"
-allocWords	= mkQualName hdirectLib "allocWords"
+allocBytes      = mkQualName hdirectLib "allocBytes"
+allocWords      = mkQualName hdirectLib "allocWords"
 \end{code}
 
 \begin{code}

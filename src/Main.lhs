@@ -29,8 +29,8 @@ import PreProc
 import Desugar
 import Rename
 import System.IO  ( hPutStr, hPutStrLn, stderr, stdout, hPutChar,
-	     openFile, IOMode(..), hClose, Handle, hFlush
-	   )
+             openFile, IOMode(..), hClose, Handle, hFlush
+           )
 import Control.Monad      ( when )
 import System.Environment ( getProgName )
 import System.Exit        ( exitWith, ExitCode(..) )
@@ -61,7 +61,7 @@ import
 import 
        Win32Registry  ( hKEY_LOCAL_MACHINE, regQueryValue, regOpenKeyEx, kEY_READ )
 import 
-       StdDIS	      ( MbString )
+       StdDIS         ( MbString )
    END_USE_REGISTRY -}
 \end{code}
 
@@ -78,38 +78,38 @@ main
     case file of 
       Nothing     -> do { pgm <- getProgName ; putStrLn (usage_msg pgm) }
       Just fnames -> do
-	case optOFiles of
-	   (_:_) | length fnames > 1 -> do
-	      pgm <- getProgName
-	      hFlush stdout
-	      hPutStr stderr pgm
-	      hPutStrLn stderr (": you cannot use -o if you have multiple input files")
-	      hPutStrLn stderr (usage_msg pgm)
-	      exitWith (ExitFailure 1)
-	   _ -> do
-	     let
-	       oFileFun | length fnames == 1 = \ n -> (oFile n, oModNm n)
-	                | otherwise          = \ n -> (Right (oFileFromInput n), oModNm n)
+        case optOFiles of
+           (_:_) | length fnames > 1 -> do
+              pgm <- getProgName
+              hFlush stdout
+              hPutStr stderr pgm
+              hPutStrLn stderr (": you cannot use -o if you have multiple input files")
+              hPutStrLn stderr (usage_msg pgm)
+              exitWith (ExitFailure 1)
+           _ -> do
+             let
+               oFileFun | length fnames == 1 = \ n -> (oFile n, oModNm n)
+                        | otherwise          = \ n -> (Right (oFileFromInput n), oModNm n)
                incls = optincludedirs ++ ["."]
 
-	     if not optTlb 
-	      then do
-	       sequence (map (\ f -> processFile incls f (oFileFun f)) fnames)
-	       return ()
-	      else do
+             if not optTlb 
+              then do
+               sequence (map (\ f -> processFile incls f (oFileFun f)) fnames)
+               return ()
+              else do
 {- BEGIN_SUPPORT_TYPELIBS
                 ds <- mapM (importLib) fnames
-		let inp = Right ds
+                let inp = Right ds
    END_SUPPORT_TYPELIBS -}
 
 {- BEGIN_NOT_SUPPORT_TYPELIBS -}
-		let src     = unlines $ map (\ x -> "importlib(" ++ show x ++ ");") fnames
-		    inp     = Left src
-	        hPutStrLn stderr "WARNING: Type library reading code not compiled in; Ignoring --tlb option"
+                let src     = unlines $ map (\ x -> "importlib(" ++ show x ++ ");") fnames
+                    inp     = Left src
+                hPutStrLn stderr "WARNING: Type library reading code not compiled in; Ignoring --tlb option"
 {- END_NOT_SUPPORT_TYPELIBS -}
                 let o_fnm   = oFile  (head fnames)
-		    o_modnm = oModNm (head fnames)
-		processSource incls "<typelib>" inp (o_fnm, o_modnm)
+                    o_modnm = oModNm (head fnames)
+                processSource incls "<typelib>" inp (o_fnm, o_modnm)
 
  where
    oModNm _  = case optOutputModules of { (x:_) -> Just x ; _ -> Nothing }
@@ -118,8 +118,8 @@ main
    oFileFromInput nm =
      case nm of
         "-" -> nm
-	_
-	 | optServer -> (dropSuffix nm) ++ "Proxy.hs"
+        _
+         | optServer -> (dropSuffix nm) ++ "Proxy.hs"
          | otherwise -> (dropSuffix nm) ++ ".hs"
 
    getInpFile = 
@@ -137,26 +137,26 @@ hdirectHelp = do
 
 \begin{code}
 processFile :: [String] 
-	    -> String
-	    -> (Either String String, Maybe String)
-	    -> IO ()
+            -> String
+            -> (Either String String, Maybe String)
+            -> IO ()
 processFile path fname ofname = do
   fname'     <- preProcessFile fname
   ls         <- 
      case fname' of
         "-" -> getContents
-	_   -> readFile fname'
+        _   -> readFile fname'
   processSource path fname (Left ls) ofname
 
 processAsf :: [String] 
-	   -> String
-	   -> IO [(String,Bool,[Attribute])]
+           -> String
+           -> IO [(String,Bool,[Attribute])]
 processAsf path fname = do
   when optVerbose (hFlush stdout >> hPutStrLn stderr ("Processing ASF: " ++ fname))
   ls         <- 
      case fname of
         "-" -> getContents
-	_   -> readFile fname
+        _   -> readFile fname
   Right x  <- runLexM path fname ('=':ls) Parser.parseIDL
   return x
   
@@ -167,10 +167,10 @@ showPassMsg msg = do
   hFlush stderr
 
 processSource :: [String]
-	      -> String
-	      -> Either String [Defn]
-	      -> (Either String String, Maybe String)
-	      -> IO ()
+              -> String
+              -> Either String [Defn]
+              -> (Either String String, Maybe String)
+              -> IO ()
 processSource path fname ls ofname = do
   when optShowPasses (showPassMsg "Reader")
   defs <- 
@@ -178,7 +178,7 @@ processSource path fname ls ofname = do
        Left str -> 
           catch 
              (runLexM path fname str parseIDL)
-	     (\ err -> removeTmp >> ioError err)
+             (\ err -> removeTmp >> ioError err)
        Right ds -> return ds
   when (optShowPasses && notNull optAsfs)
        (showPassMsg "Asf reader")
@@ -186,11 +186,11 @@ processSource path fname ls ofname = do
   let 
        {-
         Definitions are sorted either on the command of 
-	the user, or if we're operating in 'winnow'ing mode.
+        the user, or if we're operating in 'winnow'ing mode.
        -}
       s_defs
        | optWinnowDefns || optSortDefns || optJNI = sortDefns defs
-       | otherwise    			= defs
+       | otherwise                      = defs
 
       w_defs
        | optWinnowDefns = winnowDefns asf_env s_defs
@@ -199,7 +199,7 @@ processSource path fname ls ofname = do
       combineAsf (f1, old) (f2, new) = (f1 && f2, old ++ new)
 
       asf_env   = addListToEnv_C combineAsf newEnv 
-      				 (map (\ (x,y,z) -> (x, (y,z))) (concat asfs))
+                                 (map (\ (x,y,z) -> (x, (y,z))) (concat asfs))
 
       os = showIDL (ppIDL fname w_defs)
 
@@ -225,7 +225,7 @@ processSource path fname ls ofname = do
 {- END_NOT_SUPPORT_TYPELIBS   -}
   when optShowPasses (showPassMsg "CodeGen")
   let (header, code) = codeGen ofname iso_env iface_env renamed_decls
-      code_str	     = unlines (map showCode code)
+      code_str       = unlines (map showCode code)
 
   dumpPass dumpAbstractH "Abstract Haskell" code_str
   when optShowPasses (showPassMsg "CodeOutput")
@@ -242,7 +242,7 @@ processSource path fname ls ofname = do
 parseIDL :: LexM [Defn]
 parseIDL
  | optCompilingOmgIDL = OmgParser.parseIDL 
- | otherwise	      = Parser.parseIDL >>= \ (Left x) -> return x
+ | otherwise          = Parser.parseIDL >>= \ (Left x) -> return x
 
 \end{code}
 
@@ -254,7 +254,7 @@ showCode (nm, _, ds) = file_msg (showAbstractH (ppHTopDecls ds))
  where
   file_msg cont
     | generateGreenCard = "File: "++ show (dropSuffix nm ++ ".gc") ++ '\n':cont
-    | otherwise		= "File: "++ show nm ++ '\n':cont
+    | otherwise         = "File: "++ show nm ++ '\n':cont
 
 generateGreenCard :: Bool
 generateGreenCard = not optNoOutput && optGreenCard
@@ -266,11 +266,11 @@ writeCode is_haskell ((nm, flg, md):rs) = do
   when (is_haskell && flg) $ do
         hFlush stdout
         hPutStrLn stderr 
-		  ("Notice: Need to generate C stubs as well for module " ++ show (dropSuffix nm) ++ ",")
-	hPutStrLn stderr
-	          ("        since it contains methods that passes structs/unions")
-	hPutStrLn stderr
-	          ("        by value.")
+                  ("Notice: Need to generate C stubs as well for module " ++ show (dropSuffix nm) ++ ",")
+        hPutStrLn stderr
+                  ("        since it contains methods that passes structs/unions")
+        hPutStrLn stderr
+                  ("        by value.")
   when (not optNoOutput && is_haskell && (optHugs || optGenCStubs || flg))
        (writeCode False [(nm,flg,md)])
   writeCode is_haskell rs
@@ -286,7 +286,7 @@ writeCode is_haskell ((nm, flg, md):rs) = do
   (incs',non_incs) = partition filterIncludes md
   
   filterIncludes HInclude{}     = is_haskell -- C'ish backends deal with 
-  					     -- the includes directly.
+                                             -- the includes directly.
   filterIncludes _              = False
 
   out_nm = 
@@ -295,7 +295,7 @@ writeCode is_haskell ((nm, flg, md):rs) = do
      _ 
       | generateGreenCard -> dropSuffix nm ++ ".gc"
       | not is_haskell    -> dropSuffix nm ++ ".c"
-      | otherwise	  -> nm
+      | otherwise         -> nm
 
 writeOut :: [String] -> Bool -> Bool -> String -> String -> IO ()
 writeOut _    _          _       _             "" = return ()
@@ -331,45 +331,45 @@ writeOut incs is_haskell no_hdrs fname_prim stuff = do
    embed_comment ls
     | is_haskell = unlines (map (\ x -> '-':'-':' ':x) ls)
     | otherwise  = block_comment ls ++
-    		   unlines
-		     [ ""
-		     , if optHugs then "#include \"HDirect.h\"" else ""
-		     , "#ifndef __INT64_DEFINED__"
-		     , "#ifdef __GNUC__"
-		     , "typedef long long int64;"
-		     , "typedef unsigned long long uint64;"
-		     , "#else"
-		     , "#ifdef _MSC_VER"
-		     , "typedef __int64 int64;"
-		     , "typedef unsigned __int64 uint64;"
-		     , "#else"
-		     , "/* Need some help here, please. */"
-		     , "#endif"
-		     , "#endif"
-		     , "#define __INT64_DEFINED__"
-		     , "#endif"
-		     , ""
-		     ]
+                   unlines
+                     [ ""
+                     , if optHugs then "#include \"HDirect.h\"" else ""
+                     , "#ifndef __INT64_DEFINED__"
+                     , "#ifdef __GNUC__"
+                     , "typedef long long int64;"
+                     , "typedef unsigned long long uint64;"
+                     , "#else"
+                     , "#ifdef _MSC_VER"
+                     , "typedef __int64 int64;"
+                     , "typedef unsigned __int64 uint64;"
+                     , "#else"
+                     , "/* Need some help here, please. */"
+                     , "#endif"
+                     , "#endif"
+                     , "#define __INT64_DEFINED__"
+                     , "#endif"
+                     , ""
+                     ]
 
    includes_at_top hp
      | null dirs || optGreenCard = return ()
      | otherwise = do
             -- one {-# OPTIONS ... #-} per include file.
            sequence (map (gen_options hp) dirs)
-	   return ()
+           return ()
 
    gen_options hp hfile = 
        case hfile of
           []     -> return ()
-	  _      -> hPutStrLn hp (gen_include (showFn hfile))
+          _      -> hPutStrLn hp (gen_include (showFn hfile))
            where
-	    gen_include fn
-	      | is_haskell = "{-# OPTIONS -#include " ++ fn ++ " #-}"
-	      | otherwise  = "#include " ++ fn
+            gen_include fn
+              | is_haskell = "{-# OPTIONS -#include " ++ fn ++ " #-}"
+              | otherwise  = "#include " ++ fn
 
             showFn ls@('"':_) = ls
             showFn ls@('<':_) = ls
-	    showFn ls	      = show ls
+            showFn ls         = show ls
 
 hPutBanner :: ([String] -> String) -> Handle -> IO ()
 hPutBanner comment hp = do
@@ -400,19 +400,19 @@ writeOutStuff fname stuff = do
 writeHeader :: [(String, Decl)] -> IO ()
 writeHeader ls = do
    sequence (map (\ (fname, d) -> 
-   		    writeOut [] False True
-		             fname
-			     (showHeader fname (ppHeaderDecl (getInterfaceIds d) d)))
-		 ls)
+                    writeOut [] False True
+                             fname
+                             (showHeader fname (ppHeaderDecl (getInterfaceIds d) d)))
+                 ls)
    return ()
 
 writeJava :: [Decl] -> IO ()
 writeJava ds = do
    sequence (map (\ (fname, d) -> do
                         b <- mkBanner block_comment
-   			writeOutStuff (dropSuffix fname ++ ".java")
-   						(b ++ javaProxyGen d))
-		 ls)
+                        writeOutStuff (dropSuffix fname ++ ".java")
+                                                (b ++ javaProxyGen d))
+                 ls)
    return ()
  where
   ls = prepareDecls ds

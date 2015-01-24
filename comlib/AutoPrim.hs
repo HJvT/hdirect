@@ -12,9 +12,9 @@ import HDirect (Ptr, allocBytes, marshallBool, readref, readStablePtr,
                 marshallPtr, readPtr, unmarshallref, trivialFree, doThenFree, free,
                 sizeofInt32, readInt32, unmarshallString, freeString, sizeofInt16, 
                 readInt16, sizeofDouble, readDouble, sizeofFloat, readFloat, Octet,
-		readBool, sizeofChar, readChar, unmarshallBool,
-		freeref, sizeofWord8, readWord8, sizeofWord32, readWord32,
-		StablePtr, sizeofPtr, readPtr, writePtr, sizeofForeignPtr )
+                readBool, sizeofChar, readChar, unmarshallBool,
+                freeref, sizeofWord8, readWord8, sizeofWord32, readWord32,
+                StablePtr, sizeofPtr, readPtr, writePtr, sizeofForeignPtr )
 import SafeArray ( SAFEARRAY, marshallSAFEARRAY, unmarshallSAFEARRAY, readSAFEARRAY, sizeofSAFEARRAY )
 import Pointer ( allocMemory )
 import IOExts (unsafePerformIO)

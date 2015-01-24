@@ -39,10 +39,10 @@ defGen code =
       
    genExp (_,Nothing,nm,_)  = nm
    genExp (_,Just x,nm,dec) = nm' ++ ' ':'@':show x
-	where
-	 nm' =
-	   case dec of
-	     Nothing -> nm
-	     Just i  -> nm ++ '@':show i
+        where
+         nm' =
+           case dec of
+             Nothing -> nm
+             Just i  -> nm ++ '@':show i
 
 \end{code}

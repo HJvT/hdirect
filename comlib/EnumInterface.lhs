@@ -7,12 +7,12 @@ interfaces - give it the list to enumerate & you're there!
 
 \begin{code}
 module EnumInterface 
-	( 
-	  mkEnumInterface  -- :: [a]
-			   -- -> Int
-			   -- -> (Ptr a -> a -> IO ())
-			   -- -> IO (ComVTable iid objState)
-	) where
+        ( 
+          mkEnumInterface  -- :: [a]
+                           -- -> Int
+                           -- -> (Ptr a -> a -> IO ())
+                           -- -> IO (ComVTable iid objState)
+        ) where
 
 import Word
 import Int
@@ -45,9 +45,9 @@ containing them:
 
 \begin{code}
 mkEnumInterface :: [a]
-	        -> Int
-		-> (Ptr (Ptr a) -> a -> IO ())
-		-> IO (ComVTable iid objState)
+                -> Int
+                -> (Ptr (Ptr a) -> a -> IO ())
+                -> IO (ComVTable iid objState)
 mkEnumInterface ls sizeof write = do
   ref <- newIORef (ls, length ls)
   let st = EnumState ref ls write sizeof
@@ -64,15 +64,15 @@ back to the beginning with IEnum::Reset()):
 
 \begin{code}
 enumNext :: EnumState a
-	 -> ThisPtr
-	 -> Word32
-	 -> Ptr (Ptr a)
-	 -> Ptr Word32
-	 -> IO HRESULT
+         -> ThisPtr
+         -> Word32
+         -> Ptr (Ptr a)
+         -> Ptr Word32
+         -> IO HRESULT
 enumNext st this c pFetched pcFetched 
   | pcFetched == nullPtr && c /= 1 = return e_INVALIDARG
-  | pFetched == nullPtr 	   = return e_POINTER
-  | otherwise			   = do
+  | pFetched == nullPtr            = return e_POINTER
+  | otherwise                      = do
      let ref = elt st
      (elts, eltsLeft) <- readIORef ref
      let
@@ -101,9 +101,9 @@ foreign export stdcall dynamic
    export_enumNext :: (ThisPtr -> Word32 -> Ptr a -> Ptr Word32 -> IO HRESULT) -> IO (Ptr ())
 
 enumSkip :: EnumState a
-	 -> ThisPtr
-	 -> Word32
-	 -> IO HRESULT
+         -> ThisPtr
+         -> Word32
+         -> IO HRESULT
 enumSkip st this c
   | c == 0     = return e_INVALIDARG
   | otherwise  = do
@@ -124,8 +124,8 @@ foreign export stdcall dynamic
    export_enumSkip :: (ThisPtr -> Word32 -> IO HRESULT) -> IO (Ptr ())
 
 enumReset :: EnumState a
-	  -> ThisPtr
-	  -> IO HRESULT
+          -> ThisPtr
+          -> IO HRESULT
 enumReset st _ = do
   let ls = origElts st
   writeIORef (elt st) (ls, length ls)
@@ -135,9 +135,9 @@ foreign export stdcall dynamic
    export_enumReset :: (ThisPtr -> IO HRESULT) -> IO (Ptr ())
 
 enumClone :: EnumState a
-	  -> ThisPtr
-	  -> Ptr (Ptr (IUnknown b))
-	  -> IO HRESULT
+          -> ThisPtr
+          -> Ptr (Ptr (IUnknown b))
+          -> IO HRESULT
 enumClone st this out = do
    vtbl <- mkEnumInterface (origElts st) (sizeof st) (writeElt st)
    ip   <- cloneIPointer_prim this vtbl

@@ -24,7 +24,7 @@ import Word       ( Word32
                    )
 import IOExts     ( unsafePerformIO )
 import WideString ( WideString, marshallWideString, freeWideString,
-		    readWideString, writeWideString )
+                    readWideString, writeWideString )
 import IO         ( hPutStrLn, stderr )
 
 data IUnknown_ a  = Unknown  (ForeignPtr ())
@@ -95,13 +95,13 @@ stringFromHR hr = do
  typedef [ptr]void* PGUID;
 
  HRESULT primCLSIDFromProgID( [in,ptr]char*  str
- 			    , [in,ptr]PCLSID rptr
-			    );
+                            , [in,ptr]PCLSID rptr
+                            );
 
  HRESULT _cdecl
          primProgIDFromCLSID( [in,foreign]PCLSID pclsid
- 			    , [out,ref]void** pwide
-			    );
+                            , [out,ref]void** pwide
+                            );
 
  HRESULT _cdecl
          primStringToGUID ( [in,ptr]wchar_t* str, [in,ptr]void* pguid);
@@ -110,15 +110,15 @@ stringFromHR hr = do
 
  HRESULT _cdecl
          primCopyGUID ( [in,foreign,ptr]PGUID pguid1, [in,ptr]PGUID pguid2);
-	 
+         
  HRESULT _cdecl
          primNewGUID ([in,foreign,ptr]PGUID pguid);
 
  HRESULT _cdecl
          bindObject ( [in,ptr]wchar_t* name
- 		    , [in,foreign,ptr]PIID iid
-		    , [out,ptr] void** ppv
-		    );
+                    , [in,foreign,ptr]PIID iid
+                    , [out,ptr] void** ppv
+                    );
  boolean _cdecl
          primComEqual( [in]IUnknown* unk1, [in]IUnknown* unk2 );
 
@@ -130,9 +130,9 @@ stringFromHR hr = do
  HRESULT _cdecl
          primCreateTypeLib 
              ( [in] long skind
-	     , [in,string]wchar_t* lpkind
-	     , [out,ptr]void** ppv
-	     );
+             , [in,string]wchar_t* lpkind
+             , [out,ptr]void** ppv
+             );
 
  unsigned int _stdcall GetLastError ();
 
@@ -140,11 +140,11 @@ stringFromHR hr = do
 
  HRESULT _stdcall CoCreateInstance
                    ( [in,foreign]PCLSID clsid
-		   , [in,foreign]void*  inner
-		   , [in]int    ctxt
-		   , [in,foreign,ptr]PGUID riid
-		   , [in,ptr]void* ppv
-		   );
+                   , [in,foreign]void*  inner
+                   , [in]int    ctxt
+                   , [in,foreign,ptr]PGUID riid
+                   , [in,ptr]void* ppv
+                   );
 
  typedef unsigned long ULONG;
  typedef unsigned int DWORD;
@@ -184,95 +184,95 @@ stringFromHR hr = do
  
  HRESULT _stdcall CoCreateInstanceEx
                    ( [in,foreign]PCLSID clsid
-		   , [in,foreign]void*  pUnkOuter
-		   , [in]DWORD          dwClsCtx
-		   , [in,unique]COSERVERINFO* pServerInfo
-		   , [in]ULONG cmq
-		   , [in,out,size_is(cmq),length_is(cmq)]MULTI_QI_PRIM* pResults
-		   );
+                   , [in,foreign]void*  pUnkOuter
+                   , [in]DWORD          dwClsCtx
+                   , [in,unique]COSERVERINFO* pServerInfo
+                   , [in]ULONG cmq
+                   , [in,out,size_is(cmq),length_is(cmq)]MULTI_QI_PRIM* pResults
+                   );
  
 
  HRESULT _stdcall GetActiveObject
                    ( [in,foreign]PCLSID clsid
-		   , [in,ptr]void* inner // should be a foreign
-		   , [in,ptr]void* ppv
-		   );
+                   , [in,ptr]void* inner // should be a foreign
+                   , [in,ptr]void* ppv
+                   );
  HRESULT _cdecl
          primQI ( [in,ptr]void*  methPtr
                 , [in,ptr]void*  iptr
-		, [in,foreign]PCLSID riid
-		, [in,ptr]void** ppv
-		);
+                , [in,foreign]PCLSID riid
+                , [in,ptr]void** ppv
+                );
  unsigned int _cdecl
           primAddRef
                 ( [in,ptr]void*  methPtr
                 , [in,ptr]void*  iptr
-		);
+                );
  unsigned int _cdecl
           primRelease
                 ( [in,ptr]void*  methPtr
                 , [in,ptr]void*  iptr
-		);
+                );
 
  HRESULT  _cdecl
           primEnumNext
                 ( [in,ptr]void*  methPtr
                 , [in,ptr]void* iptr
-		, [in]unsigned int celt
-		, [in,ptr]void*  ptr
-		, [in,ptr]void*  po
-		);
+                , [in]unsigned int celt
+                , [in,ptr]void*  ptr
+                , [in,ptr]void*  po
+                );
  HRESULT  _cdecl
           primEnumSkip
                 ( [in,ptr]void*  methPtr
                 , [in,ptr]void*  iptr
-		, [in]unsigned int celt
-		);
+                , [in]unsigned int celt
+                );
  HRESULT  _cdecl
           primEnumReset
                 ( [in,ptr]void* methPtr
                 , [in,ptr]void* iptr
-		);
+                );
  HRESULT  _cdecl
           primEnumClone
                 ( [in,ptr]void*  methPtr
                 , [in,ptr]void*  iptr
                 , [in,ptr]void*  ppv
-		);
+                );
 
  HRESULT  _stdcall
           primPersistLoad
                 ( [in,ptr]void*     methPtr
                 , [in,ptr]void*     iptr
                 , [in,ptr]wchar_t*  pszFileName
-		, [in]unsigned int  dwMode
-		);
+                , [in]unsigned int  dwMode
+                );
 
  void* _cdecl primNullIID();
 
  HRESULT _stdcall LoadTypeLib 
                 ( [in,ptr]wchar_t* pfname
-		, [in,ptr]void* ptr
-		);
+                , [in,ptr]void* ptr
+                );
  HRESULT _stdcall LoadTypeLibEx
                 ( [in,ptr]wchar_t* pfname
-		, [in]int   rkind
-		, [in,ptr]void* ptr
-		);
+                , [in]int   rkind
+                , [in,ptr]void* ptr
+                );
  HRESULT _stdcall LoadRegTypeLib 
                 ( [in,foreign,ptr]PGUID pguid
-		, [in]int   maj
-		, [in]int   min
-		, [in]int   lcid
-		, [in,ptr]void* ptr
-		);
+                , [in]int   maj
+                , [in]int   min
+                , [in]int   lcid
+                , [in,ptr]void* ptr
+                );
 
  [ptr]wchar_t* 
       _cdecl primQueryPathOfRegTypeLib
- 		( [in,foreign,ptr]PGUID pgd
-		, [in]unsigned short   maj
-		, [in]unsigned short   min
-		);
+                ( [in,foreign,ptr]PGUID pgd
+                , [in]unsigned short   maj
+                , [in]unsigned short   min
+                );
 
  [pure]void* addrOfReleaseIUnknown();
 
@@ -296,17 +296,17 @@ stringFromHR hr = do
 
  void primGetVersionInfo
          ( [out,ref]unsigned long* maj
-	 , [out,ref]unsigned long* min
-	 , [out,ref]unsigned long* pid
-	 );
+         , [out,ref]unsigned long* min
+         , [out,ref]unsigned long* pid
+         );
 
  HRESULT _stdcall 
          CoRegisterClassObject 
              ( [in,foreign]PCLSID rclsid
-	     , [in,foreign]void*  pUnk
-	     , [in] long dwClsContext
-	     , [in] long flags
-	     , [out,ref] unsigned long* lpwRegister
-	     );
+             , [in,foreign]void*  pUnk
+             , [in] long dwClsContext
+             , [in] long flags
+             , [out,ref] unsigned long* lpwRegister
+             );
 
 }

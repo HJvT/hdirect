@@ -1,22 +1,22 @@
 \begin{code}
 module Digraph(
 
-	-- At present the only one with a "nice" external interface
-	stronglyConnComp, stronglyConnCompR, SCC(..),
+        -- At present the only one with a "nice" external interface
+        stronglyConnComp, stronglyConnCompR, SCC(..),
 
-	Graph, Vertex, 
-	graphFromEdges, buildG, transposeG, reverseE, outdegree, indegree,
+        Graph, Vertex, 
+        graphFromEdges, buildG, transposeG, reverseE, outdegree, indegree,
 
-	Tree(..), Forest,
-	showTree, showForest,
+        Tree(..), Forest,
+        showTree, showForest,
 
-	dfs, dff,
-	topSort,
-	components,
-	scc,
-	back, cross, forward,
-	reachable, path,
-	bcc
+        dfs, dff,
+        topSort,
+        components,
+        scc,
+        back, cross, forward,
+        reachable, path,
+        bcc
 
     ) where
 
@@ -42,21 +42,21 @@ import Data.List ( sortBy, (\\) )
 
 
 %************************************************************************
-%*									*
-%*	External interface
-%*									*
+%*                                                                      *
+%*      External interface
+%*                                                                      *
 %************************************************************************
 
 \begin{code}
 data SCC vertex = AcyclicSCC vertex
-	        | CyclicSCC  [vertex]
+                | CyclicSCC  [vertex]
 
 stronglyConnComp
-	:: Ord key
-	=> [(node, key, [key])]		-- The graph; its ok for the
-					-- out-list to contain keys which arent
-					-- a vertex key, they are ignored
-	-> [SCC node]
+        :: Ord key
+        => [(node, key, [key])]         -- The graph; its ok for the
+                                        -- out-list to contain keys which arent
+                                        -- a vertex key, they are ignored
+        -> [SCC node]
 
 stronglyConnComp es
   = map get_node (stronglyConnCompR es)
@@ -67,30 +67,30 @@ stronglyConnComp es
 -- The "R" interface is used when you expect to apply SCC to
 -- the (some of) the result of SCC, so you dont want to lose the dependency info
 stronglyConnCompR
-	:: Ord key
-	=> [(node, key, [key])]		-- The graph; its ok for the
-					-- out-list to contain keys which arent
-					-- a vertex key, they are ignored
-	-> [SCC (node, key, [key])]
+        :: Ord key
+        => [(node, key, [key])]         -- The graph; its ok for the
+                                        -- out-list to contain keys which arent
+                                        -- a vertex key, they are ignored
+        -> [SCC (node, key, [key])]
 
 stronglyConnCompR [] = []  -- added to avoid creating empty array in graphFromEdges -- SOF
 stronglyConnCompR es
   = map decode forest
   where
     (graph, vertex_fn) = graphFromEdges es
-    forest	       = scc graph
+    forest             = scc graph
     decode (Node v []) | mentions_itself v = CyclicSCC [vertex_fn v]
-		       | otherwise	   = AcyclicSCC (vertex_fn v)
+                       | otherwise         = AcyclicSCC (vertex_fn v)
     decode other = CyclicSCC (dec other [])
-		 where
-		   dec (Node v ts) vs = vertex_fn v : foldr dec vs ts
+                 where
+                   dec (Node v ts) vs = vertex_fn v : foldr dec vs ts
     mentions_itself v = v `elem` (graph ! v)
 \end{code}
 
 %************************************************************************
-%*									*
-%*	Graphs
-%*									*
+%*                                                                      *
+%*      Graphs
+%*                                                                      *
 %************************************************************************
 
 
@@ -132,41 +132,41 @@ indegree  = outdegree . transposeG
 
 \begin{code}
 graphFromEdges
-	:: Ord key
-	=> [(node, key, [key])]
-	-> (Graph, Vertex -> (node, key, [key]))
+        :: Ord key
+        => [(node, key, [key])]
+        -> (Graph, Vertex -> (node, key, [key]))
 graphFromEdges es
   = (graph, \v -> vertex_map ! v)
   where
-    max_v      	    = length es - 1
+    max_v           = length es - 1
     bnds            = (0,max_v) :: (Vertex, Vertex)
     sorted_edges    = sortBy lt es
-    edges1	    = zipWith (,) [0..] sorted_edges
+    edges1          = zipWith (,) [0..] sorted_edges
 
-    graph	    = array bnds [(,) v (mapMaybe key_vertex ks) | (,) v (_,    _, ks) <- edges1]
-    key_map	    = array bnds [(,) v k			       | (,) v (_,    k, _ ) <- edges1]
-    vertex_map	    = array bnds edges1
+    graph           = array bnds [(,) v (mapMaybe key_vertex ks) | (,) v (_,    _, ks) <- edges1]
+    key_map         = array bnds [(,) v k                              | (,) v (_,    k, _ ) <- edges1]
+    vertex_map      = array bnds edges1
 
     (_,k1,_) `lt` (_,k2,_) = k1 `compare` k2 --of { LT -> True; other -> False }
 
     -- key_vertex :: key -> Maybe Vertex
-    -- 	returns Nothing for non-interesting vertices
+    --  returns Nothing for non-interesting vertices
     key_vertex k   = find 0 max_v 
-		   where
-		     find a b | a > b 
-			      = Nothing
-		     find a b = case compare k (key_map ! mid) of
-				   LT -> find a (mid-1)
-				   EQ -> Just mid
-				   GT -> find (mid+1) b
-			      where
-			 	mid = (a + b) `div` 2
+                   where
+                     find a b | a > b 
+                              = Nothing
+                     find a b = case compare k (key_map ! mid) of
+                                   LT -> find a (mid-1)
+                                   EQ -> Just mid
+                                   GT -> find (mid+1) b
+                              where
+                                mid = (a + b) `div` 2
 \end{code}
 
 %************************************************************************
-%*									*
-%*	Trees and forests
-%*									*
+%*                                                                      *
+%*      Trees and forests
+%*                                                                      *
 %************************************************************************
 
 \begin{code}
@@ -211,9 +211,9 @@ draw (Node x xs) = grp this (space (length this)) (stLoop xs)
 
 
 %************************************************************************
-%*									*
-%*	Depth first search
-%*									*
+%*                                                                      *
+%*      Depth first search
+%*                                                                      *
 %************************************************************************
 
 \begin{code}
@@ -258,9 +258,9 @@ chop m (Node v ts : us)
 
 
 %************************************************************************
-%*									*
-%*	Algorithms
-%*									*
+%*                                                                      *
+%*      Algorithms
+%*                                                                      *
 %************************************************************************
 
 ------------------------------------------------------------
@@ -335,9 +335,9 @@ scc g = dfs g (reverse (postOrd (transposeG g)))
 {- UNUSED
 tree              :: Bounds -> Forest Vertex -> Graph
 tree bnds ts       = buildG bnds (concat (map flat ts))
-		   where
-		     flat (Node v rs) = [ (v, w) | Node w us <- ts ] ++
-                    		        concat (map flat ts)
+                   where
+                     flat (Node v rs) = [ (v, w) | Node w us <- ts ] ++
+                                        concat (map flat ts)
 -}
 back              :: Graph -> Table Int -> Graph
 back g post        = mapT select g

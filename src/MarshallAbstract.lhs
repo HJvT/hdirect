@@ -74,7 +74,7 @@ marshallAbstract i = do
     fin_decl  
       | optHugs   = prim Cdecl (dname, Nothing, orig_fin_nm, Nothing)
                          fin_name (tyFunPtr (funTy (tyPtr t_ty) io_unit))
-		         False [] (False,"void*")
+                         False [] (False,"void*")
       | otherwise = extLabel orig_fin_nm fin_name (tyFunPtr (funTy (tyPtr t_ty) io_unit))
       where
        dname = "" -- dll location.
@@ -82,7 +82,7 @@ marshallAbstract i = do
     (finaliser, orig_fin_nm) = 
        case (findAttribute "finaliser" attrs) of
           Just (Attribute _ [ParamLit (StringLit s)]) -> ("addrOf_" ++ idName i ++ '_':s, s)
-	  _ -> let s = "no-finaliser" in (s,s)
+          _ -> let s = "no-finaliser" in (s,s)
 
     ty_args  = 
      case findAttribute "ty_args" attrs of
@@ -118,9 +118,9 @@ marshallAbstract i = do
     u_rhs
       | isFinalised =
            bind (funApp mkForeignObj [v, hCase (var "finaliseMe__") 
-	   				       [alt (conPat false []) (varName nullFinaliser)
-					       ,alt (conPat true [])  (var finaliser)
-					       ]]) v $
+                                               [alt (conPat false []) (varName nullFinaliser)
+                                               ,alt (conPat true [])  (var finaliser)
+                                               ]]) v $
            ret (dataCon (mkConName con_name) [v])
       | otherwise =
            ret (dataCon (mkConName con_name) [v])
@@ -130,7 +130,7 @@ marshallAbstract i = do
     w_tysig  = typeSig w_name w_ty
     w_ty     = funTy (tyPtr (tyPtr t_ty)) (funTy t_ty io_unit)
     w_def    = funDef w_name [ varPat vptr
-			     , conPat (mkConName con_name) [varPat v]] w_rhs
+                             , conPat (mkConName con_name) [varPat v]] w_rhs
     w_rhs
       | isFinalised = funApp w_fptr [vptr , v]
       | otherwise   = funApp w_ptr  [vptr , v]
@@ -149,13 +149,13 @@ marshallAbstract i = do
       | isFinalised =
            bind (funApp r_ptr [vptr]) v $
            bind (funApp mkForeignObj [v, hCase (var "finaliseMe__") 
-	   				       [alt (conPat false []) (varName nullFinaliser)
-					       ,alt (conPat true [])  (var finaliser)
-					       ]]) v $
-	   ret (dataCon (mkConName con_name) [v])
+                                               [alt (conPat false []) (varName nullFinaliser)
+                                               ,alt (conPat true [])  (var finaliser)
+                                               ]]) v $
+           ret (dataCon (mkConName con_name) [v])
       | otherwise   = 
            bind (funApp r_ptr  [vptr]) v $
-	   ret (dataCon (mkConName con_name) [v])
+           ret (dataCon (mkConName con_name) [v])
 
     f_name   = qName (prefix freePrefix name)
     f_tysig  = typeSig f_name (funTy t_ty io_unit)

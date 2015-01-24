@@ -11,7 +11,7 @@ module LexM
 
        (
          LexM
-	
+        
        , runLexM         -- :: [FilePath] -> String -> LexM a -> IO (a, SymbolTable IDLToken)
        , invokeLexM      -- :: String -> String -> LexM a -> LexM a
        , ioToLexM        -- :: IO a   -> LexM a
@@ -82,7 +82,7 @@ runLexM :: [String]
         -> String
         -> String 
         -> LexM a 
-	-> IO a
+        -> IO a
 runLexM path fname str (LexM m) = do
   var <- newIORef []
   let sl = (mkSrcLoc fname 1)
@@ -100,14 +100,14 @@ invokeLexM fname ls (LexM m) =
         sl    = (mkSrcLoc fname 1)
     (v, LexState symt2 _ _) 
       <- m (LexEnv sl sl flg path var)
-	   (LexState symt tok ls)
+           (LexState symt tok ls)
     return (v, LexState symt2{-(SymbolTable.combineSyms symt symt2)-} tok cs))
 
 ioToLexM :: IO a -> LexM a
 ioToLexM act =
  LexM (\ _ st -> do
          v <- act
-	 return (v, st))
+         return (v, st))
 
 cacheFilePath :: FilePath -> LexM ()
 cacheFilePath f =
@@ -197,8 +197,8 @@ thenLexM :: LexM a -> (a -> LexM b) -> LexM b
 thenLexM (LexM m) n =
  LexM ( \ env st -> do
           (a, st1) <- m env st
-	  let (LexM act) = n a
-	  act env st1 )
+          let (LexM act) = n a
+          act env st1 )
 
 returnLexM :: a -> LexM a
 returnLexM v = LexM (\ _ st -> return (v, st) )
@@ -226,19 +226,19 @@ importFile fname = do
     Nothing   -> do
         l   <- getSrcLoc
         ioToLexM (ioError
-		     (userError  (show l ++": Unable to import "++ fname)))
+                     (userError  (show l ++": Unable to import "++ fname)))
         
     Just fn   -> do
         flg <- alreadySeenFile fn
         if flg
-	 then do
+         then do
            ioToLexM (when optVerbose (hPutStrLn stderr (show fn ++ " already loaded.")))
-	   return Nothing -- already slurped this one.
-	 else do
+           return Nothing -- already slurped this one.
+         else do
            cacheFilePath fn
-	   res1 <- ioToLexM (preProcessFile fn)
-	   ls   <- ioToLexM (readFile res1)
-	   return (Just ls)
+           res1 <- ioToLexM (preProcessFile fn)
+           ls   <- ioToLexM (readFile res1)
+           return (Just ls)
  where
   exts = [""]
 
