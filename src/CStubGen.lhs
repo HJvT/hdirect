@@ -15,8 +15,8 @@ import PP
 import BasicTypes
 import Utils ( traceIf, dropSuffix )
 import Opts  ( optGenHeader, optVerbose, optOneModulePerInterface )
-import List  ( nub )
-import Maybe ( isJust )
+import Data.List  ( nub )
+import Data.Maybe ( isJust )
 import Utils ( notNull )
 \end{code}
 

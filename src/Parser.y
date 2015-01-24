@@ -29,7 +29,7 @@ import IDLUtils ( mkFunId, mkMethodId, toCConvAttrib,
                   mkGNUAttrib, toPackedAttrib, exprType )
 import BasicTypes
 import Literal
-import IO ( hPutStrLn, stderr )
+import System.IO ( hPutStrLn, stderr )
 {-
 BEGIN_GHC_ONLY
 import GlaExts

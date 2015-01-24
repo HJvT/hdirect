@@ -28,9 +28,9 @@ import MarshallCore
 import BasicTypes
 import LibUtils
 
-import List  ( nubBy )
-import Maybe ( mapMaybe, fromMaybe, fromJust, isJust )
-import Monad ( when )
+import Data.List  ( nubBy )
+import Data.Maybe ( mapMaybe, fromMaybe, fromJust, isJust )
+import Control.Monad ( when )
 
 \end{code}
 

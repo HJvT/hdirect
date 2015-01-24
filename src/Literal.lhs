@@ -22,8 +22,8 @@ module Literal
 
 import PP
 import Utils
-import List ( intersperse )
-import Opts ( optNoQualNames )
+import Data.List ( intersperse )
+import Opts      ( optNoQualNames )
 \end{code}
 
 \begin{code}

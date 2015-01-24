@@ -60,7 +60,7 @@ import DsMonad   ( TypeEnv, SourceEnv, TagEnv, IfaceEnv )
 import CoreIDL
 import CoreUtils
 import BasicTypes
-import Maybe ( isJust )
+import Data.Maybe ( isJust )
 import Utils
 \end{code}
 

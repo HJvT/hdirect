@@ -208,15 +208,15 @@ import PpCore ( ppType, showCore, ppExpr )
 import Digraph
 import Utils
 
-import Maybe  ( mapMaybe, fromMaybe, mapMaybe, isJust )
-import List   ( partition )
-import Char   ( toLower, toUpper, isLower, isUpper, isAlpha, isDigit )
+import Data.Maybe  ( mapMaybe, fromMaybe, mapMaybe, isJust )
+import Data.List   ( partition )
+import Data.Char   ( toLower, toUpper, isLower, isUpper, isAlpha, isDigit )
 import TypeInfo
 import NativeInfo
 import Env
-import Int
-import List
-import Bits
+import Data.Int
+import Data.List
+import Data.Bits
 {- BEGIN_GHC_ONLY
 import GlaExts
    END_GHC_ONLY -}

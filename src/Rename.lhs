@@ -52,10 +52,10 @@ import Opts      ( optOneModulePerInterface, optCoalesceIsomorphicMethods,
 		   optCharPtrIsString, optUseStdDispatch
 		 )
 
-import Maybe	 ( isJust, fromMaybe )
-import List      ( isPrefixOf )
-import Monad     ( when, mplus )
-import Char	 ( isUpper, toUpper )
+import Data.Maybe    ( isJust, fromMaybe )
+import Data.List     ( isPrefixOf )
+import Control.Monad ( when, mplus )
+import Data.Char     ( isUpper, toUpper )
 import Literal
 
 \end{code}

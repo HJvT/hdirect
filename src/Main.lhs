@@ -28,22 +28,26 @@ import PpAbstractH ( ppHTopDecls, showAbstractH )
 import PreProc
 import Desugar
 import Rename
-import IO  ( hPutStr, hPutStrLn, stderr, stdout, hPutChar,
+import System.IO  ( hPutStr, hPutStrLn, stderr, stdout, hPutChar,
 	     openFile, IOMode(..), hClose, Handle, hFlush
 	   )
-import Monad  ( when )
-import System (getProgName, exitWith, ExitCode(..) )
+import Control.Monad      ( when )
+import System.Environment ( getProgName )
+import System.Exit        ( exitWith, ExitCode(..) )
 import CodeGen
 import Utils ( dropSuffix, basename, notNull )
-import Time
-import List  ( partition )
+import Data.Time
+import Data.List  ( partition )
 import Version
-import Locale
+import System.Locale
 import HugsCodeGen
 import DefGen
 import CStubGen
 import JavaProxy
 import Env ( newEnv, addListToEnv_C )
+import Control.Exception
+import System.Time
+
 
 {- BEGIN_SUPPORT_TYPELIBS
 import 

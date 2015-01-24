@@ -51,10 +51,10 @@ module BasicTypes
 	) where
 
 import PP
-import Maybe ( fromMaybe )
+import Data.Maybe ( fromMaybe )
 import Opts  ( optNoQualNames, optIntIsInt )
 import Utils ( mapMb )
-import Int
+import Data.Int
 {- BEGIN_GHC_ONLY
 import GlaExts
    END_GHC_ONLY -}

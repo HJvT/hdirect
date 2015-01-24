@@ -18,7 +18,7 @@ import CoreUtils
 import Attribute
 import LibUtils
 
-import List ( partition )
+import Data.List ( partition )
 
 \end{code}
 

@@ -80,11 +80,11 @@ import qualified IDLSyn as IDL ( Attribute )
 import CoreUtils ( childAttributes )
 import Env
 import Data.IORef ( IORef, newIORef, readIORef, writeIORef )
-import IO  ( hPutStrLn, stderr )
-import Int ( Int32 )
-import Monad ( when )
+import System.IO  ( hPutStrLn, stderr )
+import Data.Int ( Int32 )
+import Control.Monad ( when )
 import Opts  ( optVerbose, optDebug )
-import Maybe ( catMaybes )
+import Data.Maybe ( catMaybes )
 import TypeInfo
 
 \end{code}

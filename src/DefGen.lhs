@@ -7,7 +7,7 @@ Generate module definition files (Win32 specific).
 \begin{code}
 module DefGen (defGen) where
 
-import List
+import Data.List
 import AbstractH
 import Utils
 \end{code}

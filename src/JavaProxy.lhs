@@ -15,13 +15,13 @@ method declarations.
 module JavaProxy ( javaProxyGen, prepareDecls ) where
 
 import CoreIDL
-import CoreUtils ( isVoidTy )
+import CoreUtils  ( isVoidTy )
 import Attribute
 import BasicTypes
 import Literal
 import PP
-import PpCore ( showCore, ppType )
-import Maybe  ( mapMaybe )
+import PpCore     ( showCore, ppType )
+import Data.Maybe ( mapMaybe )
 \end{code}
 
 The generator is simple-minded - spit out a pretty

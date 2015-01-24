@@ -16,31 +16,31 @@ import qualified IDLUtils ( childAttributes, getTyTag )
 import qualified CoreIDL as Core
 import CoreUtils ( getTyTag, simpRedExpr, mkHaskellTyConName
                  , mkId, removePtr, findPtrType, isMethod
-		 , iUnknownTy, iDispatchTy, childAttributes
-		 , int16Ty, currencyTy
-		 , dateTy, dummyMethod, intTy, variantTy, bstrTy
-		 , mkRefPointer, rawPointerToIP, isIfacePtr, getIfaceTy
-		 )
+                 , iUnknownTy, iDispatchTy, childAttributes
+                 , int16Ty, currencyTy
+                 , dateTy, dummyMethod, intTy, variantTy, bstrTy
+                 , mkRefPointer, rawPointerToIP, isIfacePtr, getIfaceTy
+                 )
 import Attribute ( stringToDepReason, hasStringAttribute, 
-		   hasSeqAttribute, getLengthAttribute,  hasModeAttribute,
-		   findAttribute, hasAttributeWithName,  hasUniqueAttribute,
-		   hasDependentAttrs, hasSourceAttribute, getDefaultCConv
-		 )
+                   hasSeqAttribute, getLengthAttribute,  hasModeAttribute,
+                   findAttribute, hasAttributeWithName,  hasUniqueAttribute,
+                   hasDependentAttrs, hasSourceAttribute, getDefaultCConv
+                 )
 import DsMonad
 import Env
 
 import BasicTypes
 import Literal
 import Opts ( optOneModulePerInterface, optVerbose,
-	      optExpandInheritedInterface, optIgnoreDispInterfaces,
-	      optCompilingMsIDL, optOutPointersAreRefs, 
-	      optSubtypedInterfacePointers, optTlb, dumpIDL,
-	      optIgnoreImpLibs, optUnwrapSingletonStructs,
-	      optNukeEmptyStructs, optJNI, optCompilingOmgIDL,
-	      optCorba, optHaskellToC, optVoidTydefIsAbstract,
-	      optNoWarnMissingMode, optUseAsfs, optDon'tTidyDefns,
-	      optTlb, optServer, optUseStdDispatch
-	    )
+              optExpandInheritedInterface, optIgnoreDispInterfaces,
+              optCompilingMsIDL, optOutPointersAreRefs, 
+              optSubtypedInterfacePointers, optTlb, dumpIDL,
+              optIgnoreImpLibs, optUnwrapSingletonStructs,
+              optNukeEmptyStructs, optJNI, optCompilingOmgIDL,
+              optCorba, optHaskellToC, optVoidTydefIsAbstract,
+              optNoWarnMissingMode, optUseAsfs, optDon'tTidyDefns,
+              optTlb, optServer, optUseStdDispatch
+            )
 
 import Utils
 import NormaliseType
@@ -48,16 +48,16 @@ import ImportLib ( importLib )
 import PpIDLSyn ( showIDL, ppDefn )
 import PpCore   ( ppType, showCore )
 import LibUtils ( defaultCConv, prelude, autoLib, comLib, 
-		  iUnknown, iDispatch, jObject, cObject, jniLib,
-		  intLib, wordLib, hdirectLib, wStringLib
-		)
+                  iUnknown, iDispatch, jObject, cObject, jniLib,
+                  intLib, wordLib, hdirectLib, wStringLib
+                )
 import NameSupply
 
-import Int
-import Monad
-import Maybe    ( isJust, fromJust, fromMaybe )
-import Char	( toLower, isSpace )
-import List	( partition, sort, sortBy, isPrefixOf )
+import Data.Int
+import Control.Monad
+import Data.Maybe    ( isJust, fromJust, fromMaybe )
+import Data.Char     ( toLower, isSpace )
+import Data.List     ( partition, sort, sortBy, isPrefixOf )
 import TypeInfo
 import Validate
 \end{code}
@@ -70,49 +70,49 @@ just go about doing the transformation from IDLSyn to Core.
 
 \begin{code}
 desugar :: String
-	-> Env String (Bool, [IDL.Attribute])
+        -> Env String (Bool, [IDL.Attribute])
         -> [IDL.Defn]
-	-> IO ([Core.Decl], TypeEnv, TagEnv, SourceEnv, IfaceEnv)
+        -> IO ([Core.Decl], TypeEnv, TagEnv, SourceEnv, IfaceEnv)
 desugar srcFileName aenv defs = 
      runDsM srcFileName tenv_to_use aenv def_types
-			(desugarer srcFileName defs)
+                        (desugarer srcFileName defs)
  where
    def_types
     | optCompilingMsIDL = ms_idl_def_types
-    | otherwise		= []
+    | otherwise         = []
 
    tenv_to_use
     | optCompilingMsIDL = 
-    	addListToEnv newEnv
-		     [ ("VARIANT", variant_ti)
-		     , ("IID",   iid_ti)
-		     , ("CLSID", clsid_ti)
-		     , ("GUID",  guid_ti)
-		     , ("VARIANT_BOOL", v_bool_ti)
-		     , ("BSTR", bstr_ti)
-		     ]
+        addListToEnv newEnv
+                     [ ("VARIANT", variant_ti)
+                     , ("IID",   iid_ti)
+                     , ("CLSID", clsid_ti)
+                     , ("GUID",  guid_ti)
+                     , ("VARIANT_BOOL", v_bool_ti)
+                     , ("BSTR", bstr_ti)
+                     ]
     | otherwise = newEnv
 
    ms_idl_def_types
     = [ ("IUnknown",     comLib,  Core.Iface "IUnknown"  comLib  "IUnknown"  [] False [])
       , ("IDispatch",    autoLib, Core.Iface "IDispatch" autoLib "IDispatch" [] True  [(iUnknown,3)])
       , ("CURRENCY",     autoLib, currencyTy)
-      , ("DATE",	 autoLib, dateTy)
+      , ("DATE",         autoLib, dateTy)
       , ("BSTR",         comLib,  bstrTy)
       , ("VARIANT_BOOL", autoLib, Core.Name  "VARIANT_BOOL" "VARIANT_BOOL" 
-      					     autoLib Nothing (Just int16Ty) (Just v_bool_ti))
-      , ("IID",		 comLib,  Core.Name  "IID" "IID" comLib Nothing Nothing (Just iid_ti))
-      , ("CLSID",	 comLib,  Core.Name  "CLSID" "CLSID" comLib Nothing Nothing (Just clsid_ti))
-      , ("GUID",	 comLib,  Core.Name  "GUID" "GUID" comLib Nothing Nothing (Just guid_ti))
+                                             autoLib Nothing (Just int16Ty) (Just v_bool_ti))
+      , ("IID",          comLib,  Core.Name  "IID" "IID" comLib Nothing Nothing (Just iid_ti))
+      , ("CLSID",        comLib,  Core.Name  "CLSID" "CLSID" comLib Nothing Nothing (Just clsid_ti))
+      , ("GUID",         comLib,  Core.Name  "GUID" "GUID" comLib Nothing Nothing (Just guid_ti))
       , ("VARIANT",      autoLib, variantTy)
       , ("int64",        intLib,  Core.Integer LongLong True)
       , ("uint64",       wordLib, Core.Integer LongLong False)
       , ("HRESULT",      comLib,  Core.Integer Long True)
-      , ("LPSTR",	 comLib,  Core.String  (Core.Char False) False Nothing)
-      , ("LPWSTR",	 wStringLib,  Core.WString False Nothing)
+      , ("LPSTR",        comLib,  Core.String  (Core.Char False) False Nothing)
+      , ("LPWSTR",       wStringLib,  Core.WString False Nothing)
       , ("bool",         prelude, Core.Bool)
       , ("wchar_t",      hdirectLib, Core.WChar)
-      , ("octet",	 hdirectLib, Core.Octet)
+      , ("octet",        hdirectLib, Core.Octet)
       ]
 
 
@@ -124,8 +124,8 @@ desugar srcFileName aenv defs =
   to break in mysterious ways..
 -}
 desugarer :: String
-	  -> [IDL.Defn]
-	  -> DsM [Core.Decl]
+          -> [IDL.Defn]
+          -> DsM [Core.Decl]
 desugarer src defs =  do
   let defs' =  tidyDefns (concat (runNS (mapM fillInDefn defs) names))
   (res, _) <- desugarIncludedDecls src Nothing [] defs'
@@ -148,35 +148,35 @@ desugarIncludedDecls _   _      acc     []  = return (acc, [])
 desugarIncludedDecls src keepIt acc (x:xs)  =
     case x of
       IDL.IncludeStart headerFileName 
-	     -- delay this from kicking in until we see the first occurrence of
-	     -- a '#line' for the source file (avoids running into trouble with
-	     -- other line gunk the CPP may emit.)
+             -- delay this from kicking in until we see the first occurrence of
+             -- a '#line' for the source file (avoids running into trouble with
+             -- other line gunk the CPP may emit.)
          | isJust keepIt || headerFileName == src -> do
           old_nm <- getFilename
           let mod' = mkHaskellTyConName (dropSuffix (basename headerFileName))
-	  mod <- nameOfImport mod'
-	  setFilename (Just mod)
-	  let
-	     -- we're only interested in generating code for the portions
-	     -- that belong to the source .idl.
-	     -- ToDo: conditionalise this and optionally be interested in
-	     --       contents of #include files.
-	    forKeeps = fromMaybe True keepIt && headerFileName == src
-	  
-	  (new_acc, xs') <- desugarIncludedDecls src (Just forKeeps) acc xs
-	  setFilename old_nm
-	  desugarIncludedDecls src keepIt new_acc xs'
-	  
+          mod <- nameOfImport mod'
+          setFilename (Just mod)
+          let
+             -- we're only interested in generating code for the portions
+             -- that belong to the source .idl.
+             -- ToDo: conditionalise this and optionally be interested in
+             --       contents of #include files.
+            forKeeps = fromMaybe True keepIt && headerFileName == src
+          
+          (new_acc, xs') <- desugarIncludedDecls src (Just forKeeps) acc xs
+          setFilename old_nm
+          desugarIncludedDecls src keepIt new_acc xs'
+          
       IDL.IncludeEnd -> return (acc, xs)
       _ -> do
         new_acc <- desugarDefn acc x
-	let
-	 keep = fromMaybe True keepIt
+        let
+         keep = fromMaybe True keepIt
 
-	 the_acc
-	   | keep      = new_acc
-	   | otherwise = acc
-	desugarIncludedDecls src keepIt the_acc xs
+         the_acc
+           | keep      = new_acc
+           | otherwise = acc
+        desugarIncludedDecls src keepIt the_acc xs
 \end{code}
 
 %*
@@ -216,11 +216,11 @@ desugarDefn acc (IDL.Typedef ty tdef_attrs ids)
   | otherwise = do
      core_tdef_attrs      <- addToPath (iName (head ids)) $ idlToCoreAttributes tdef_attrs
      if hasAttributeWithName core_tdef_attrs "abstract" then
-	-- 
+        -- 
         -- decls of the forms: typedef [abstract,...] struct foo Foo; 
-	-- are equal to interface Foo{};
-	-- 
-	withAttributes core_tdef_attrs $ desugarDefn acc (IDL.Interface (head ids) [] [])
+        -- are equal to interface Foo{};
+        -- 
+        withAttributes core_tdef_attrs $ desugarDefn acc (IDL.Interface (head ids) [] [])
       else do
        mod                  <- getFilename
        inherited_attrs      <- getAttributes
@@ -233,7 +233,7 @@ desugarDefn acc (IDL.Typedef ty tdef_attrs ids)
              typedef struct _tag { ... } *foo;
        
           is problematic, since it doesn't have a particularly descriptive
-	  Haskell type:
+          Haskell type:
      
              type Foo = Pointer Addr {- or maybe just Addr -}
        
@@ -256,10 +256,10 @@ desugarDefn acc (IDL.Typedef ty tdef_attrs ids)
          case filter isUnpointedId ids of
           []    -> let t = tyTag ty in(IDL.Id t:ids)
           (x:_) -> 
-	    {- In the case where you've got  *foo,*bar,baz - ensure
-	       that the unpointed id is processed first, so that
-	       we don't get any forward type references.
-	    -}
+            {- In the case where you've got  *foo,*bar,baz - ensure
+               that the unpointed id is processed first, so that
+               we don't get any forward type references.
+            -}
            x: filter (\ i -> iName i /= iName x) ids
 
          -- unpointed synonym that all pointer and array syns can `point' to.
@@ -269,43 +269,43 @@ desugarDefn acc (IDL.Typedef ty tdef_attrs ids)
 
         mkCoreTypeDef accum i
           | isUnpointedId i && (iName i == ground_syn) = addToPath (iName i) $ do
-	     -- notice that we augment the path (for the benefit of ASFs) before
-	     -- the attributes are converted, which is why the conversion cannot be
-	     -- lifted out of this action.
+             -- notice that we augment the path (for the benefit of ASFs) before
+             -- the attributes are converted, which is why the conversion cannot be
+             -- lifted out of this action.
             core_tdef_attrs1     <- idlToCoreAttributes (tdef_attrs ++ idAttrs i)
             let 
              core_tdef_attrs' = childAttributes core_tdef_attrs1
              final_attrs      = core_tdef_attrs1 ++ inherited_attrs
-	     
-	     asNewType = final_attrs `hasAttributeWithName` "hs_newtype"
-	     
-	    when (not (isEmptyStructTy ty))
-	         (addToTagEnv (IDLUtils.getTyTag (iName i) ty) (iName i))
-	      -- add tag name to environment, so that recursive types can
-	      -- be handled correctly.
-	      -- 	
-	      -- Not a principled approach to recursive types, this.
+             
+             asNewType = final_attrs `hasAttributeWithName` "hs_newtype"
+             
+            when (not (isEmptyStructTy ty))
+                 (addToTagEnv (IDLUtils.getTyTag (iName i) ty) (iName i))
+              -- add tag name to environment, so that recursive types can
+              -- be handled correctly.
+              --        
+              -- Not a principled approach to recursive types, this.
             (nm, core_ty, real_ty)   <- withAttributes child_attrs
-	  					       (mkCoreIdTy ty i True core_tdef_attrs')
+                                                       (mkCoreIdTy ty i True core_tdef_attrs')
             the_mod            <- getFilename
             let 
-	       core_id = mkCoreTypeId nm the_mod final_attrs
-	       core_ty'
-	         | asNewType && not (isConstructedTy ty) =
-		     Core.Struct core_id [Core.Field core_id core_ty real_ty Nothing Nothing] Nothing
-		 | otherwise = core_ty
-						       
+               core_id = mkCoreTypeId nm the_mod final_attrs
+               core_ty'
+                 | asNewType && not (isConstructedTy ty) =
+                     Core.Struct core_id [Core.Field core_id core_ty real_ty Nothing Nothing] Nothing
+                 | otherwise = core_ty
+                                                       
             addToTypeEnv nm mod (core_ty', final_attrs)
             return (Core.Typedef core_id core_ty' core_ty' : accum)
 
           | otherwise= addToPath (iName i) $ do
-	     -- don't redeclare, just make the synonym point to
-	     -- the ground one.
+             -- don't redeclare, just make the synonym point to
+             -- the ground one.
             core_tdef_attrs1     <- idlToCoreAttributes (tdef_attrs ++ idAttrs i)
             let core_tdef_attrs' = childAttributes core_tdef_attrs1
             (nm, core_ty, real_ty)   <- 
-	      withAttributes child_attrs
-			     (mkCoreIdTy (IDL.TyName ground_syn Nothing) i True core_tdef_attrs')
+              withAttributes child_attrs
+                             (mkCoreIdTy (IDL.TyName ground_syn Nothing) i True core_tdef_attrs')
             addToTypeEnv nm mod (core_ty, core_tdef_attrs1 ++ child_attrs)
             return (Core.Typedef (mkCoreTypeId nm mod core_tdef_attrs1) core_ty core_ty : accum)
         
@@ -315,18 +315,18 @@ desugarDefn acc (IDL.Typedef ty tdef_attrs ids)
             local_inh_attrs  = childAttributes core_local_attrs
             the_tdef_attrs   = core_local_attrs ++ inherited_attrs
 
-	    asNewType = the_tdef_attrs `hasAttributeWithName` "hs_newtype"
-	     
+            asNewType = the_tdef_attrs `hasAttributeWithName` "hs_newtype"
+             
            (nm, core_ty, real_ty)    <- withAttributes inherited_attrs
-	 				               (mkCoreIdTy ty i True local_inh_attrs)
+                                                       (mkCoreIdTy ty i True local_inh_attrs)
            let 
-	     core_id = mkCoreTypeId nm mod the_tdef_attrs
-	     core_ty'
-	      | asNewType = Core.Struct core_id
-	      				[Core.Field core_id core_ty real_ty Nothing Nothing]
-					Nothing
-	      | otherwise = core_ty
-						       
+             core_id = mkCoreTypeId nm mod the_tdef_attrs
+             core_ty'
+              | asNewType = Core.Struct core_id
+                                        [Core.Field core_id core_ty real_ty Nothing Nothing]
+                                        Nothing
+              | otherwise = core_ty
+                                                       
            addToTypeEnv nm mod (core_ty', the_tdef_attrs)
            return (Core.Typedef core_id core_ty' core_ty' : accum)
 
@@ -354,21 +354,21 @@ desugarDefn acc (IDL.ExternDecl ty [i])
 desugarDefn acc IDL.ExternDecl{} = return acc
 
 desugarDefn acc (IDL.Constant i as ty e) = addToPath (iName i) $ do
-  core_as		 <- idlToCoreAttributes (as ++ idAttrs i)
-  attrs			 <- getAttributes
+  core_as                <- idlToCoreAttributes (as ++ idAttrs i)
+  attrs                  <- getAttributes
   let child_attrs = core_as ++ childAttributes attrs
   (nm, core_ty, real_ty) <- withAttributes child_attrs (mkCoreIdTy ty i True [])
-  core_expr		 <- idlToCoreExpr e
+  core_expr              <- idlToCoreExpr e
   cenv                   <- getConstEnv
   let core_expr' = simpRedExpr cenv core_ty core_expr
 
       core_int   = 
         case core_expr' of
-	  Core.Lit (IntegerLit x) -> Left (iLitToIntegral x)
-	  _			  -> Right core_expr'
+          Core.Lit (IntegerLit x) -> Left (iLitToIntegral x)
+          _                       -> Right core_expr'
 
   addToConstEnv (iName i) core_int
-  mod			 <- getFilename 
+  mod                    <- getFilename 
   return (Core.Constant (mkId nm (iName i) mod child_attrs) real_ty core_ty core_expr' : acc)
 
 desugarDefn acc IDL.Attribute{} = do
@@ -377,11 +377,11 @@ desugarDefn acc IDL.Attribute{} = do
 
 desugarDefn acc (IDL.Attributed attrs d) 
 {-  | isLeafDefn d = do -- if method or typedef, aggregate attributes..
-     as		 <- getAttributes
+     as          <- getAttributes
      core_attrs  <- idlToCoreAttributes attrs
      withAttributes (core_attrs ++ as) (desugarDefn acc d)
   | otherwise  -} = do -- ..if interface/module/library/dispinterface/coclass, don't.
-     as		 <- getAttributes
+     as          <- getAttributes
      core_attrs  <- idlToCoreAttributes attrs
      withAttributes (core_attrs ++ as) (desugarDefn acc d)
 
@@ -419,8 +419,8 @@ desugarDefn acc (IDL.Operation i ty _ _) = addToPath (iName i) $ do
      let
       (fun_id, mb_cc, fun_params) = 
          case i of
-	   IDL.FunId f cc ps -> (f, cc, ps)
-	   x                 -> (x, Nothing, [])
+           IDL.FunId f cc ps -> (f, cc, ps)
+           x                 -> (x, Nothing, [])
     
      (nm, core_ty, real_ty) <- mkCoreIdTy ty fun_id True attrs
      propagateAttributes attrs $ do
@@ -429,15 +429,15 @@ desugarDefn acc (IDL.Operation i ty _ _) = addToPath (iName i) $ do
      let
       callconv = fromMaybe defaultCConv (mb_cc `mplus` getDefaultCConv attrs)
       (meth_nm, orig_nm) = 
-	  case findAttribute "call_as" attrs of
+          case findAttribute "call_as" attrs of
             Just (Core.Attribute _ [Core.ParamVar v]) | isWithinIface -> (v, v)
             Just (Core.Attribute _ [Core.ParamLit (TypeConst v)]) | isWithinIface -> (v, v)
             Just (Core.Attribute _ [Core.ParamLit (StringLit v)]) | isWithinIface -> (v, v)
             _ -> (nm, iName i)
 
       meth = Core.Method (mkId meth_nm orig_nm mod attrs) callconv 
-  		      (Core.Result real_ty core_ty) core_args
-		      Nothing
+                      (Core.Result real_ty core_ty) core_args
+                      Nothing
 
      return (meth:acc)
 
@@ -466,35 +466,35 @@ desugarDefn acc (IDL.Interface (IDL.Id nm) inherits defs) = addToPath nm $ do
 
    home_mod
      | optOneModulePerInterface = Just iface_nm
-     | otherwise	        = mod
+     | otherwise                = mod
 
   (inherited_decls, inherited_ifaces) <- do
     stuff <- mapM expandIface inherits
     let (iss, core_inheritss) = unzip stuff
-	core_inherits         = concat core_inheritss
-	the_core_inherits
-	 | optJNI && null core_inherits && isClass = [(jObject,0)]
-	 | optCorba && null core_inherits = [(cObject,0)]
-	 | otherwise          = core_inherits
+        core_inherits         = concat core_inheritss
+        the_core_inherits
+         | optJNI && null core_inherits && isClass = [(jObject,0)]
+         | optCorba && null core_inherits = [(cObject,0)]
+         | otherwise          = core_inherits
 
         is
-	 | (not optExpandInheritedInterface) || null inherits = []
-	 | otherwise = concat iss
+         | (not optExpandInheritedInterface) || null inherits = []
+         | otherwise = concat iss
     return (is, the_core_inherits)
 
   let is_idispatch = 
           any (\ x -> "IDispatch" == qName (fst x)) inherited_ifaces &&
-	  iface_nm /= "IDispatchEx"
+          iface_nm /= "IDispatchEx"
      -- Insert a typedef that says that the interface name is an interface, so
      -- that interface pointers can be marshalled properly at a later stage.
      --  (including the methods of this very interface).
   addToTypeEnv nm home_mod (Core.Iface iface_nm home_mod nm attrs is_idispatch (reverse inherited_ifaces)
-				       , attrs)
+                                       , attrs)
   decls        <- propagateAttributes attrs (foldM desugarDefn [] defs)
   let 
       core_decls = inherited_decls ++ reverse decls
       iface = Core.Interface (mkId  iface_nm nm home_mod attrs)
-			      False inherited_ifaces core_decls
+                              False inherited_ifaces core_decls
   addToIfaceEnv nm iface
   setFilename mod
   return (iface : acc)
@@ -504,53 +504,53 @@ desugarDefn acc (IDL.Interface (IDL.Id nm) inherits defs) = addToPath nm $ do
       mb_decls <- lookupIface iface
       case mb_decls of
           Nothing -> do
-	     res <- lookupType iface
-	     case res of
-	       Just (_,Core.Iface iface_nm home_mod inm [] False _, _) -> 
-	         return ([], [(setOrigQName inm (mkQualName home_mod iface_nm), adjMethodCount iface_nm 0)])
-	       _ -> do
-	     	when (iface /= "IDispatch" && iface /= "IUnknown")
-		     (addWarning ("failed to find inherited interface: "++ iface ++ " - for interface " ++ nm))
-	     	let
-	      	  q_iface_name = 
-	            case iface of
-		     "IUnknown"  -> iUnknown
-		     "IDispatch" -> iDispatch
-		     _	         -> mkQualName Nothing iface
+             res <- lookupType iface
+             case res of
+               Just (_,Core.Iface iface_nm home_mod inm [] False _, _) -> 
+                 return ([], [(setOrigQName inm (mkQualName home_mod iface_nm), adjMethodCount iface_nm 0)])
+               _ -> do
+                when (iface /= "IDispatch" && iface /= "IUnknown")
+                     (addWarning ("failed to find inherited interface: "++ iface ++ " - for interface " ++ nm))
+                let
+                  q_iface_name = 
+                    case iface of
+                     "IUnknown"  -> iUnknown
+                     "IDispatch" -> iDispatch
+                     _           -> mkQualName Nothing iface
 
-	        return ([], [(q_iface_name, adjMethodCount iface 0)])
+                return ([], [(q_iface_name, adjMethodCount iface 0)])
           Just (Core.Interface id _ inhs i_ds)
-	     | not optSubtypedInterfacePointers &&
-	       (Core.idName id /= "IUnknown" && Core.idName id /= "IDispatch") -> do
-	          return ( i_ds'
-			 , (setOrigQName (Core.idOrigName id)
-			 	         (mkQualName (Core.idModule id)
-					             (Core.idName id))
-			    , no_methods):inhs
-			 )
-	     | otherwise   -> 
-		    -- want to make sure that we're referring to IUnknown and IDispatch
-		    -- in the proper manner, since the marshaling of these are in a sense
-		    -- built-in.
-	          case Core.idName id of
-		    "IDispatch" -> return ([], [(iDispatch, 4),(iUnknown, 3)])
-		    "IUnknown"  -> return ([], [(iUnknown, 3)])
-		    _ -> 
-   		      return ( []
-			     , ( setOrigQName (Core.idOrigName id)
-			     		      (mkQualName (Core.idModule id)
-					     		  (Core.idName id))
-			       , no_methods):inhs
-			     )
-	    where
-	     i_ds'	= filter isMethod i_ds
-  	     no_methods = adjMethodCount (Core.idName id) (length i_ds')
+             | not optSubtypedInterfacePointers &&
+               (Core.idName id /= "IUnknown" && Core.idName id /= "IDispatch") -> do
+                  return ( i_ds'
+                         , (setOrigQName (Core.idOrigName id)
+                                         (mkQualName (Core.idModule id)
+                                                     (Core.idName id))
+                            , no_methods):inhs
+                         )
+             | otherwise   -> 
+                    -- want to make sure that we're referring to IUnknown and IDispatch
+                    -- in the proper manner, since the marshaling of these are in a sense
+                    -- built-in.
+                  case Core.idName id of
+                    "IDispatch" -> return ([], [(iDispatch, 4),(iUnknown, 3)])
+                    "IUnknown"  -> return ([], [(iUnknown, 3)])
+                    _ -> 
+                      return ( []
+                             , ( setOrigQName (Core.idOrigName id)
+                                              (mkQualName (Core.idModule id)
+                                                          (Core.idName id))
+                               , no_methods):inhs
+                             )
+            where
+             i_ds'      = filter isMethod i_ds
+             no_methods = adjMethodCount (Core.idName id) (length i_ds')
 
    adjMethodCount iface_nm no_meths =
       case iface_nm of
-	"IUnknown"  -> 3
-	"IDispatch" -> 7
-	_	    -> no_meths
+        "IUnknown"  -> 3
+        "IDispatch" -> 7
+        _           -> no_meths
 
 desugarDefn acc (IDL.Module (IDL.Id nm) decls) = addToPath nm $ do
   inh_attrs  <- getAttributes
@@ -572,9 +572,9 @@ desugarDefn acc (IDL.Library (IDL.Id nm) decls) = addToPath nm $ do
        -- take care of this.
       the_mod = 
         case fmap (map toLower) old_mod of
-	  Just "stdole32" -> Just "Stdole32"
-	  Just "stdole2"  -> Just "Stdole32"
-	  _ ->  mod
+          Just "stdole32" -> Just "Stdole32"
+          Just "stdole2"  -> Just "Stdole32"
+          _ ->  mod
   setFilename the_mod
   decls'  <- inLibrary (propagateAttributes attrs (foldM desugarDefn [] decls))
   setFilename old_mod
@@ -589,7 +589,7 @@ desugarDefn acc (IDL.CoClass (IDL.Id nm) decls) = addToPath nm $ do
 
 desugarDefn acc (IDL.DispInterface (IDL.Id nm) props meths)
   | optIgnoreDispInterfaces = return acc
-  | otherwise		    = addToPath nm $ do
+  | otherwise               = addToPath nm $ do
   inh_attrs  <- getAttributes
   attrs      <- augmentAttributes inh_attrs
   old_nm      <- getFilename
@@ -600,7 +600,7 @@ desugarDefn acc (IDL.DispInterface (IDL.Id nm) props meths)
   let
    home_mod
      | optOneModulePerInterface = Just nm
-     | otherwise	        = old_nm
+     | otherwise                = old_nm
 
   addToTypeEnv nm home_mod (Core.Iface nm home_mod nm [] True [(iUnknown,3),(iDispatch,4)], attrs)
   (core_props, core_meths) <- propagateAttributes attrs $ do
@@ -618,9 +618,9 @@ desugarDefn acc (IDL.DispInterfaceDecl (IDL.Id nm) (IDL.Id i_nm)) = do
     Just d@(Core.Interface _ _ _ i_ds) -> do
         attrs       <- getAttributes 
         home_mod    <- getFilename
---	let d_ds = map toDispInterfaceMethod i_ds
+--      let d_ds = map toDispInterfaceMethod i_ds
         addToTypeEnv nm home_mod (Core.Iface nm home_mod nm [] True
-					     [(iUnknown,3),(iDispatch,4)], attrs)
+                                             [(iUnknown,3),(iDispatch,4)], attrs)
         let iface = Core.DispInterface (mkId nm nm home_mod attrs) (Just d) [] (if optServer && optUseStdDispatch then i_ds else []) --i_ds
         addToIfaceEnv nm iface
         return (iface : acc)
@@ -642,7 +642,7 @@ desugarDefn acc (IDL.Forward (IDL.Id nm)) = do
 
    home_mod
      | optOneModulePerInterface = Just iface_nm
-     | otherwise	        = mod
+     | otherwise                = mod
      
    inherit
      | optCorba  = [(cObject,0)]
@@ -667,11 +667,11 @@ desugarDefn acc (IDL.Import ls) = do
         inImportedContext
       else
         id) (sequence (map (\ (nm,ds) -> do
-  			    let the_nm = dropSuffix nm
-			    nm_to_use <- nameOfImport the_nm
-  		            setFilename (Just nm_to_use)
-			    src <- getSrcFilename
-		            addToPath the_nm $ desugarer src ds) ls))
+                            let the_nm = dropSuffix nm
+                            nm_to_use <- nameOfImport the_nm
+                            setFilename (Just nm_to_use)
+                            src <- getSrcFilename
+                            addToPath the_nm $ desugarer src ds) ls))
   setFilename old_nm
   return acc
 
@@ -690,8 +690,8 @@ desugarDefn acc (IDL.ImportLib nm)
      openUpScope   $
        (if (isJust old_nm) || not optTlb then
            inImportedContext
-	else
-	   id)
+        else
+           id)
        (foldM desugarDefn acc [d])
     setFilename old_nm
     if (isJust old_nm) then
@@ -723,17 +723,17 @@ desugarProp (attrs, ty, i) = addToPath (iName i) $ do
   let 
       prop_i = mkId nm (iName i) home_mod core_attrs
       set_i  = prop_i{ Core.idName="set" ++ mkHaskellTyConName (Core.idName prop_i)
-      		     , Core.idOrigName="set" ++ mkHaskellTyConName (Core.idOrigName prop_i)
-		     }
+                     , Core.idOrigName="set" ++ mkHaskellTyConName (Core.idOrigName prop_i)
+                     }
       get_i  = prop_i{ Core.idName="get" ++ mkHaskellTyConName (Core.idName prop_i)
-      		     , Core.idOrigName="get" ++ mkHaskellTyConName (Core.idOrigName prop_i)
-		     }
+                     , Core.idOrigName="get" ++ mkHaskellTyConName (Core.idOrigName prop_i)
+                     }
   return (Core.Property prop_i
-  			core_ty
-			Nothing
-			set_i
-			get_i
-			)
+                        core_ty
+                        Nothing
+                        set_i
+                        get_i
+                        )
 
 desugarCoClassMember :: IDL.CoClassMember -> DsM Core.CoClassDecl
 desugarCoClassMember (isInterface, IDL.Id nm, attrs) = addToPath nm $ do
@@ -746,7 +746,7 @@ desugarCoClassMember (isInterface, IDL.Id nm, attrs) = addToPath nm $ do
       core_attrs ++ 
       case mb_iface of
         Just d -> Core.idAttributes (Core.declId d)
-	_      -> []
+        _      -> []
 
     i = mkId nm nm the_mod attrs_to_pin_on
     
@@ -754,7 +754,7 @@ desugarCoClassMember (isInterface, IDL.Id nm, attrs) = addToPath nm $ do
       case mb_iface of
         Just (Core.Interface{Core.declId=ii})     -> Core.idModule ii
         Just (Core.DispInterface{Core.declId=ii}) -> Core.idModule ii
-	_ -> home_mod
+        _ -> home_mod
 
   if isInterface 
    then return (Core.CoClassInterface     i mb_iface)
@@ -764,9 +764,9 @@ desugarCoClassMember (isInterface, IDL.Id nm, attrs) = addToPath nm $ do
 \begin{code}
 mkCoreIdTy :: IDL.Type 
            -> IDL.Id
-	   -> Bool
-	   -> [Core.Attribute] 
-	   -> DsM (String, Core.Type, Core.Type)
+           -> Bool
+           -> [Core.Attribute] 
+           -> DsM (String, Core.Type, Core.Type)
 mkCoreIdTy ty i isTopLev attrs = do
    (n,t) <- mkCoreIdTy' ty' i' isTopLev attrs
    return (n, t, normaliseType t)
@@ -791,9 +791,9 @@ mkCoreIdTy ty i isTopLev attrs = do
 
 mkCoreIdTy' :: IDL.Type 
             -> IDL.Id
-	    -> Bool
-	    -> [Core.Attribute] 
-	    -> DsM (String, Core.Type)
+            -> Bool
+            -> [Core.Attribute] 
+            -> DsM (String, Core.Type)
 mkCoreIdTy' ty (IDL.Id nm) _ attrs = do
   as        <- getAttributes
   real_ty   <- withAttributes (attrs ++ as) (idlToCoreTy ty)
@@ -808,7 +808,7 @@ mkCoreIdTy' ty (IDL.CConvId _ i) isTopLev attrs = mkCoreIdTy' ty i isTopLev attr
 mkCoreIdTy' ty (IDL.ArrayId i es) _ attrs = do
   (nm, core_ty) <- mkCoreIdTy' ty i False attrs
   core_exprs    <- mapM idlToCoreExpr es
-  cenv		<- getConstEnv
+  cenv          <- getConstEnv
   let core_exprs' = map (simpRedExpr cenv intTy) core_exprs
   return (nm, {-Core.Array core_ty core_exprs,-} Core.Array core_ty core_exprs')
 
@@ -816,7 +816,7 @@ mkCoreIdTy' ty (IDL.Pointed quals i) isTopLev local_attrs = do
     (nm, real_ty) <- mkCoreIdTy' ty i False local_attrs
     let ty_nm = showCore (ppType (removePtr real_ty))
     core_ty              <- mkPointer ty_nm real_ty quals
---    orig_ty		 <- mkPointer ty_nm orig_ty' quals
+--    orig_ty            <- mkPointer ty_nm orig_ty' quals
     return (nm, core_ty) --, orig_ty)
  where
 
@@ -831,33 +831,33 @@ mkCoreIdTy' ty (IDL.Pointed quals i) isTopLev local_attrs = do
    | hasStringAttribute local_attrs = mkStringTy nm tty ls
    | hasSeqAttribute local_attrs    = do
         let
-	 mb_expr = 
-     	  case getLengthAttribute local_attrs of
-	     Just (Core.ParamLit l)  -> Just (Core.Lit l)
-	     Just (Core.ParamExpr e) -> Just e
-	     Just (Core.ParamVar v)  -> Just (Core.Var v)
-	     _                       -> Nothing
-	 mb_term =
-	  case findAttribute "terminator" local_attrs of
-	    Just (Core.Attribute _ (ap:_)) ->
-	       case ap of
-	         Core.ParamLit l  -> Just (Core.Lit l)
-  	         Core.ParamExpr e -> Just e
-	         Core.ParamVar v  -> Just (Core.Var v)
-	         _                -> Nothing
-		 
-	    _ -> Nothing
+         mb_expr = 
+          case getLengthAttribute local_attrs of
+             Just (Core.ParamLit l)  -> Just (Core.Lit l)
+             Just (Core.ParamExpr e) -> Just e
+             Just (Core.ParamVar v)  -> Just (Core.Var v)
+             _                       -> Nothing
+         mb_term =
+          case findAttribute "terminator" local_attrs of
+            Just (Core.Attribute _ (ap:_)) ->
+               case ap of
+                 Core.ParamLit l  -> Just (Core.Lit l)
+                 Core.ParamExpr e -> Just e
+                 Core.ParamVar v  -> Just (Core.Var v)
+                 _                -> Nothing
+                 
+            _ -> Nothing
 
         core_ty <- foldM (mkPtr nm) tty xs
-	return (Core.Sequence core_ty mb_expr mb_term)
+        return (Core.Sequence core_ty mb_expr mb_term)
 
    | otherwise = do
-	let
-	 attrs_to_use
-	   = case x of
-	      (Const:_)    -> local_attrs ++ [Core.Attribute "ref" []]
-	      (Volatile:_) -> local_attrs ++ [Core.Attribute "ptr" []]
-	      _		   -> local_attrs
+        let
+         attrs_to_use
+           = case x of
+              (Const:_)    -> local_attrs ++ [Core.Attribute "ref" []]
+              (Volatile:_) -> local_attrs ++ [Core.Attribute "ptr" []]
+              _            -> local_attrs
 
         core_ty <- foldM (mkPtr nm) tty xs
         return ((findPtrType isTopLev attrs_to_use) core_ty)
@@ -865,10 +865,10 @@ mkCoreIdTy' ty (IDL.Pointed quals i) isTopLev local_attrs = do
   mkStringTy _  tty []     = return tty
   mkStringTy _  tty [_] 
     | normaliseType tty == Core.WChar   = return (Core.WString (hasUniqueAttribute local_attrs)
-    							       Nothing)
-    | otherwise	          		= return (Core.String tty --(Core.Char False) 
-    							      (hasUniqueAttribute local_attrs)
-    							      Nothing)
+                                                               Nothing)
+    | otherwise                         = return (Core.String tty --(Core.Char False) 
+                                                              (hasUniqueAttribute local_attrs)
+                                                              Nothing)
   mkStringTy nm tty (x:xs) = do
        ty' <- mkStringTy nm tty xs
        mkPtr nm ty' x
@@ -881,11 +881,11 @@ mkCoreIdTy' ty (IDL.Pointed quals i) isTopLev local_attrs = do
           for fields/ function results.
    -}
   mkPtr nm tty [] = do
-	mb_res <- lookupType nm
-	case mb_res of 
-	  Just (_,_,attrs) -> 
-	    return ((findPtrType False attrs) tty)
-	  Nothing -> findDef tty
+        mb_res <- lookupType nm
+        case mb_res of 
+          Just (_,_,attrs) -> 
+            return ((findPtrType False attrs) tty)
+          Nothing -> findDef tty
 
    {- Note: if you specify 
 
@@ -928,7 +928,7 @@ idlToCoreParam meth idx (IDL.Param i ty attrs) =
        if (isJust res) then
           addToPath alt1 d
         else 
-	  addToPath (iName i) d
+          addToPath (iName i) d
     | otherwise = d
 
   in
@@ -941,14 +941,14 @@ idlToCoreParam meth idx (IDL.Param i ty attrs) =
 
       core_attrs2 
         | withOut && not withInOut && optOutPointersAreRefs 
-	= (Core.Attribute "ref" []):core_attrs -- toplevel pointers
-	| otherwise 
-	= core_attrs
+        = (Core.Attribute "ref" []):core_attrs -- toplevel pointers
+        | otherwise 
+        = core_attrs
 
       (p_ty, p_i) = movePointers ty i
 
   (nm, core_ty, real_ty) <- mkCoreIdTy p_ty p_i True core_attrs2
-  mb_if			 <- getInterface
+  mb_if                  <- getInterface
   let
     if_prefix x = 
       case mb_if of
@@ -961,35 +961,35 @@ idlToCoreParam meth idx (IDL.Param i ty attrs) =
     (mode, real_ty', core_ty')
      | withInOut  = (InOut, real_ty, core_ty)
      | withOut    = 
-	  case real_ty of
-	     Core.Pointer _ _ (Core.Pointer _ _ Core.Void)
-	         | core_attrs `hasAttributeWithName` "iid_is" -> 
-			-- normalise double-pointed out args with iid_is(); ignore
-			-- the supplied pointer modifiers and insist on ref-ref.
-		 	( Out
-			, Core.Pointer Ref True (Core.Pointer Ref True iUnknownTy)
-			, mkRefPointer (rawPointerToIP core_ty)
-			)
-	     Core.Pointer pt isExp t 
-	            -- insist on a [ref] here.
-	      | optOutPointersAreRefs -> (Out, Core.Pointer Ref isExp t', mkRefPointer c_ty')
-	      | otherwise -> (Out, Core.Pointer pt isExp t', core_ty)
-	         where
-		   (t', c_ty') 
-			-- we insist that out i-pointers are {r}*{r}*.
-		     | isIfacePtr t = (Core.Pointer Ref isExp (getIfaceTy t), 
-	       			       Core.Pointer Ref isExp (getIfaceTy core_ty))
-		     | otherwise    = (t, core_ty)
+          case real_ty of
+             Core.Pointer _ _ (Core.Pointer _ _ Core.Void)
+                 | core_attrs `hasAttributeWithName` "iid_is" -> 
+                        -- normalise double-pointed out args with iid_is(); ignore
+                        -- the supplied pointer modifiers and insist on ref-ref.
+                        ( Out
+                        , Core.Pointer Ref True (Core.Pointer Ref True iUnknownTy)
+                        , mkRefPointer (rawPointerToIP core_ty)
+                        )
+             Core.Pointer pt isExp t 
+                    -- insist on a [ref] here.
+              | optOutPointersAreRefs -> (Out, Core.Pointer Ref isExp t', mkRefPointer c_ty')
+              | otherwise -> (Out, Core.Pointer pt isExp t', core_ty)
+                 where
+                   (t', c_ty') 
+                        -- we insist that out i-pointers are {r}*{r}*.
+                     | isIfacePtr t = (Core.Pointer Ref isExp (getIfaceTy t), 
+                                       Core.Pointer Ref isExp (getIfaceTy core_ty))
+                     | otherwise    = (t, core_ty)
 
-	     _ | optCompilingOmgIDL -> (Out, Core.Pointer Ref True real_ty, mkRefPointer core_ty)
-	       | otherwise	    -> (Out, real_ty, core_ty)
+             _ | optCompilingOmgIDL -> (Out, Core.Pointer Ref True real_ty, mkRefPointer core_ty)
+               | otherwise          -> (Out, real_ty, core_ty)
 
      | withIn     = (In, real_ty, core_ty)
      | optVerbose && not optNoWarnMissingMode
-     		  = trace ("Warning: no mode for parameter " ++ 
+                  = trace ("Warning: no mode for parameter " ++ 
                            show (if_prefix (iName i))        ++
-			   " (defaulting it to [in].)")
-			  (In, real_ty, core_ty)
+                           " (defaulting it to [in].)")
+                          (In, real_ty, core_ty)
      | otherwise  = (In, real_ty, core_ty)
 
     is_dependent = hasDependentAttrs core_attrs2
@@ -1004,8 +1004,8 @@ idlToCoreParam meth idx (IDL.Param i ty attrs) =
       
     core_param = 
         Core.Param (mkId nm (iName i) Nothing core_attrs_final)
-		   mode real_ty' core_ty' is_dependent
-		   
+                   mode real_ty' core_ty' is_dependent
+                   
   return (validateParam (if_prefix (iName i)) core_param) 
 
 movePointers :: IDL.Type -> IDL.Id -> (IDL.Type, IDL.Id)
@@ -1023,7 +1023,7 @@ idlToCoreTy ty =
  case ty of
   IDL.TyInteger sz -> return (Core.Integer sz True)
   IDL.TyFloat sz   -> return (Core.Float sz)
-  IDL.TyStable	   -> return (Core.StablePtr)
+  IDL.TyStable     -> return (Core.StablePtr)
   IDL.TyChar       -> return (Core.Char False)
   IDL.TyWChar      -> return (Core.WChar)
   IDL.TyBool       -> return (Core.Bool)
@@ -1047,13 +1047,13 @@ idlToCoreTy ty =
          -- attribute right module for where the type was defined.
          -- Don't reduce the type here.
         res <- lookupType nm
-	let
-	   inherit
-	     | optCorba  = [(cObject,0)]
-	     | otherwise = []
-	attrs <- getAttributes
+        let
+           inherit
+             | optCorba  = [(cObject,0)]
+             | otherwise = []
+        attrs <- getAttributes
         case res of
-          Nothing	   -> return (Core.Iface nm Nothing nm attrs False inherit)
+          Nothing          -> return (Core.Iface nm Nothing nm attrs False inherit)
           Just (_, tty, _) -> return tty
 
   IDL.TyName "java.lang.String" _ | optJNI -> return (Core.String (Core.Char False) False Nothing)
@@ -1062,73 +1062,73 @@ idlToCoreTy ty =
      -- Don't reduce the type here, wait until the cleanup/renaming pass.
      let
        (qual, ty_nm)
-       	  | optCompilingOmgIDL = splitLast "::" nm
-	  | otherwise	       = ([], nm)
+          | optCompilingOmgIDL = splitLast "::" nm
+          | otherwise          = ([], nm)
        mb_mod = toMaybe null qual
 
      res    <- do
          r <- lookupType ty_nm
-	 case r of
-	   Nothing -> lookupType nm
-	   Just _  -> return r
+         case r of
+           Nothing -> lookupType nm
+           Just _  -> return r
      as     <- getAttributes
      case res of
        Nothing -> do
            mb_ti  <- lookupTypeInfo ty_nm
            case mb_t of
-	     Nothing 
-		| optJNI ->
-		  case splitLast "." ty_nm of
-		    (bef,aft) 
-		      | notNull bef -> do 
-		    	-- strong indication of an object type, repr. it as an Iface.
-		       attrs <- getAttributes
-		       let iface_nm = mkHaskellTyConName aft
-		       case ty_nm of
-			 -- JNI lib has got special support for Strings.
-			"java.lang.String" -> return (Core.String (Core.Char False) False Nothing)
-			_ -> return (Core.Iface iface_nm (Just iface_nm) ty_nm attrs False [(jObject,0)])
-		                
-		      | otherwise      ->
-			return (Core.Name ty_nm ty_nm mb_mod Nothing Nothing mb_ti)
-		| otherwise -> do
-		    tg <- lookupTag nm
-		    case tg of
-	      	      Nothing -> return (Core.Name ty_nm ty_nm mb_mod
-		      			           Nothing Nothing mb_ti)
-	      	      Just (mod1,v) -> return (Core.Name v v mod1
-		      				   Nothing Nothing mb_ti)
-	     Just it -> do
-	        ot  <- idlToCoreTy it
-		case ot of
-	          Core.Iface inm mod _ attrs is_idis inh | inm == ty_nm || optJNI -> 
-	     	       return (Core.Iface inm mod ty_nm (attrs ++ as) is_idis inh)
---	     	       return (Core.Iface aft (Just aft) ty_nm (attrs ++ as) is_idis inh)
-		    -- rid ourselves of compiler introduced synonyms, if
-		    -- they just refer to another name.
-		  Core.Name{} 
-		     | "IHC_TAG" `isPrefixOf` ty_nm    -> return ot
-		     | "__IHC_TAG" `isPrefixOf` ty_nm  -> return ot
-		  _ -> return (Core.Name ty_nm ty_nm mb_mod (Just as) (Just ot) mb_ti)
+             Nothing 
+                | optJNI ->
+                  case splitLast "." ty_nm of
+                    (bef,aft) 
+                      | notNull bef -> do 
+                        -- strong indication of an object type, repr. it as an Iface.
+                       attrs <- getAttributes
+                       let iface_nm = mkHaskellTyConName aft
+                       case ty_nm of
+                         -- JNI lib has got special support for Strings.
+                        "java.lang.String" -> return (Core.String (Core.Char False) False Nothing)
+                        _ -> return (Core.Iface iface_nm (Just iface_nm) ty_nm attrs False [(jObject,0)])
+                                
+                      | otherwise      ->
+                        return (Core.Name ty_nm ty_nm mb_mod Nothing Nothing mb_ti)
+                | otherwise -> do
+                    tg <- lookupTag nm
+                    case tg of
+                      Nothing -> return (Core.Name ty_nm ty_nm mb_mod
+                                                   Nothing Nothing mb_ti)
+                      Just (mod1,v) -> return (Core.Name v v mod1
+                                                   Nothing Nothing mb_ti)
+             Just it -> do
+                ot  <- idlToCoreTy it
+                case ot of
+                  Core.Iface inm mod _ attrs is_idis inh | inm == ty_nm || optJNI -> 
+                       return (Core.Iface inm mod ty_nm (attrs ++ as) is_idis inh)
+--                     return (Core.Iface aft (Just aft) ty_nm (attrs ++ as) is_idis inh)
+                    -- rid ourselves of compiler introduced synonyms, if
+                    -- they just refer to another name.
+                  Core.Name{} 
+                     | "IHC_TAG" `isPrefixOf` ty_nm    -> return ot
+                     | "__IHC_TAG" `isPrefixOf` ty_nm  -> return ot
+                  _ -> return (Core.Name ty_nm ty_nm mb_mod (Just as) (Just ot) mb_ti)
        Just (mod, tty, attrs) ->
-	   -- Avoid creating (Name nm (Iface nm ..))
+           -- Avoid creating (Name nm (Iface nm ..))
           case tty of
-	     Core.Iface "IUnknown" _ _ _ _ _  -> return iUnknownTy -- sigh.
-	     Core.Iface "IDispatch" _ _ _ _ _ -> return iDispatchTy
-	     Core.Iface "String" (Just _) _ _ _ _ | optJNI -> return (Core.String (Core.Char False) False Nothing)
-	     Core.Iface inm imod tnm iattrs is_idis inh 
-	       | optJNI || inm == ty_nm -> do
-	     	  return (Core.Iface inm imod tnm (iattrs ++ ty_attrs) is_idis inh)
+             Core.Iface "IUnknown" _ _ _ _ _  -> return iUnknownTy -- sigh.
+             Core.Iface "IDispatch" _ _ _ _ _ -> return iDispatchTy
+             Core.Iface "String" (Just _) _ _ _ _ | optJNI -> return (Core.String (Core.Char False) False Nothing)
+             Core.Iface inm imod tnm iattrs is_idis inh 
+               | optJNI || inm == ty_nm -> do
+                  return (Core.Iface inm imod tnm (iattrs ++ ty_attrs) is_idis inh)
              Core.Name _ _ _ _ _ mb_ti 
-		     | "IHC_TAG" `isPrefixOf` ty_nm    -> return tty
-		     | "__IHC_TAG" `isPrefixOf` ty_nm  -> return tty
-		     | otherwise -> return (Core.Name ty_nm ty_nm mod (Just ty_attrs)
-		     				      the_ty mb_ti)
-	     _ -> 
-	       return (Core.Name ty_nm ty_nm mod (Just ty_attrs) the_ty Nothing)
-	 where
-	  the_ty   = Just tty
-	  ty_attrs = attrs ++ as
+                     | "IHC_TAG" `isPrefixOf` ty_nm    -> return tty
+                     | "__IHC_TAG" `isPrefixOf` ty_nm  -> return tty
+                     | otherwise -> return (Core.Name ty_nm ty_nm mod (Just ty_attrs)
+                                                      the_ty mb_ti)
+             _ -> 
+               return (Core.Name ty_nm ty_nm mod (Just ty_attrs) the_ty Nothing)
+         where
+          the_ty   = Just tty
+          ty_attrs = attrs ++ as
 
   IDL.TyPointer (IDL.TyName "wchar_t" Nothing)  -> do
      return (Core.WString False Nothing)
@@ -1195,30 +1195,30 @@ idlToCoreTy ty =
     attrs      <- getAttributes
     home_mod   <- getFilename
     let 
-	 {-
-	   Try to characterise the enumeration sequence as being
-	   an instance of a kind that's easy to generate code
-	   for in the end (e.g., if the tags start from zero and
-	   inc. by one, we can use Haskell's "deriving" mechanism
-	   to generate enum <--> Int mappings.
+         {-
+           Try to characterise the enumeration sequence as being
+           an instance of a kind that's easy to generate code
+           for in the end (e.g., if the tags start from zero and
+           inc. by one, we can use Haskell's "deriving" mechanism
+           to generate enum <--> Int mappings.
          -}
         kind
-	 | not (isJust mb_tags) = Unclassified
-	 | otherwise            = classifyProgression (sort tags)
+         | not (isJust mb_tags) = Unclassified
+         | otherwise            = classifyProgression (sort tags)
 
         mb_tags = getEnumTags [] core_enums
-	(Just tags) = mb_tags
-	
-	core_enums_to_use
-	  | isJust mb_tags = sortBy cmpTag core_enums
-	  | otherwise      = core_enums
+        (Just tags) = mb_tags
+        
+        core_enums_to_use
+          | isJust mb_tags = sortBy cmpTag core_enums
+          | otherwise      = core_enums
 
-	cmpTag (Core.EnumValue _ (Left t1))
-	       (Core.EnumValue _ (Left t2)) = compare t1 t2
+        cmpTag (Core.EnumValue _ (Left t1))
+               (Core.EnumValue _ (Left t2)) = compare t1 t2
 
-	getEnumTags acc [] = Just (reverse acc)
-	getEnumTags acc ((Core.EnumValue _ (Left x)):xs) = getEnumTags (x:acc) xs
-	getEnumTags _   _  = Nothing
+        getEnumTags acc [] = Just (reverse acc)
+        getEnumTags acc ((Core.EnumValue _ (Left x)):xs) = getEnumTags (x:acc) xs
+        getEnumTags _   _  = Nothing
 
     return (Core.Enum (mkId nm nm home_mod attrs) kind core_enums_to_use)
    where
@@ -1226,33 +1226,33 @@ idlToCoreTy ty =
        fillInEnums n ((IDL.Id tnm, attrs, Nothing):xs) = do
           addToConstEnv tnm n
           ls          <- fillInEnums (addOne n) xs
-	  inh_attrs   <- getAttributes
-	  core_attrs  <- idlToCoreAttributes attrs
+          inh_attrs   <- getAttributes
+          core_attrs  <- idlToCoreAttributes attrs
           home_mod    <- getFilename
           return ((Core.EnumValue (mkId tnm tnm home_mod (core_attrs ++ inh_attrs)) n) : ls)
        fillInEnums _ ((IDL.Id tnm, attrs, Just e):xs) = do
           n' <- reduceExpr (idlToCoreTy) e
           addToConstEnv tnm n'
-	  inh_attrs   <- getAttributes
-	  core_attrs  <- idlToCoreAttributes attrs
+          inh_attrs   <- getAttributes
+          core_attrs  <- idlToCoreAttributes attrs
           home_mod    <- getFilename
-	  ls <- fillInEnums (addOne n') xs
-	  return ((Core.EnumValue (mkId tnm tnm home_mod (core_attrs ++ inh_attrs)) n'): ls)
+          ls <- fillInEnums (addOne n') xs
+          return ((Core.EnumValue (mkId tnm tnm home_mod (core_attrs ++ inh_attrs)) n'): ls)
 
        addOne (Left  n) = Left (n+1)
        addOne (Right e) = Right (Core.Binary Add 
                                              e 
-					     (Core.Lit (iLit (1::Int))))
+                                             (Core.Lit (iLit (1::Int))))
 
   IDL.TyStruct (Just (IDL.Id nm)) [] mb_packed -> do
-	    tg <- lookupTag nm
-	    case tg of
-	      Just (_,v)  -> idlToCoreTy (IDL.TyName v Nothing)
-	      Nothing -> do
+            tg <- lookupTag nm
+            case tg of
+              Just (_,v)  -> idlToCoreTy (IDL.TyName v Nothing)
+              Nothing -> do
                  attrs    <- getAttributes
-		 home_mod <- getFilename
-		 mb_pck   <- getCurrentPack
-	         return (Core.Struct (mkId nm nm home_mod attrs) [] (mb_packed `mplus` mb_pck))
+                 home_mod <- getFilename
+                 mb_pck   <- getCurrentPack
+                 return (Core.Struct (mkId nm nm home_mod attrs) [] (mb_packed `mplus` mb_pck))
 
   IDL.TyStruct (Just (IDL.Id _)) [(t,_,[i])] _
     | optUnwrapSingletonStructs && not (isAnonTy t) -> idlToCoreTy (transferPointedness i t)
@@ -1271,8 +1271,8 @@ idlToCoreTy ty =
     home_mod  <- getFilename
     return (Core.Union (mkId nm1 nm1 home_mod attrs)
                        core_ty
-	               (mkId nm2 nm2 home_mod attrs)
-	               (mkId nm3 nm3 home_mod attrs)
+                       (mkId nm2 nm2 home_mod attrs)
+                       (mkId nm3 nm3 home_mod attrs)
                        core_sw)
   IDL.TyUnionNon (Just (IDL.Id nm1)) switches -> do
     core_sw   <- idlToCoreSwitches switches
@@ -1307,15 +1307,15 @@ memberToField (ty, attrs, ids) = do
   let
    mkCoreField i = do
     let (f_ty, f_i, mb_sz) = 
-	   case (movePointers ty i) of
-	     (t, IDL.BitFieldId x bi) -> (t, bi, Just x)
-	     (t,fi) -> (t,fi,Nothing)
+           case (movePointers ty i) of
+             (t, IDL.BitFieldId x bi) -> (t, bi, Just x)
+             (t,fi) -> (t,fi,Nothing)
     (nm, orig_ty, core_ty) <- mkCoreIdTy f_ty f_i False core_attrs
     as <- getAttributes
     let as2 = core_attrs ++ as
     return (Core.Field (mkId nm nm home_mod as2)
-    		       core_ty orig_ty
-		       mb_sz Nothing)
+                       core_ty orig_ty
+                       mb_sz Nothing)
 
   mapM mkCoreField ids
 
@@ -1330,15 +1330,15 @@ idlToCoreSwitch :: IDL.Switch -> DsM Core.Switch
 idlToCoreSwitch (IDL.Switch labs (Just (IDL.Param i ty attrs))) = addToPath (iName i) $ do
   core_attrs             <- idlToCoreAttributes attrs
   (nm, orig_ty, core_ty) <- mkCoreIdTy ty i False core_attrs
-  as			 <- getAttributes
+  as                     <- getAttributes
   let as2 = core_attrs ++ as
   core_labs <- mapM idlToCoreCaseLabel labs
   home_mod  <- getFilename
   return (Core.Switch (mkId nm (iName i) home_mod as2)
-		      (concat core_labs)
-		      core_ty
-		      orig_ty
-	              )
+                      (concat core_labs)
+                      core_ty
+                      orig_ty
+                      )
 
 idlToCoreSwitch (IDL.Switch [IDL.Default] Nothing) = return (Core.SwitchEmpty Nothing)
 idlToCoreSwitch (IDL.Switch labs Nothing) = do
@@ -1353,10 +1353,10 @@ idlToCoreCaseLabel :: IDL.CaseLabel -> DsM [Core.CaseLabel]
 idlToCoreCaseLabel IDL.Default  = return [Core.Default]
 idlToCoreCaseLabel (IDL.Case es) =
   mapM (\ e -> do
-	  core_e <- idlToCoreExpr e
+          core_e <- idlToCoreExpr e
           cenv      <- getConstEnv
           let core_expr = simpRedExpr cenv intTy core_e
-	  return (Core.Case core_expr))
+          return (Core.Case core_expr))
        es
 \end{code}
 
@@ -1419,14 +1419,14 @@ fillInDefn def =
   IDL.Typedef ty attrs ids -> do
       let withName = 
             case ids of
-	      (IDL.Id s : _) -> withTyTag s
-	      _ -> id
+              (IDL.Id s : _) -> withTyTag s
+              _ -> id
       (ty', ds1) <- fillInType (withName ty)
       (ty'', ds) <- simplifyType False attrs ty'
        {- put the (type) declarations that have been lifted out of ty'
           before the typedef itself, so that they're in scope when
-	  processing it later. (Note: this isn't sufficient to deal
-	  with recursive defns.)
+          processing it later. (Note: this isn't sufficient to deal
+          with recursive defns.)
        -}
       let ids' = map massageId ids
       return (ds1 ++ ds ++ [IDL.Typedef ty'' attrs ids'])
@@ -1556,7 +1556,7 @@ fillInType ty =
      tag <-                       
        case mb_tag of
          Just (IDL.Id v)  -> return (Just (IDL.Id v))
-	 Nothing          -> mapNSM (Just . (IDL.Id)) (getNewName)
+         Nothing          -> mapNSM (Just . (IDL.Id)) (getNewName)
      stuff <- mapM fillInMember structs
      let (structs', dss) = unzip stuff
      return (IDL.TyStruct tag structs' mb_pack, concat dss)
@@ -1566,12 +1566,12 @@ fillInType ty =
      tag <-                       
        case mb_tag of
          Just (IDL.Id v)  -> return (Just (IDL.Id v))
-	 Nothing	  -> mapNSM (Just . (IDL.Id)) (getNewName)
+         Nothing          -> mapNSM (Just . (IDL.Id)) (getNewName)
      union_struct_tag <-
        case mb_union_struct_tag of
          Just (IDL.Id v)  -> return (Just (IDL.Id v))
-	 Nothing	  -> return (Just (IDL.Id "tagged_union"))
-	           -- mimicing MIDL here
+         Nothing          -> return (Just (IDL.Id "tagged_union"))
+                   -- mimicing MIDL here
 
      stuff <- mapM fillInSwitch switches
      let (switches', dss) = unzip stuff
@@ -1582,7 +1582,7 @@ fillInType ty =
      tag <-                       
        case mb_tag of
          Just (IDL.Id v)  -> return (Just (IDL.Id v))
-	 Nothing	  -> mapNSM (Just . (IDL.Id)) (getNewName)
+         Nothing          -> mapNSM (Just . (IDL.Id)) (getNewName)
      stuff <- mapM fillInSwitch switches
      let (switches', dss) = unzip stuff
      return (IDL.TyUnionNon tag switches', concat dss)
@@ -1591,7 +1591,7 @@ fillInType ty =
      tag <-                       
        case mb_tag of
          Just (IDL.Id v) -> return (Just (IDL.Id v))
-	 Nothing	 -> mapNSM (Just . (IDL.Id)) (getNewName)
+         Nothing         -> mapNSM (Just . (IDL.Id)) (getNewName)
      stuff <- mapM fillInMember members
      let (members', dss) = unzip stuff
      return (IDL.TyCUnion tag members' mb_pack, concat dss)
@@ -1602,20 +1602,20 @@ fillInMember :: IDL.Member -> NSM (IDL.Member, [IDL.Defn])
 fillInMember (ty, attrs, ids) = do
         (ty',ds1) <- fillInType ty
         (is,ds)   <- 
-	   case ids of
-	     [] -> do
-	       n <- getNewName
-	       return ([IDL.Id n], [])
-	     _  -> do
-	      stuff <- mapM fillInId ids
-	      let (is, dss) = unzip stuff
-	      return (is, concat dss)
-	return ((ty', attrs, is), ds1 ++ ds)
+           case ids of
+             [] -> do
+               n <- getNewName
+               return ([IDL.Id n], [])
+             _  -> do
+              stuff <- mapM fillInId ids
+              let (is, dss) = unzip stuff
+              return (is, concat dss)
+        return ((ty', attrs, is), ds1 ++ ds)
 
 fillInSwitch :: IDL.Switch -> NSM (IDL.Switch, [IDL.Defn])
 fillInSwitch (IDL.Switch labs arm) = do
          (arm', ds)  <- fillInArm arm
-	 return (IDL.Switch labs arm', ds)
+         return (IDL.Switch labs arm', ds)
 
 fillInArm :: Maybe IDL.SwitchArm -> NSM (Maybe IDL.SwitchArm, [IDL.Defn])
 fillInArm Nothing = return (Nothing, [])
@@ -1681,7 +1681,7 @@ augmentAttributes inh_attrs
         Just (False, ss) -> mapM idlToCoreAttribute ss
         Just (_,ss) -> do
           ss' <- mapM idlToCoreAttribute ss
-	  return (inh_attrs ++ ss')
+          return (inh_attrs ++ ss')
 
 idlToCoreAttribute :: IDL.Attribute -> DsM (Core.Attribute)
 idlToCoreAttribute (IDL.Mode m) =
@@ -1717,17 +1717,17 @@ idlToCoreAttribute (IDL.Attrib i params) = do
 
    convParam (IDL.EmptyAttr)  = return (Core.ParamVoid)
    convParam (IDL.AttrLit (TypeConst tc))  = do
-	ty    <- lookupType tc
+        ty    <- lookupType tc
         mb_ti <- lookupTypeInfo tc
-	let t = 
-	     case ty of
-	       Nothing        -> Core.Name tc tc Nothing Nothing Nothing mb_ti
-	       Just (_,t1,as) -> Core.Name tc tc Nothing (Just as) (Just t1) mb_ti
+        let t = 
+             case ty of
+               Nothing        -> Core.Name tc tc Nothing Nothing Nothing mb_ti
+               Just (_,t1,as) -> Core.Name tc tc Nothing (Just as) (Just t1) mb_ti
         return (Core.ParamType (normaliseType t))
    convParam (IDL.AttrLit l)  = return (Core.ParamLit l)
    convParam (IDL.AttrPtr a)  = do
-	core_a <- convParam a
-	return (Core.ParamPtr core_a)
+        core_a <- convParam a
+        return (Core.ParamPtr core_a)
 
 \end{code}
 
@@ -1748,8 +1748,8 @@ simplifyType liftOut attrs ty
       let addFwdDecl = id
 {-
            case tag of
-	     Just i -> ((IDL.Typedef (IDL.TyStruct tag [] Nothing) [] [i]):)
-	     _      -> id
+             Just i -> ((IDL.Typedef (IDL.TyStruct tag [] Nothing) [] [i]):)
+             _      -> id
 -}
       return (IDL.TyStruct tag mems' mb_pack, addFwdDecl decls)
 
@@ -1783,29 +1783,29 @@ simplifyMembers p_attrs mems (m@(ty, attrs, is):ms)
    let 
         {-
          In case we're lifting a (non-encap) union out of
-	 a struct, make sure we record the type of the switch.
-	-}
+         a struct, make sure we record the type of the switch.
+        -}
        attrs' =
         case ty of
-	  IDL.TyUnionNon{} -> attrs ++ switch_ty_attr
-	  IDL.TyCUnion{}   -> attrs ++ switch_ty_attr
-	  _		   -> attrs
+          IDL.TyUnionNon{} -> attrs ++ switch_ty_attr
+          IDL.TyCUnion{}   -> attrs ++ switch_ty_attr
+          _                -> attrs
 
        switch_ty_attr 
          | any isSwitchType (attrs ++ p_attrs) = []
-	 | otherwise =
-	    case filter (isSwitchIs) (attrs ++ p_attrs) of
-	       (IDL.Attrib _ [l] : _) -> 
-		    let n = fromMaybe "" (findName l) in
-		    case (filter (isField n) mems) of
-		       ((s_ty,_,_):_) -> 
-		       	[IDL.Attrib (IDL.Id "switch_type") 
-				    [IDL.AttrLit (TypeConst (showIDL (PpIDL.ppType s_ty)))]]
-		       _	      -> []
-	       _ -> []
+         | otherwise =
+            case filter (isSwitchIs) (attrs ++ p_attrs) of
+               (IDL.Attrib _ [l] : _) -> 
+                    let n = fromMaybe "" (findName l) in
+                    case (filter (isField n) mems) of
+                       ((s_ty,_,_):_) -> 
+                        [IDL.Attrib (IDL.Id "switch_type") 
+                                    [IDL.AttrLit (TypeConst (showIDL (PpIDL.ppType s_ty)))]]
+                       _              -> []
+               _ -> []
 
 
-	-- ToDo: lift out into utility module.
+        -- ToDo: lift out into utility module.
        findName (IDL.AttrExpr e) = findNameExpr e
        findName IDL.EmptyAttr    = Nothing
        findName (IDL.AttrLit (TypeConst tc)) = Just tc
@@ -1813,28 +1813,28 @@ simplifyMembers p_attrs mems (m@(ty, attrs, is):ms)
        
        findNameExpr expr =
          case expr of
-	   IDL.Binary _ e1 e2 -> findNameExpr e1 `concMaybe` 
-	   			 findNameExpr e2
-	   IDL.Cond e1 e2 e3  -> findNameExpr e1 `concMaybe`
-	    			 findNameExpr e2 `concMaybe`
-	    			 findNameExpr e3
+           IDL.Binary _ e1 e2 -> findNameExpr e1 `concMaybe` 
+                                 findNameExpr e2
+           IDL.Cond e1 e2 e3  -> findNameExpr e1 `concMaybe`
+                                 findNameExpr e2 `concMaybe`
+                                 findNameExpr e3
            IDL.Unary _ e1 -> findNameExpr e1
            IDL.Var v      -> Just v
-	   IDL.Cast _ e   -> findNameExpr e
+           IDL.Cast _ e   -> findNameExpr e
            IDL.Sizeof _   -> Nothing
-	   IDL.Lit (TypeConst tc) -> Just tc
+           IDL.Lit (TypeConst tc) -> Just tc
            IDL.Lit _      -> Nothing
 
        isSwitchIs (IDL.Attrib (IDL.Id "switch_is") _) = True
-       isSwitchIs _			              = False
+       isSwitchIs _                                   = False
        
        isSwitchType (IDL.Attrib (IDL.Id "switch_type") _) = True
-       isSwitchType _			                  = False
+       isSwitchType _                                     = False
        
        isField n (_,_,ss) = any isNm ss
-	 where
-	  isNm (IDL.Id inm) = inm == n
-	  isNm _            = False
+         where
+          isNm (IDL.Id inm) = inm == n
+          isNm _            = False
 
    (ty', ds1) <- simplifyType True (attrs' ++ IDLUtils.childAttributes p_attrs) ty      
    let def   = IDL.Typedef ty' attrs [IDL.Id nm]
@@ -1892,12 +1892,12 @@ tidyDefns orig_ds
     ([], [], ds) -> ds
     (cands, removeds, ds') -> 
       case (tidyDefns' False cands removeds [] ds') of
-	  {- We remove a definition from its original site
-	     only if we can successfully move it to a more appropriate site.
-	     Leftovers in the candidate list that by now haven't found a
-	     better home are simply dropped, and the defns therein are thereby
-	     left at their original site.
-	  -}
+          {- We remove a definition from its original site
+             only if we can successfully move it to a more appropriate site.
+             Leftovers in the candidate list that by now haven't found a
+             better home are simply dropped, and the defns therein are thereby
+             left at their original site.
+          -}
         (_,_,ds'')  ->  ds''
 
   where
@@ -1920,30 +1920,30 @@ tidyDefns orig_ds
        -> 
           if newFlag then
              tidyDefns' newFlag (d:cands) removeds
-	     	                (d:acc_ds) ds
-	  else if d `elem` removeds then
-	     tidyDefns' newFlag cands removeds acc_ds ds
-	  else 
-	     tidyDefns' newFlag cands removeds (d:acc_ds) ds
+                                (d:acc_ds) ds
+          else if d `elem` removeds then
+             tidyDefns' newFlag cands removeds acc_ds ds
+          else 
+             tidyDefns' newFlag cands removeds (d:acc_ds) ds
 
        |  isConstructedTy ty
        && isCompleteTy ty
        && haveForwardRef (tyTag ty) cands 
        -> let 
-	    (new_cands, moved_to_new_home, d')   = moveForwardRef d cands
-	  in
-	  tidyDefns' newFlag
-	  	     new_cands
-		     (d:removeds)   -- (moved_to_new_home ++ removeds)
-		     (d': acc_ds) ds
-		        -- (d':removeDefs moved_to_new_home acc_ds) ds
+            (new_cands, moved_to_new_home, d')   = moveForwardRef d cands
+          in
+          tidyDefns' newFlag
+                     new_cands
+                     (d:removeds)   -- (moved_to_new_home ++ removeds)
+                     (d': acc_ds) ds
+                        -- (d':removeDefs moved_to_new_home acc_ds) ds
 
        |  isMIDLishTy ty 
        && haveMIDLRef (tyTag ty) cands
        -> let 
-	    (new_cands, d')   = moveForwardMIDLRef d cands
-	  in
-	  tidyDefns' newFlag new_cands (d:removeds) (d':removeDef d acc_ds) ds
+            (new_cands, d')   = moveForwardMIDLRef d cands
+          in
+          tidyDefns' newFlag new_cands (d:removeds) (d':removeDef d acc_ds) ds
 
      IDL.TypeDecl ty
        | d `elem` removeds -> tidyDefns' newFlag cands removeds acc_ds ds
@@ -1953,58 +1953,58 @@ tidyDefns orig_ds
        -> 
           let 
             (new_cands, moved_to_new_home, d')  = moveForwardRef d cands
-	  in
-	  tidyDefns' newFlag new_cands
-	             (d:removeds) --removeds --(d:moved_to_new_home ++ removeds)
-	  	     (d': acc_ds) ds
-		        --(d':removeDefs moved_to_new_home acc_ds) ds
+          in
+          tidyDefns' newFlag new_cands
+                     (d:removeds) --removeds --(d:moved_to_new_home ++ removeds)
+                     (d': acc_ds) ds
+                        --(d':removeDefs moved_to_new_home acc_ds) ds
 
        |  isConstructedTy ty
        && haveForwardRef (tyTag ty) cands
-	  {-
-	    If we see "typedef struct _P p; struct _P", remove the 
-	    second decl entirely. 
-	  -}
+          {-
+            If we see "typedef struct _P p; struct _P", remove the 
+            second decl entirely. 
+          -}
        -> tidyDefns' newFlag cands removeds acc_ds ds
 
      IDL.Attributed a a_d -> 
           let
-	    (new_cands,rs,d') = tidyDefns' newFlag cands removeds [] [a_d]
-	    attr_d            = map (IDL.Attributed a) d'
-	  in
-	  tidyDefns' newFlag new_cands rs (attr_d ++ acc_ds) ds
+            (new_cands,rs,d') = tidyDefns' newFlag cands removeds [] [a_d]
+            attr_d            = map (IDL.Attributed a) d'
+          in
+          tidyDefns' newFlag new_cands rs (attr_d ++ acc_ds) ds
 
      IDL.Interface i inh i_ds -> 
           let
-	    i_ds'      
-	     | newFlag    = tidyDefns i_ds
-	     | otherwise  = i_ds
-	  in
-	  tidyDefns' newFlag cands removeds ((IDL.Interface i inh i_ds'):acc_ds) ds
+            i_ds'      
+             | newFlag    = tidyDefns i_ds
+             | otherwise  = i_ds
+          in
+          tidyDefns' newFlag cands removeds ((IDL.Interface i inh i_ds'):acc_ds) ds
 
      IDL.Module i m_ds ->
           let
-	    m_ds'
-	     | newFlag    = tidyDefns m_ds
-	     | otherwise  = m_ds
-	  in
-	  tidyDefns' newFlag cands removeds ((IDL.Module i m_ds'):acc_ds) ds
+            m_ds'
+             | newFlag    = tidyDefns m_ds
+             | otherwise  = m_ds
+          in
+          tidyDefns' newFlag cands removeds ((IDL.Module i m_ds'):acc_ds) ds
 
      IDL.Library i l_ds ->
           let
-	    l_ds'
-	     | newFlag    = tidyDefns l_ds
-	     | otherwise  = l_ds
-	  in
-	  tidyDefns' newFlag cands removeds ((IDL.Library i l_ds'):acc_ds) ds
+            l_ds'
+             | newFlag    = tidyDefns l_ds
+             | otherwise  = l_ds
+          in
+          tidyDefns' newFlag cands removeds ((IDL.Library i l_ds'):acc_ds) ds
 
      IDL.DispInterface i a d_ds ->
           let
-	    d_ds'
+            d_ds'
              | newFlag   = tidyDefns d_ds
-	     | otherwise = d_ds
-	  in
-	  tidyDefns' newFlag cands removeds ((IDL.DispInterface i a d_ds'):acc_ds) ds
+             | otherwise = d_ds
+          in
+          tidyDefns' newFlag cands removeds ((IDL.DispInterface i a d_ds'):acc_ds) ds
 
      _ -> 
        tidyDefns' newFlag cands removeds (d:acc_ds) ds
@@ -2057,7 +2057,7 @@ moveForwardMIDLRef (IDL.Typedef t attrs is) ls =
   nm = tyTag t
 
   isMIDLDefn (IDL.Typedef _ _ t_is) = notNull (filter (midlLooking nm) t_is)
-  isMIDLDefn _			    = False
+  isMIDLDefn _                      = False
 -- should never happen
 moveForwardMIDLRef d ls = trace "moveForwardMIDLRef: funny defn." (ls, d)
 
@@ -2077,7 +2077,7 @@ nameOfImport nm
         c_as <- mapM idlToCoreAttribute as
         case findAttribute "hs_name" c_as of
           Just (Core.Attribute _ [Core.ParamLit (StringLit s)]) -> return s
-	  _ -> return nm
+          _ -> return nm
       _ -> return nm
 
 \end{code}

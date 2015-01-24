@@ -12,21 +12,21 @@ module TLBWriter ( writeTLB ) where
 
 import CoreIDL
 {- BEGIN_SUPPORT_TYPELIBS 
-import IO
+-- import IO
 import BasicTypes
 import System.IO
-import Bits
-import Monad ( when )
-import List  ( intersperse, partition )
+import Data.Bits
+import Control.Monad ( when )
+import Data.List  ( intersperse, partition )
 import PpCore
 
 import Attribute
 import Literal
 import CoreUtils
-import Int
-import Word
-import Monad
-import Maybe ( isJust, fromMaybe )
+import Data.Int
+import Data.Word
+import Control.Monad
+import Data.Maybe ( isJust, fromMaybe )
 import Utils ( safe_init, notNull )
 import TypeInfo
 

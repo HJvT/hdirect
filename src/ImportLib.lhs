@@ -52,15 +52,15 @@ import PpIDLSyn ( showIDL, ppType )
 #endif
 -}
 import System.IO
-import Word	( Word32 )
-import Int
-import NumExts  ( floatToDouble )
+import Data.Word ( Word32 )
+import Data.Int
+import NumExts   ( floatToDouble )
 
-import IO
-import Bits
-import Monad    ( when )
-import List
-import Maybe	( catMaybes )
+-- import IO
+import Data.Bits
+import Control.Monad ( when )
+import Data.List
+import Data.Maybe    ( catMaybes )
 
 \end{code}
 

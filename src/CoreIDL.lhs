@@ -13,7 +13,7 @@ module CoreIDL where
 
 import Literal
 import BasicTypes
-import Int ( Int32 )
+import Data.Int ( Int32 )
 import TypeInfo
 \end{code}
 

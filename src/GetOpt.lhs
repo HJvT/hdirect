@@ -71,7 +71,7 @@ module GetOpt
         ) where
 
 import Utils ( prefix )
-import Monad
+import Control.Monad
 
 infixr 1  `bindOpt`, `seqOpt`
 -- needed for older Hugsen.

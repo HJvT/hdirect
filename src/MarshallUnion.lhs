@@ -19,12 +19,12 @@ import CgMonad
 import CoreIDL
 import MarshallMonad
 import MarshallType
-import MarshallCore   ( toHaskellBaseTy )
+import MarshallCore ( toHaskellBaseTy )
 import CoreUtils
 import LibUtils
-import Utils	      ( trace, traceIf )
-import Char	      ( ord )
-import Opts	      ( optCom )
+import Utils        ( trace, traceIf )
+import Data.Char    ( ord )
+import Opts         ( optCom )
 
 \end{code}
 

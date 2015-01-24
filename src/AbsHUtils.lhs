@@ -196,9 +196,9 @@ import Opts    ( optIntsEverywhere, optIntAsWord
 	       , optIntIsInt, optLongLongIsInteger
 	       , optNoWideStrings
 	       )
-import Maybe   ( fromMaybe, isJust )
-import Char    ( isLower )
-import List    ( mapAccumL, intersperse )
+import Data.Maybe   ( fromMaybe, isJust )
+import Data.Char    ( isLower )
+import Data.List    ( mapAccumL, intersperse )
 
 -- This should be the default, but older versions (e.g., Jan 98) of
 -- Hugs insist on this one..

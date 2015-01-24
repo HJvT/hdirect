@@ -17,12 +17,12 @@ import PP
 import Opts  ( optDebug, optHaskellToC, optShortHeader,
 	       optCompilingMsIDL
 	     )
-import List  ( partition )
-import Utils ( mapMb, notNull )
-import Attribute ( hasAttributeWithName )
+import Data.List  ( partition )
+import Utils      ( mapMb, notNull )
+import Attribute  ( hasAttributeWithName )
 
-import Maybe ( fromMaybe )
-import Char  ( isAlphaNum, toUpper )
+import Data.Maybe ( fromMaybe )
+import Data.Char  ( isAlphaNum, toUpper )
 
 \end{code}
 

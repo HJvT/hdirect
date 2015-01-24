@@ -52,11 +52,11 @@ import SrcLoc
 import IDLToken
 import IDLSyn
 import PreProc
-import Utils   ( tryOpen, dropSuffix )
-import Opts    ( optVerbose, optConvertImportLibs )
-import IO      ( hPutStrLn, stderr )
-import Monad   ( when )
-import Char    ( toLower )
+import Utils          ( tryOpen, dropSuffix )
+import Opts           ( optVerbose, optConvertImportLibs )
+import System.IO      ( hPutStrLn, stderr )
+import Control.Monad  ( when )
+import Data.Char      ( toLower )
 
 -- components threaded by the monad (apart from
 -- the IO token.)

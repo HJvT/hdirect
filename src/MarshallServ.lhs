@@ -44,8 +44,8 @@ import Opts
         )
 
 -- standard libraries:
-import Monad ( when )
-import Maybe
+import Control.Monad ( when )
+import Data.Maybe
 
 \end{code}
 

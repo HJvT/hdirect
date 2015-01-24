@@ -16,7 +16,7 @@ module Bag (
 	listToBag, bagToList
     ) where
 
-import List(partition)
+import Data.List(partition)
 
 data Bag a
   = EmptyBag

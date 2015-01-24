@@ -109,16 +109,16 @@ import qualified CoreIDL as Core (Expr(..),Type(..))
 import DsMonad
 import BasicTypes
 import Literal
-import Int
-import Word    ( Word16 )
-import Bits
-import Utils   ( notNull )
-import List   ( isPrefixOf, find )
-import Char   ( isDigit, isAlpha, isSpace )
-import Opts   ( optUnwrapSingletonStructs, optOnlyRemoveDefns )
+import Data.Int
+import Data.Word   ( Word16 )
+import Data.Bits
+import Utils       ( notNull )
+import Data.List   ( isPrefixOf, find )
+import Data.Char   ( isDigit, isAlpha, isSpace )
+import Opts        ( optUnwrapSingletonStructs, optOnlyRemoveDefns )
 import Digraph
-import Maybe
-import Monad
+import Data.Maybe
+import Control.Monad
 import PpIDLSyn
 import Env
 

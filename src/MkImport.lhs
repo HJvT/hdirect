@@ -21,7 +21,7 @@ import Env
 import LibUtils  ( bitsLib, prelude, fromEnumName, toEnumName )
 import BasicTypes
 
-import List   ( nub )
+import Data.List   ( nub )
 import Opts   ( optNoImportLists, optQualInstanceMethods, optNoQualNames,
 		optLongLongIsInteger )
 import Utils  ( concMaybe )

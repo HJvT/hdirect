@@ -31,7 +31,7 @@ import Attribute ( hasAttributeWithName, findAttribute )
 import LibUtils ( autoLib )
 import Opts  ( optOptionalAsMaybe
 	     )
-import Maybe ( isJust )
+import Data.Maybe ( isJust )
 import Literal
 
 \end{code}

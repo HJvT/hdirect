@@ -37,10 +37,10 @@ import MarshallDep ( marshallDependents
 		   , unmarshallDependents
 		   )
 import MarshallCore
-import List	   ( findIndex, partition )
-import Maybe	   ( mapMaybe  )
-import Utils	   ( diff, notNull )
-import Opts	   ( optCom )
+import Data.List   ( findIndex, partition )
+import Data.Maybe  ( mapMaybe  )
+import Utils       ( diff, notNull )
+import Opts        ( optCom )
 
 \end{code}
 

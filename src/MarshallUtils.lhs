@@ -42,7 +42,7 @@ import PpAbstractH ( ppType, showAbstractH )
 import LibUtils
 
 import Literal
-import List  ( intersperse )
+import Data.List  ( intersperse )
 import Utils ( notNull )
 import Opts  ( optShowIDLInComments, optIgnoreHelpstring,
 	       optCorba, optHaskellToC, optJNI, optSubtypedInterfacePointers )

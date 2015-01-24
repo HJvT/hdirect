@@ -28,7 +28,7 @@ import MarshallServ   ( cgServMethod )
 import MarshallMethod ( cgMethod )
 import MarshallCore
 
-import Maybe
+import Data.Maybe
 
 \end{code}
 

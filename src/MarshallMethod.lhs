@@ -93,9 +93,9 @@ import LibUtils ( comLib
 		, checkHR
 		)
 
-import Maybe  ( fromMaybe, isJust, fromJust )
-import Monad       ( when, mplus )
-import Utils	   ( concMaybe )
+import Data.Maybe    ( fromMaybe, isJust, fromJust )
+import Control.Monad ( when, mplus )
+import Utils         ( concMaybe )
 
 \end{code}
 

@@ -24,7 +24,7 @@ module TypeInfo
 import BasicTypes
 import NativeInfo
 import Opts
-import Maybe
+import Data.Maybe
 import AbsHUtils
 import AbstractH ( Type )
 import LibUtils  ( comLib )

@@ -15,7 +15,7 @@ import Utils ( traceIf )
 import Opts  ( optVerbose, optLongLongIsInteger,
 	       optGenHeader, optOneModulePerInterface
 	     )
-import List  ( nub, intersperse )
+import Data.List  ( nub, intersperse )
 import Utils ( notNull, dropSuffix )
 \end{code}
 

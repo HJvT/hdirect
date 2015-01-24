@@ -13,7 +13,7 @@ import PP
 import Literal
 import BasicTypes
 import Utils
-import Maybe
+import Data.Maybe
 import Opts ( optDebug, optIncludeAsImport, optExcludeSysIncludes )
 
 type IDLDoc = PPDoc ()

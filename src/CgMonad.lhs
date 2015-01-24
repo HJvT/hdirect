@@ -83,7 +83,7 @@ import Env
 import AbstractH
 import CoreIDL    ( Result, Param, Id, Attribute )
 import Opts	  ( optServer, optOneModulePerInterface )
-import Maybe	  ( fromMaybe )
+import Data.Maybe	  ( fromMaybe )
 import BasicTypes ( QualName )
 
 \end{code}

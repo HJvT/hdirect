@@ -10,10 +10,10 @@ module Opts where
 
 import Data.IORef
 import GetOpt
-import System
+import System.Environment
 import System.IO.Unsafe ( unsafePerformIO)
-import IO     ( hPutStrLn, stderr )
-import Monad  ( when )
+import System.IO     ( hPutStrLn, stderr )
+import Control.Monad  ( when )
 import Utils  ( split, trace, notNull )
 import Version
 {- BEGIN_USE_REGISTRY

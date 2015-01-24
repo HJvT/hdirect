@@ -16,14 +16,15 @@ module PreProc
 
 import Data.IORef
 import System.IO.Unsafe
-import CPUTime
-import System  ( getEnv, system )
+import System.CPUTime
+import System.Environment ( getEnv )
+import Control.Exception
+import System.Process     ( system )
 import Opts    ( optDebug, optCpp, optinclude_cppdirs, optcpp_defines )
-import List    ( intersperse )
+import Data.List    ( intersperse )
 import Utils   ( prefixDir )
-import IO
 import System.IO
-import Monad
+import Control.Monad
 
 count :: IORef Int
 count = unsafePerformIO (newIORef 0)
@@ -40,8 +41,10 @@ preProcessFile fname
   writeIORef prefix pt
   v   <- readIORef count
   writeIORef count (v+1)
-  tmp <- catch (getEnv "TMPDIR") 
-               (\ _ -> return "/tmp/")
+--  tmp <- catch (getEnv "TMPDIR") 
+--               (\ _ -> return "/tmp/")
+  tmp <- getEnv "TMPDIR" 
+                `onException` return "/tmp/"
   let tmpnam = prefixDir tmp ("ihc" ++ show pt ++ show v)
   let
       tmpnam1 = tmpnam ++ ".c"
@@ -65,8 +68,10 @@ preProcessFile fname
 	" -D__const=const" ++
         ' ':unwords optcpp_defines
 
-  cpp <- catch (getEnv "CPP")
-               (\ _ -> return ("gcc -E -x c"))
+--  cpp <- catch (getEnv "CPP")
+--               (\ _ -> return ("gcc -E -x c"))
+  cpp <- getEnv "CPP"
+                `onException` return ("gcc -E -x c")
   hdl <- openFile tmpnam1 WriteMode
   hPutStrLn hdl oput
   hClose hdl
@@ -78,11 +83,15 @@ preProcessFile fname
 removeTmp :: IO ()
 removeTmp = do
   pt <- readIORef prefix
-  tmp <- catch (getEnv "TMPDIR")
-               ( \ _ -> return "/tmp/")
+--  tmp <- catch (getEnv "TMPDIR")
+--               ( \ _ -> return "/tmp/")
+  tmp <- getEnv "TMPDIR"
+                `onException` return "/tmp/"
   let tmpnam = prefixDir tmp ("ihc" ++ show pt ++ "*")
-  del_cmd <- catch (getEnv "DELPROG")
-                   ( \ _ -> return "rm -f")
+--  del_cmd <- catch (getEnv "DELPROG")
+--                   ( \ _ -> return "rm -f")
+  del_cmd <- getEnv "DELPROG"
+                    `onException` return "rm -f"
   let cmd    = del_cmd ++ ' ':tmpnam
   when optDebug (hPutStrLn stderr ("Clearing out temporary files: " ++ cmd))
   system cmd

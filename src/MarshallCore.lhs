@@ -49,12 +49,12 @@ import Attribute
 import Literal
 import LibUtils
 import PpCore
-import Utils    ( notNull, trace )
+import Utils      ( notNull, trace )
 import Opts
-import TypeInfo ( TypeInfo(..) )
+import TypeInfo   ( TypeInfo(..) )
 
-import Maybe
-import List     ( nub )
+import Data.Maybe
+import Data.List  ( nub )
 
 \end{code}
 

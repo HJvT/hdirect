@@ -47,7 +47,7 @@ import CoreIDL
 import CoreUtils
 import PpCore ( showCore, ppType )
 
-import Maybe ( fromMaybe, isJust, fromJust )
+import Data.Maybe ( fromMaybe, isJust, fromJust )
 
 import MarshallCore
 import MarshallMonad

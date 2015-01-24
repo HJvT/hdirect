@@ -54,12 +54,12 @@ import CgMonad
 import CoreIDL
 import CoreUtils
 import Attribute
-import List  ( partition, intersperse, isPrefixOf )
+import Data.List  ( partition, intersperse, isPrefixOf )
 import Utils ( dropSuffix, trace, basename, split,
 	       splitdir, prefixDir, notNull
 	     )
-import Maybe ( mapMaybe, isJust )
-import Monad ( when )
+import Data.Maybe ( mapMaybe, isJust )
+import Control.Monad ( when )
 
 import Env
 \end{code}
