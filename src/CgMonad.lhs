@@ -85,6 +85,7 @@ import CoreIDL    ( Result, Param, Id, Attribute )
 import Opts       ( optServer, optOneModulePerInterface )
 import Data.Maybe         ( fromMaybe )
 import BasicTypes ( QualName )
+import Control.Monad ( ap, liftM )
 
 \end{code}
 
@@ -293,6 +294,13 @@ instance Monad CgM where
            case a env st of
              (v, st1) -> let CgM b = f v in b env st1)
   return v = CgM (\ _ st -> (v, st))
+
+instance Applicative CgM where
+    pure  = return
+    (<*>) = ap
+
+instance Functor CgM where
+  fmap = liftM
 
 \end{code}
 

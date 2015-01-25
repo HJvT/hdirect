@@ -7675,9 +7675,14 @@ happyReduction_359 _
                  (()
         )
 
+happyNewToken :: (Int# -> HappyReduction)
+                 -> [HappyState IDLToken (HappyStk HappyAbsSyn -> LexM HappyAbsSyn)] 
+                 -> HappyStk HappyAbsSyn 
+                 -> LexM HappyAbsSyn
 happyNewToken action sts stk
         = lexIDL(\tk -> 
-        let cont i = action i i tk (HappyState action) sts stk in
+        let cont :: Int# -> LexM HappyAbsSyn
+            cont i = action i i tk (HappyState action) sts stk in
         case tk of {
         T_eof -> action 199# 199# (error "reading EOF!") (HappyState action) sts stk;
         T_semi -> cont 117#;

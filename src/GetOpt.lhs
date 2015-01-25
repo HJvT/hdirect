@@ -71,6 +71,7 @@ module GetOpt
         ) where
 
 import Utils ( prefix )
+import Control.Applicative
 import Control.Monad
 
 infixr 1  `bindOpt`, `seqOpt`
@@ -136,6 +137,10 @@ instance Monad (Opt s) where
   a >>= b = bindOpt a b
   return  = returnOpt
 
+instance Applicative (Opt s) where
+    pure  = return
+    (<*>) = ap
+
 instance Functor (Opt s) where
   fmap = mapOpt
 
@@ -143,6 +148,10 @@ instance MonadPlus (Opt s) where
   mplus = thenOpt    
   mzero = failed
   
+instance Alternative (Opt s) where
+  (<|>) = mplus
+  empty = mzero
+
  -- no match.
 failed :: Opt a b
 failed = Opt (\ _ _ -> Nothing)

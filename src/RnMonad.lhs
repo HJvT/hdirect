@@ -62,6 +62,7 @@ import CoreUtils
 import BasicTypes
 import Data.Maybe ( isJust )
 import Utils
+import Control.Monad
 \end{code}
 
 \begin{code}
@@ -458,5 +459,12 @@ instance Monad RnM where
               (v, st') -> let (RnM act) = n v in
                            act env st')
   return v = RnM (\ _ st -> (v,st))
+
+instance Applicative RnM where
+    pure  = return
+    (<*>) = ap
+
+instance Functor RnM where
+  fmap = liftM
 
 \end{code}

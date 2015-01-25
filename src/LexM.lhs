@@ -55,7 +55,7 @@ import PreProc
 import Utils          ( tryOpen, dropSuffix )
 import Opts           ( optVerbose, optConvertImportLibs )
 import System.IO      ( hPutStrLn, stderr )
-import Control.Monad  ( when )
+import Control.Monad  ( ap, liftM, when )
 import Data.Char      ( toLower )
 
 -- components threaded by the monad (apart from
@@ -214,6 +214,13 @@ mapLexM f (LexM m) =
 instance Monad LexM where
   (>>=)  = thenLexM
   return = returnLexM
+
+instance Applicative LexM where
+    pure  = return
+    (<*>) = ap
+
+instance Functor LexM where
+  fmap = liftM
 
 \end{code}
 

@@ -82,7 +82,7 @@ import Env
 import Data.IORef ( IORef, newIORef, readIORef, writeIORef )
 import System.IO  ( hPutStrLn, stderr )
 import Data.Int ( Int32 )
-import Control.Monad ( when )
+import Control.Monad ( ap, when )
 import Opts  ( optVerbose, optDebug )
 import Data.Maybe ( catMaybes )
 import TypeInfo
@@ -446,7 +446,15 @@ instance Monad DsM where
   (>>=)  = thenDsM
   return = returnDsM
 
+instance Applicative DsM where
+    pure  = return
+    (<*>) = ap
+
 mapDsM :: (a -> b) -> DsM a -> DsM b
 mapDsM f m =  m >>= \ v -> return (f v)
+
+instance Functor DsM where
+  fmap = mapDsM
+
 
 \end{code}

@@ -18,6 +18,8 @@ module NameSupply
         , runNS
         ) where
 
+import Control.Monad ( ap )
+
 \end{code}
 
 %************************************************************************
@@ -41,6 +43,13 @@ instance Monad NSM where
                     (NSM h)             = g result1 
                 in h ns1)
   return a      = NSM (\ns -> (a, ns))
+
+instance Applicative NSM where
+    pure  = return
+    (<*>) = ap
+
+instance Functor NSM where
+    fmap  = mapNSM
 
 getNewNames :: Int -> NSM [String]
 getNewNames i = NSM (\ns -> splitAt i ns)

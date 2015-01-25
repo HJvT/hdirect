@@ -26,6 +26,7 @@ import AbstractH ( Expr(..), Pat(..) )
 import qualified Env
 import BasicTypes
 import LibUtils ( prelReturn )
+import Control.Monad
 
 data Mm a = Mm (Maybe String -> NameEnv -> (a, Cont, NameEnv))
 
@@ -96,6 +97,13 @@ returnMm v = Mm ( \ _ s -> (v,id,s))
 instance Monad Mm where
   (>>=)   = thenMm
   return  = returnMm
+
+instance Applicative Mm where
+    pure  = return
+    (<*>) = ap
+
+instance Functor Mm where
+  fmap = liftM
 
 getMethodName :: Mm (Maybe String)
 getMethodName = Mm (\ nm env -> (nm, id, env))
