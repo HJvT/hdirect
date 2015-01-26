@@ -18,6 +18,7 @@ module NameSupply
         , runNS
         ) where
 
+import Control.Applicative
 import Control.Monad ( ap )
 
 \end{code}

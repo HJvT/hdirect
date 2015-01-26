@@ -46,6 +46,7 @@ module LexM
        , returnLexM
        ) where
 
+import Control.Applicative
 import Data.IORef
 import qualified SymbolTable
 import SrcLoc

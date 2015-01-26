@@ -4,9 +4,13 @@ for Haskell.
 For details of how to compile this distribution, please consult the
 INSTALL file. General package info in ANNOUNCE.
 
+N.B. This version is compilable but may need some more changes to
+adjust output to current GHC
+
 Author:  
          Sigbjorn Finne <sof@dcs.gla.ac.uk>
 
-Contributor:
+Contributors:
          Daan Leijen <daan@cs.uu.nl>
+         Henk-Jan van Tuyl
 

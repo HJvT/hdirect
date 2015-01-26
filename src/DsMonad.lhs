@@ -75,6 +75,7 @@ module DsMonad
 
         ) where
 
+import Control.Applicative
 import CoreIDL
 import qualified IDLSyn as IDL ( Attribute )
 import CoreUtils ( childAttributes )

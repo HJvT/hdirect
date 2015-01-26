@@ -26,6 +26,7 @@ import AbstractH ( Expr(..), Pat(..) )
 import qualified Env
 import BasicTypes
 import LibUtils ( prelReturn )
+import Control.Applicative
 import Control.Monad
 
 data Mm a = Mm (Maybe String -> NameEnv -> (a, Cont, NameEnv))

@@ -62,6 +62,7 @@ import CoreUtils
 import BasicTypes
 import Data.Maybe ( isJust )
 import Utils
+import Control.Applicative
 import Control.Monad
 \end{code}
 

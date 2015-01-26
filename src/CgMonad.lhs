@@ -85,6 +85,7 @@ import CoreIDL    ( Result, Param, Id, Attribute )
 import Opts       ( optServer, optOneModulePerInterface )
 import Data.Maybe         ( fromMaybe )
 import BasicTypes ( QualName )
+import Control.Applicative
 import Control.Monad ( ap, liftM )
 
 \end{code}
